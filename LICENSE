@@ -2,7 +2,8 @@
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 
-本仓库代码按 GNU Affero 通用公共许可证 3.0 或更新版本授权（规范全文如下）。
+本仓库代码按 GNU Affero 通用公共许可证 3.0 或更新版本授权（规范全文如下）；
+例外：`packages/editor/`（编辑器包）按 Mozilla 公共许可证 2.0 授权（见 packages/editor/LICENSE）。
 公开文档按 CC BY-SA 4.0 授权（全文见 LICENSE-DOCS）。
 
                     GNU AFFERO GENERAL PUBLIC LICENSE

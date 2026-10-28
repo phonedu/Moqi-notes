@@ -4,7 +4,8 @@
 
 ## 环境
 
-- Node.js ≥ 20（开发使用 22）
+- Node.js 22（CI 同版本）
+
 - pnpm 9（`corepack enable`）
 - Rust（stable 工具链）
 - Windows（桌面与 Android 构建官方支持的平台；Android 构建另需 Android SDK）

@@ -3,4 +3,4 @@
 # （2026-10-07 补媒体样本时发现：CSV 被 CRLF 化，65 字节变 67）。**路径要写仓库根起的全路径**，
 # 写 `app/...` 是不生效的（第一次就写错了一版，`git check-attr` 一照就露馅）。
 * text=auto
-project-b/app/fixtures/library/assets/** -text
+app/fixtures/library/assets/** -text

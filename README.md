@@ -25,6 +25,10 @@
   </tr>
 </table>
 
+## 下载
+
+安装包与 Android APK 在 [GitHub Releases](https://github.com/phonedu/Moqi-notes/releases)（随发布挂出）；也可以从源码构建：
+
 ## 从源码构建
 
 ```bash

@@ -146,9 +146,7 @@ export class OpenAICompatibleAIPort implements AIPort {
 }
 
 /**
- * 七条系统提示词（`AiAction` → 文本）。**全文与修订历史另有一份活文档：`docs/12-AI提示词.md`**
- * ——改这里必须同步改那边，两边逐字一致由 `test:PROMPT-DOC-1` 把关（提示词是内容资产，
- * 会按阶段反复修改；用户 2026-10-05 裁决：自己做、住 `docs/12`）。
+ * 七条系统提示词（`AiAction` → 文本）。唯一真源 = 本文件的 `SYSTEM_PROMPTS`（公开仓库不维护镜像文档；对照版见 docs/PROMPTS.md）。
  *
  * 共同口径：**只输出正文**、不写「以下是…」这类前言、不加标题与说明——
  * 结果会直接落成块，多一句前言就多一段要用户手动删的字。

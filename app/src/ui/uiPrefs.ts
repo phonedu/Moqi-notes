@@ -14,7 +14,7 @@ export type LineHeightStep = 'tight' | 'normal' | 'loose'
 export type ColumnWidthStep = 'narrow' | 'normal' | 'wide'
 
 /**
- * 主题目录（docs/13-视觉批设计（已归档） §4.3 / 指令 §10.5）：id 英文小写连字符、发布后不改；
+ * 主题目录（主题设计稿 §4.3，20 套主题随包 themes.css）：id 英文小写连字符、发布后不改；
  * 显示名「轴·彩」中文四字内。**主题包**在 themes.css（19 套）+ tokens.css 的 :root（默认这套），
  * 本表只管「有哪些、叫什么」——加主题：themes.css 加一个令牌块 + 这里加一行 + 跑 `pnpm check:theme`。
  */
@@ -159,7 +159,7 @@ export function resolveTheme(mode: ThemeMode): 'light' | 'dark' {
 export function applyAppearance(prefs: Pick<UiPrefs, 'themeId' | 'mode' | 'fontSize' | 'lineHeight' | 'columnWidth'>): void {
   try {
     const root = document.documentElement
-    // 两轴独立：主题 id 挂 data-theme、浅深挂 data-mode（docs/13-视觉批设计（已归档） §2）。
+    // 两轴独立：主题 id 挂 data-theme、浅深挂 data-mode（主题设计稿 §2）。
     root.dataset.theme = prefs.themeId
     root.dataset.mode = resolveTheme(prefs.mode)
     // 排版三轴：档位即钳制，CSS 里只认这三档（tokens.css 末尾的 data-fs / data-lh / data-colw 块）。

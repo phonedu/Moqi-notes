@@ -11,6 +11,8 @@
 | `M-数字` | 编辑器模块化批次（M0–M7，见 packages/editor 各模块头注释） |
 | `PAGENAME-*` / `MOBILE-*` / `R09-EXPORT-*` 等 | 验收项 ID（自动化验收脚本里的断言名） |
 
+另外：代码注释里还会引用 `docs/NN §X`、`07-验收记录.md` 这类**内部开发仓**的文档位置——它们不随本仓库公开，阅读时以代码与注释上下文为准。
+
 两条最有用的入口：
 - **数据与行为契约**：`packages/editor/src/domain/` 的模块注释
 - **验收脚本**：`app/scripts/accept-editor.mjs`（214 项浏览器级断言，每项名字即行为 ID）
