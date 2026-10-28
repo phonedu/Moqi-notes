@@ -5997,7 +5997,7 @@ check('IMPORT-ZIP-1 导入包（第 13 项「拖入 zip」）：拖入 .zip = �
   && zipImported.pages.some((name) => (zipImported.openPage ?? '').startsWith(name)) /* 开的是导入的那几篇之一（第一篇按路径序） */
   && (zipBackup.toast ?? '').includes('整库备份包')
   && (zipBackup.toast ?? '').includes('设置 › 备份与恢复')
-  && zipBackup.pages === zipImported.pages.length + 1 /* 项目 B + 2 */
+  && zipBackup.pages === zipImported.pages.length + 1 /* 基线页 + 新建 1 页 */
   , { zipImported, zipBackup })
 
 
