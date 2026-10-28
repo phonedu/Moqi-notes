@@ -459,46 +459,11 @@ svg { color: inherit; }
    待办框 / AI 标签行会浮在格式栏与窗口栏之上（用户实测 ：「AI 块上面的字直接浮在格式栏
    窗口栏上面」）。规则：头部取自令牌的 --z-sticky（100）——高于覆盖层（5/6），低于菜单弹层（300）。 */
 .wbar { position: relative; z-index: var(--z-sticky); }
-.fmtbar { position: relative; z-index: var(--z-sticky); }
 .prop-wrap { position: relative; z-index: var(--z-sticky); }
 .topbar { position: relative; z-index: var(--z-sticky); }
 
-.fmtbar {
-  flex-shrink: 0;
-  height: var(--fmtbar-h);
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0 20px;
-  background: var(--panel);
-  /* 常驻格式栏底线 → 阴影浮起（v3 §二-B） */
-  box-shadow: var(--shadow);
-}
-.fmtbar .div { width: 1px; height: 16px; flex-shrink: 0; margin: 0 5px; background: var(--border); }
-.fmtbar button {
-  height: 28px;
-  min-width: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 8px;
-  border-radius: var(--r-block);
-  color: var(--icon-idle);
-  font-size: var(--type-footnote-size); line-height: var(--type-footnote-line);
-  transition: all var(--dur-fast);
-}
-.fmtbar button:hover:not(:disabled) { background: var(--hover); }
-.fmtbar button:disabled { color: var(--text-3); cursor: not-allowed; }
-.fmtbar button.is-on { background: var(--accent-soft); color: var(--accent-text); }
-.fmtbar .fb-type { gap: 4px; color: var(--text); font-family: var(--sans); font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); font-weight: 600; }
-.fmtbar .fb-ai { color: var(--accent-text); }
-/* 折叠（`R09-FMT-21`）：只留折叠条与箭头，状态记本机（`uiPrefs.fmtBarCollapsed`）。 */
-.fmtbar.is-collapsed { height: 16px; }
-.fmtbar.is-collapsed { display: none; } /* 折叠 = 整条栏消失（入口在 ⋯ 菜单， 用户裁决） */
-
 /* 专注模式：侧栏、顶栏、格式栏、属性钉住区全部隐去，正文列上移（docs/09 §6.7） */
 body.is-focus .sidebar { margin-left: calc(-1 * var(--side-w)); opacity: 0; pointer-events: none; }
-body.is-focus .fmtbar,
 body.is-focus .topbar,
 body.is-focus .prop-wrap { display: none; }
 
@@ -2214,13 +2179,16 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 /* 窄屏（<900px）：侧栏改为覆盖式抽屉，避免正文列被挤到不可读（原型同值：
    设计原稿在 innerWidth<900 时给 body 加 no-side）。 */
 @media (max-width: 899px) {
-  .sidebar { position: fixed; inset: 0 auto 0 0; z-index: var(--z-drawer); box-shadow: var(--shadow-lg); }
+  .sidebar { position: fixed; inset: 0 auto 0 0; z-index: var(--z-drawer); box-shadow: var(--shadow-lg);
+    /* 关闭态 = 整体隐藏（含阴影）：visibility 延迟到滑出动画结束才翻转，阴影不再渗进屏幕左缘（用户 2026-10-28） */
+    visibility: hidden; transition: transform 250ms ease, visibility 0s linear 250ms; }
   /* 抽屉是 fixed 浮层、不吃 body 的安全区内边距（`D-068` 真机：导航行直冲状态栏）——顶部自己让出。 */
   .sidebar { padding-top: env(safe-area-inset-top, 0px); }
   .side-backdrop { position: fixed; inset: 0; z-index: calc(var(--z-drawer) - 1); background: rgba(32, 32, 39, .32); }
   /* 抽屉形态（`10` §4.5，4b-③）：**左侧滑出 250ms**——宽窄两套抽屉的「收合」合一成滑出。
      原来窄档靠 margin 负值收合：不滑、像整块被抽走；桌面并排档仍按意图收起（margin 那条不上窄档）。 */
-  .sidebar { transition: transform 250ms ease; }
+  .sidebar { transition: transform 250ms ease, visibility 0s; }
+  .sidebar:not(.is-collapsed) { visibility: visible; }
   .sidebar.is-collapsed { margin-left: 0; opacity: 1; transform: translateX(-100%); }
 }
 
@@ -2304,8 +2272,6 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
      4a 探针实测：不改这两行，☰ 打开的侧栏被首页整条压住（点不进去、遮罩也被首页拦截）。 */
   .side-backdrop { z-index: calc(var(--z-drawer) + 2); }
   .sidebar { z-index: calc(var(--z-drawer) + 3); }
-  /* 常驻格式栏是桌面件（移动端的格式入口 = 编辑态的键盘上方格式栏 / 块胶囊，§4.3）。 */
-  .fmtbar { display: none; }
   /* 底栏三键（`10` §三：54px，仅编辑器、只读态）：绝对贴 ed-col 底部、让开安全区。 */
   .mdock {
     position: absolute;

@@ -17,9 +17,7 @@ export type SyncStatus =
   | { kind: 'syncing'; done: number; total: number }
   | { kind: 'offline'; pending: number }
 
-/** 页面卡片属性行的 chip（按「卡片显隐」状态过滤后传入）。 */
-export type CardChip = { id: string; label: string; kind: 'kv' | 'tag' }
-/** 页面库卡片（docs/09 §4.1.1 四段结构）。 */
+/** 页面库卡片（docs/09 §4.1.1 两段结构）。 */
 export type LibraryCard = {
   id: string
   name: string
@@ -27,7 +25,6 @@ export type LibraryCard = {
   paragraphs: string[]
   createdLabel: string
   updatedLabel: string
-  chips: CardChip[]
   backlinkCount: number
   /** V2b：页面置顶（最多 5 个）。卡片头部据此显示置顶标记，⋯ 菜单据此切换文案。 */
   pinned: boolean

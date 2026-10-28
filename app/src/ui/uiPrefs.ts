@@ -1,5 +1,5 @@
 /**
- * UI 偏好（主题、卡片显隐、侧栏折叠）属于界面状态而不是 Block 领域数据：
+ * UI 偏好（主题、侧栏折叠等）属于界面状态而不是 Block 领域数据：
  * 它们不参与 Block 事务、不写入 SQLite，只在本机记住用户的界面选择。
  * 存储不可用时全部退回默认值，界面不能因为偏好读写失败而失效。
  */
@@ -60,9 +60,7 @@ export type UiPrefs = {
   fontSize: FontSizeStep
   lineHeight: LineHeightStep
   columnWidth: ColumnWidthStep
- /** 页面库卡片属性行上被「卡片显隐」关掉的字段 id（属性定义 id 或系统字段 id；入口在属性行的 ⋯ 菜单， 起）。 */
-  hiddenCardFields: string[]
- /** 最近挂到页面上的属性定义 id（最新在前；添加属性弹窗的「最近使用」组， 新设计）。 */
+  /** 最近挂到页面上的属性定义 id（最新在前；添加属性弹窗的「最近使用」组， 新设计）。 */
   recentProperties: string[]
   sidebarCollapsed: boolean
   /** 页面库形态：画册 / 列表 / 简约（docs/09 §4.1）。 */
@@ -81,16 +79,12 @@ export type UiPrefs = {
   importInlineTags: boolean
 }
 
-/** 系统字段 id（docs/09 §4.4：日期与星标默认闭眼，头部已有时间与 ★）。 */
-export const SYSTEM_FIELD_IDS = { tags: 'sys:tags', created: 'sys:created', edited: 'sys:edited', star: 'sys:star' } as const
-
 export const defaultUiPrefs: UiPrefs = {
   themeId: 'default',
   mode: 'light',
   fontSize: 'normal',
   lineHeight: 'normal',
   columnWidth: 'normal',
-  hiddenCardFields: [SYSTEM_FIELD_IDS.created, SYSTEM_FIELD_IDS.edited, SYSTEM_FIELD_IDS.star],
   recentProperties: [],
   sidebarCollapsed: false,
   libraryView: 'list',
@@ -120,7 +114,6 @@ export function loadUiPrefs(): UiPrefs {
       fontSize: parsed.fontSize === 'small' || parsed.fontSize === 'large' || parsed.fontSize === 'xlarge' ? parsed.fontSize : 'normal',
       lineHeight: parsed.lineHeight === 'tight' || parsed.lineHeight === 'loose' ? parsed.lineHeight : 'normal',
       columnWidth: parsed.columnWidth === 'narrow' || parsed.columnWidth === 'wide' ? parsed.columnWidth : 'normal',
-      hiddenCardFields: Array.isArray(parsed.hiddenCardFields) ? parsed.hiddenCardFields.filter((id): id is string => typeof id === 'string') : [...defaultUiPrefs.hiddenCardFields],
       recentProperties: Array.isArray(parsed.recentProperties) ? parsed.recentProperties.filter((id): id is string => typeof id === 'string').slice(0, 6) : [],
       sidebarCollapsed: parsed.sidebarCollapsed === true,
       // 只认显式的 `false`：老偏好（没这一项）落到默认值「收」（与 defaultUiPrefs 一致）。
@@ -169,17 +162,6 @@ export function applyAppearance(prefs: Pick<UiPrefs, 'themeId' | 'mode' | 'fontS
   } catch {
     // 无 document 的环境（测试）直接跳过。
   }
-}
-
-export function isFieldVisible(prefs: UiPrefs, fieldId: string): boolean {
-  return !prefs.hiddenCardFields.includes(fieldId)
-}
-
-export function toggleField(prefs: UiPrefs, fieldId: string): UiPrefs {
-  const hidden = prefs.hiddenCardFields.includes(fieldId)
-    ? prefs.hiddenCardFields.filter((id) => id !== fieldId)
-    : [...prefs.hiddenCardFields, fieldId]
-  return { ...prefs, hiddenCardFields: hidden }
 }
 
 /** 挂属性时记一笔「最近使用」（最新在前、去重、上限 6 条；添加属性弹窗的快捷组数据源）。 */

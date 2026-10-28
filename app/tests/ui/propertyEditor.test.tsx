@@ -26,7 +26,7 @@ function harness() {
   let registry = emptyRegistry()
   const toasts: string[] = []
   let closed = 0
-  let prefs: UiPrefs = { hiddenCardFields: [], recentProperties: [] } as unknown as UiPrefs
+  let prefs: UiPrefs = { recentProperties: [] } as unknown as UiPrefs
   let api: ReturnType<typeof usePropertyEditor> | null = null
 
   const Probe = () => {

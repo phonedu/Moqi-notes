@@ -164,7 +164,6 @@
   --wbar-h: 40px; /* 标题栏（三色分块体系 §一-3：40px，主列首行、与顶栏同色融合） */
   --ref-w: 340px;
   --topbar-h: 44px;
-  --fmtbar-h: 40px;
   --lib-col-min: 340px;
   /* 编辑器左侧「页面列表」列宽（docs/09 §八） */
   --pagecol-w: 350px;

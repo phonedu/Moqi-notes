@@ -12,10 +12,6 @@ const cards: LibraryCard[] = [{
   paragraphs: ['约束条件：每周可投入时间 ≤ 10 小时。', '方向一：独立开发。'],
   createdLabel: '09-21',
   updatedLabel: '3 小时前',
-  chips: [
-    { id: 'status', label: '状态 · 进行中', kind: 'kv' },
-    { id: 'tag-1', label: '#副业', kind: 'tag' },
-  ],
   backlinkCount: 2,
   pinned: false,
   starred: false,

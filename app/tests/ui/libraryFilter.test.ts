@@ -15,7 +15,6 @@ const card = (id: string, extra: Partial<LibraryCard> = {}): LibraryCard => ({
   paragraphs: [],
   createdLabel: '',
   updatedLabel: '',
-  chips: [],
   backlinkCount: 0,
   pinned: false,
   starred: false,

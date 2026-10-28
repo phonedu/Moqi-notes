@@ -3,7 +3,7 @@ import type { Block } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
 import { initialValueFor } from './shellSupport'
 import { propertyNameToast, type PropertyEditorCallbacks } from './PropertyRows'
-import { pushRecentProperty, toggleField, type UiPrefs } from './uiPrefs'
+import { pushRecentProperty, type UiPrefs } from './uiPrefs'
 
 /**
  * 属性 / 标签的**写入口**（外壳拆分第四刀， 从 `EditorShell` 抽出）。
@@ -334,8 +334,6 @@ export function usePropertyEditor({
     onSetCreated: setCreated,
     onAddTag: addPageTag,
     onRemoveTag: removePageTag,
-    isFieldVisible: (fieldId) => !prefs.hiddenCardFields.includes(fieldId),
-    onToggleField: (fieldId) => updatePrefs(toggleField(prefs, fieldId)),
   }
 
   return {

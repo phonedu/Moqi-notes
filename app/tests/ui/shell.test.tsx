@@ -39,8 +39,6 @@ function callbacks() {
     onSetCreated: () => undefined,
     onAddTag: () => undefined,
     onRemoveTag: () => undefined,
-    isFieldVisible: () => true,
-    onToggleField: () => undefined,
   }
 }
 

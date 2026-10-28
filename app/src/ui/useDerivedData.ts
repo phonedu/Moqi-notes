@@ -48,7 +48,6 @@ export function useDerivedData(inputs: DerivedDataInputs) {
   })), [store, revision])
 
   const libraryCards = useMemo<LibraryCard[]>(() => {
-    const visible = prefs.hiddenCardFields
     // 反链数走全库一次扫描的索引（`backlinkSourceCounts`）：逐卡调 `store.backlinks`
     // 是「页数 × 全库」的扫描（性能批 ⓒ ② 实测占每次变动的可观一块）。
     const backlinkCounts = backlinkSourceCounts(snapshot)
@@ -66,31 +65,17 @@ export function useDerivedData(inputs: DerivedDataInputs) {
         if (text) paragraphs.push(text)
         if (paragraphs.length >= 8) break
       }
-      const chips: { id: string; label: string; kind: 'kv' | 'tag' }[] = []
-      for (const def of registry.properties) {
-        if (visible.includes(def.id)) continue
-        const value = page.properties.find((item) => item.defId === def.id)
-        const label = propertyValueLabel(def, value)
-        if (label) chips.push({ id: def.id, label: `${def.name} · ${label}`, kind: 'kv' })
-      }
-      if (!visible.includes('sys:tags')) {
-        for (const tagId of page.tags) {
-          const tag = registry.tags.find((item) => item.id === tagId)
-          if (tag) chips.push({ id: `tag-${tag.id}`, label: `#${tag.name}`, kind: 'tag' })
-        }
-      }
       cards.push({
         id: pageId,
         name: page.objectName ?? '未命名页面',
         paragraphs,
         createdLabel: formatDayMonth(page.created),
         updatedLabel: formatRelative(page.modified),
-        chips,
         backlinkCount: backlinkCounts.get(pageId) ?? 0,
         pinned: page.pinned,
         starred: page.starred,
         // V2c 筛选面板要的结构化字段（`09-桌面端UI规范` §4.2）：标签 id 与单选属性的选中项——
-        // 卡片上那串 chips 是给人看的文案，筛选不能去解析它。
+        // 展示文案与筛选字段分开，筛选不能去解析文案。
         created: page.created,
         modified: page.modified,
         tagIds: [...page.tags],
@@ -98,7 +83,7 @@ export function useDerivedData(inputs: DerivedDataInputs) {
       })
     }
     return cards
-  }, [snapshot, registry, prefs.hiddenCardFields, store])
+  }, [snapshot, store])
 
   /**
    * V2c：筛选后的卡片（`09-桌面端UI规范` §4.2）。**命中判据在 `ui/libraryFilter.ts`**（纯函数，有单测）——

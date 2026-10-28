@@ -4708,7 +4708,7 @@ check('R09-EDIT-4 / PROPS-ENTRY-1 正文列上边距（D-095：常规态统一 1
 
 // ---------- 属性行解剖 + 行内 ⋯ + 添加属性轻结构（ 用户裁决，按当日新原型）----------
 // 旧形态已废：每行左侧 👁 眼睛开关、常驻「移除」、两段式弹窗（列表态 + 新建态）。
-// 新形态：行解剖 = [类型图标][标签窄栏][值区右置]；管理收进行内 ⋯（重命名 / 卡片显隐 / **从本页删除**）；
+// 新形态：行解剖 = [类型图标][标签窄栏][值区右置]；管理收进行内 ⋯（重命名 / **从本页删除**）；
 // 添加属性 = 搜索 →「最近使用」→「全部」（点了即加即关，**已添加只作提示**）→ 底部一行式新建 → ⚙ 角落。
 // 起：摘要条不再常驻（§0-1），进面板的路是 **⋯「属性」入口**（标签直落 + 同时开弹层）。
 await reset()
@@ -4769,7 +4769,7 @@ const created = await page.evaluate(() => {
     moreOpacity: more ? getComputedStyle(more).opacity : null,
   }
 })
-// 悬停行 → ⋯ 浮出 → 菜单三件（重命名 / 卡片显隐 / 移除）
+// 悬停行 → ⋯ 浮出 → 菜单两件（重命名 / 从本页删除）
 await page.locator('.prop-edit .pe-row', { hasText: '验收属性' }).hover()
 await sleep(250)
 const hovered = await page.evaluate(() => {
@@ -4782,20 +4782,6 @@ await sleep(350)
 const rowMenu = await page.evaluate(() => {
   const menu = document.querySelector('.pop[role="menu"]')
   return menu ? [...menu.querySelectorAll('button')].map((b) => (b.textContent ?? '').trim()) : null
-})
-// 卡片显隐：切一下 → prefs 里多一条隐藏字段（默认三条系统字段）+ 菜单 meta 变「卡片已隐藏」
-await page.locator('.pop[role="menu"] button', { hasText: '卡片显隐' }).click()
-await sleep(400)
-const cardToggle = await page.evaluate(() => {
-  const prefs = JSON.parse(localStorage.getItem('moqi-project-b:ui-prefs') ?? '{}')
-  return { hidden: Array.isArray(prefs.hiddenCardFields) ? prefs.hiddenCardFields.length : null }
-})
-await page.locator('.prop-edit .pe-row', { hasText: '验收属性' }).locator('.pe-more').click()
-await sleep(300)
-const hiddenMeta = await page.evaluate(() => {
-  const menu = document.querySelector('.pop[role="menu"]')
-  const button = menu ? [...menu.querySelectorAll('button')].find((b) => (b.textContent ?? '').includes('卡片显隐')) : null
-  return button ? (button.textContent ?? '').trim() : null
 })
 // 重命名：⋯ → 重命名 → 行内输入框 → Enter → 行上就是新名字
 await page.locator('.pop[role="menu"] button', { hasText: '重命名' }).click()
@@ -4823,7 +4809,7 @@ await sleep(250)
 const dupCleared = await page.evaluate(() => ({ problem: document.querySelector('[role="dialog"] .ap-problem')?.textContent?.trim() ?? null }))
 await page.keyboard.press('Escape')
 await sleep(300)
-check('R09-PROP-5 / R09-PADD-1…3 属性行新形态：解剖 = 类型图标 + 标签窄栏 + 值区（无 👁、无常驻移除）；管理收进行内 ⋯（重命名 / 卡片显隐 / 移除）；添加属性 = 搜索 + 最近使用（零子注） + 全部（点了即加即关）+ 一行式新建（类型菜单带图标；**校验前移**：重名就地一句、按钮点不动）+ ⚙ 角落「属性库」',
+check('R09-PROP-5 / R09-PADD-1…3 属性行新形态：解剖 = 类型图标 + 标签窄栏 + 值区（无 👁、无常驻移除）；管理收进行内 ⋯（重命名 / 从本页删除）；添加属性 = 搜索 + 最近使用（零子注） + 全部（点了即加即关）+ 一行式新建（类型菜单带图标；**校验前移**：重名就地一句、按钮点不动）+ ⚙ 角落「属性库」',
   anatomyClosed.eyes === 0 && anatomyClosed.addrow === '添加属性' && anatomyClosed.addprop === 0
   && dialogShell !== null && dialogShell.search === '搜索属性'
   && dialogShell.caps.join('/').includes('全部属性') && dialogShell.newline && dialogShell.chip === '单选'
@@ -4833,13 +4819,11 @@ check('R09-PROP-5 / R09-PADD-1…3 属性行新形态：解剖 = 类型图标 + 
   && created.dialogOpen === false && created.row && created.glyph && created.labelWidth === 96 && created.more
   && created.moreIcon === true && created.moreText === ''
   && hovered.moreOpacity === '1'
-  && rowMenu !== null && rowMenu.length === 3 && rowMenu[0] === '重命名' && rowMenu[1].startsWith('卡片显隐') && rowMenu[2] === '从本页删除'
-  && cardToggle.hidden === 4
-  && (hiddenMeta ?? '').includes('卡片已隐藏')
+  && rowMenu !== null && rowMenu.length === 2 && rowMenu[0] === '重命名' && rowMenu[1] === '从本页删除'
   && propertyRowNames.includes('验收属性二')
   && dialogAgain.caps.includes('最近使用') && dialogAgain.caps[0] === '最近使用' && (dialogAgain.firstRecent ?? '').includes('验收属性二')
   && dupHint.problem === '已有同名属性' && dupHint.goDisabled === true && dupCleared.problem === null,
-  { anatomyClosed, dialogShell, typeMenu, created, hovered, rowMenu, cardToggle, hiddenMeta, propertyRowNames, dialogAgain, dupHint, dupCleared })
+  { anatomyClosed, dialogShell, typeMenu, created, hovered, rowMenu, propertyRowNames, dialogAgain, dupHint, dupCleared })
 
 // ---------- 「从本页删除」＝本页不显示、值保留（`13-属性区重规划` §0-10， 裁决）----------
 // 承接上一段的现场（「验收属性二」在、面板展开、弹层已关）：删 → 行消失 + 值还在 → 加回来即恢复。

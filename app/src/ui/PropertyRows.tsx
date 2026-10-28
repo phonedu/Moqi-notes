@@ -55,9 +55,6 @@ export type PropertyEditorCallbacks = {
   onSetCreated: (value: string) => void
   onAddTag: (name: string) => void
   onRemoveTag: (tagId: string) => void
-  /** 卡片显隐：控制该字段是否显示在页面库卡片的属性行（存储见 `uiPrefs.hiddenCardFields`）。 */
-  isFieldVisible: (fieldId: string) => boolean
-  onToggleField: (fieldId: string) => void
   /**
    * 「筛这一列」（`13-属性区重规划` §7.1-A3）：值 chip / 标签 chip 的**右键菜单**——把页面库筛选
    * 拨到这个属性=这个值（再点同一值 = 取消）。可选：移动端展开面板暂不接（随 F/G）。
@@ -77,18 +74,18 @@ type PropertyRowsProps = PropertyEditorCallbacks & {
   onCollapse?: () => void
 }
 
-/** 系统字段 id：与卡片显隐的字段标识保持一致。 */
+/** 系统字段 id。 */
 const FIELD_ID = { tags: 'sys:tags', created: 'sys:created', edited: 'sys:edited' } as const
 
 /**
  * 属性行组件（docs/09 §4.4）：桌面属性编辑只有一处形态——**摘要条原位展开**；与移动端展开面板**两处同构**，
- * 结构、分区与「卡片显隐」语义完全一致。
+ * 结构、分区与桌面展开态完全一致。
  * （用户裁决，按新原型）：行解剖 = [类型图标][标签窄栏][值区弹性右置]，零分隔线；
- * **眼睛开关不再常驻**——管理收进行内 **⋯**（重命名 / 卡片显隐 / 移除），悬停或聚焦才浮出（触屏常显）；
+ * **管理收进行内 **⋯**（重命名 / 从本页删除），悬停或聚焦才浮出（触屏常显）；
  * 「＋ 添加属性」从头部挪到**列表末尾一行**。
  */
 export function PropertyRows({
-  rows, onSetValue, onAddOption, onRemoveProperty, onRenameProperty, onSetCreated, onAddTag, onRemoveTag, isFieldVisible, onToggleField, onOpenAddProperty, tagChoices, onFilterOption, onFilterTag, headTitle = '页面属性', onCollapse,
+  rows, onSetValue, onAddOption, onRemoveProperty, onRenameProperty, onSetCreated, onAddTag, onRemoveTag, onOpenAddProperty, tagChoices, onFilterOption, onFilterTag, headTitle = '页面属性', onCollapse,
 }: PropertyRowsProps) {
   const custom = rows.filter((row): row is Extract<PropertyRow, { kind: 'custom' }> => row.kind === 'custom')
   const system = rows.filter((row) => row.kind !== 'custom')
@@ -115,8 +112,6 @@ export function PropertyRows({
         <CustomRow
           key={row.def.id}
           row={row}
-          visible={isFieldVisible(row.def.id)}
-          onToggleField={() => onToggleField(row.def.id)}
           onRename={(name) => onRenameProperty(row.def.id, name)}
           onSetValue={onSetValue}
           onAddOption={onAddOption}
@@ -145,13 +140,13 @@ export function PropertyRows({
                 ))}
                 <TagPicker choices={tagChoices ?? []} active={row.tags.map((tag) => tag.id)} onAdd={onAddTag} onRemove={onRemoveTag} />
               </div>
-              <FieldMenu label="标签" visible={isFieldVisible(FIELD_ID.tags)} onToggle={() => onToggleField(FIELD_ID.tags)} onRemove={() => onRemoveProperty(FIELD_ID.tags)} />
+              <FieldMenu label="标签" onRemove={() => onRemoveProperty(FIELD_ID.tags)} />
             </div>
           )
         }
         if (row.kind === 'time') {
           // **「时间」一行**（`§0-12` 已裁）：值 = 页面创建时间、**用户可改**（`modified` 系统维护、不进面板）；
-          // ⋯ 与标签行同构（卡片显隐 + 从本页删除），不再有"单条菜单"。
+          // ⋯ 与标签行同构（从本页删除），不再有"单条菜单"。
           return (
             <div className="pe-row" key={FIELD_ID.created}>
               <TypeGlyph type="date" label="日期" />
@@ -166,7 +161,7 @@ export function PropertyRows({
                   onChange={(event) => { if (event.target.value) onSetCreated(event.target.value) }}
                 />
               </div>
-              <FieldMenu label="时间" visible={isFieldVisible(FIELD_ID.created)} onToggle={() => onToggleField(FIELD_ID.created)} onRemove={() => onRemoveProperty(FIELD_ID.created)} />
+              <FieldMenu label="时间" onRemove={() => onRemoveProperty(FIELD_ID.created)} />
             </div>
           )
         }
@@ -238,19 +233,12 @@ function RowMenu({ label, items }: { label: string; items: MenuItem[] }) {
   )
 }
 
-/** 默认字段的 ⋯：卡片显隐 ＋ **从本页删除**（`§0-10`：本页不再显示、数据不动；重命名对默认字段不适用）。 */
-function FieldMenu({ label, visible, onToggle, onRemove }: { label: string; visible: boolean; onToggle: () => void; onRemove: () => void }) {
+/** 默认字段的 ⋯：**从本页删除**（`§0-10`：本页不再显示、数据不动；重命名对默认字段不适用）。 */
+function FieldMenu({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
     <RowMenu
       label={label}
       items={[{
-        key: 'card',
-        icon: visible ? 'eye' : 'eye-off',
-        text: '卡片显隐',
-        meta: visible ? '卡片已显示' : '卡片已隐藏',
-        title: `是否在页面库卡片的属性行显示「${label}」`,
-        onPick: onToggle,
-      }, {
         key: 'remove',
         icon: 'trash',
         text: '从本页删除',
@@ -320,10 +308,8 @@ function TagPicker({ choices, active, onAdd, onRemove }: { choices: TagSummary[]
   )
 }
 
-function CustomRow({ row, visible, onToggleField, onRename, onSetValue, onAddOption, onRemove, onFilterOption, openChipMenu }: {
+function CustomRow({ row, onRename, onSetValue, onAddOption, onRemove, onFilterOption, openChipMenu }: {
   row: Extract<PropertyRow, { kind: 'custom' }>
-  visible: boolean
-  onToggleField: () => void
   /** 改名：**返回失败原因**（`null` = 成功）——调用方就地显示（`§0-6`）。 */
   onRename: (name: string) => string | null
   onSetValue: (defId: string, value: PropertyValue | null) => void
@@ -442,7 +428,6 @@ function CustomRow({ row, visible, onToggleField, onRename, onSetValue, onAddOpt
         label={def.name}
         items={[
           { key: 'rename', icon: 'type', text: '重命名', title: '改属性名（页面上的取值跟着走，是同一个属性）', onPick: () => setRenaming(def.name) },
-          { key: 'card', icon: visible ? 'eye' : 'eye-off', text: '卡片显隐', meta: visible ? '卡片已显示' : '卡片已隐藏', title: '是否在页面库卡片的属性行显示它', onPick: onToggleField },
           { key: 'remove', icon: 'trash', text: '从本页删除', danger: true, title: '本页不再显示这一行（**值保留**——要清值就把值清空；可随时用「添加属性」加回来）', onPick: onRemove },
         ]}
       />
