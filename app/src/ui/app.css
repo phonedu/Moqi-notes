@@ -806,7 +806,8 @@ body.is-touch-editing .prop-wrap { display: none; }
    命中区例外的唯一持有者）＋ **四张就地面板**（浮在主条正上方、键盘不退）＋ **插入面板**
    （收键盘、占键盘位；高度吃打开时的键盘高快照 `--kb-snap`，避免跟键盘动画抖）。 */
 .mbar { position: fixed; left: 0; right: 0; bottom: var(--kb-h, 0px); height: 46px; display: flex; align-items: stretch; gap: 2px; padding: 0 4px calc(env(safe-area-inset-bottom, 0px)); background: var(--panel); box-shadow: var(--shadow); z-index: var(--z-sticky); } /* `#8`：`bottom` 只吃 `--kb-h`；安全区仍由 padding 承担（避免双计、保住底色覆盖） */
-.mbar button { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; color: var(--icon-idle); border-radius: var(--r-ctrl); font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); transition: background var(--dur-fast); }
+/* 图标色 = 正文黑（用户 2026-10-28：灰调太丑，工具栏族统一「黑、重」——与选择栏/胶囊同调；激活态仍 accent） */
+.mbar button { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; color: var(--text); border-radius: var(--r-ctrl); font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); transition: background var(--dur-fast); }
 .mbar button:hover:not(:disabled) { background: var(--hover); }
 .mbar button.is-on { background: var(--accent-soft); color: var(--accent-text); }
 .mbar.is-insert { bottom: var(--kb-snap, 0px); } /* 插入面板占其下的键盘位：主条留在面板正上方（视觉不跳） */
