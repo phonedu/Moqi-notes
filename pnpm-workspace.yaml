@@ -1,4 +1,4 @@
 packages:
-  # 墨契产品壳（Tauri 应用）；编辑器内核在 packages/editor，由 app 消费（`13-编辑器模块化` M4）
+  # 墨契产品壳（Tauri 应用）；编辑器内核在 packages/editor，由 app 消费
   - app
   - packages/*

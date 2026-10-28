@@ -1,37 +1,14 @@
-# 项目 B 应用工程
+# app — 墨契产品壳
 
-这是项目 B 的可运行应用目录。产品说明、功能边界和验收规则统一维护在上一级 [`docs/`](../docs/README.md)，本文件只解释代码如何启动和分层。
+墨契（Moqi）的 Tauri 产品应用：桌面（Windows）+ Android 的 UI 装配、平台适配器与 Rust 侧存储 / 备份 / 同步文件交换。
 
-## 分层
+编辑器内核在 [`packages/editor`](../packages/editor)（workspace 包 `@moqi/editor`）；**构建与门禁请一律从仓库根目录跑**：
 
-- `src/domain/`：Block、树操作、引用、属性、选择和 AI 规则。不能依赖 React、Lexical、Tauri 或 SQLite。
-- `src/application/`：Store、事务、撤销/重做、持久化队列和 AI 用例。
-- `src/adapters/`：浏览器存储、Tauri Port 和 OpenAI 兼容 AI 适配器。
-- `src/editor/`：Lexical BlockNode 与 Block JSON 的双向映射。
-- `src/ui/`：编辑器外壳、菜单、侧栏、属性、反向链接、回收站和 AI 设置。
-- `src-tauri/`：桌面壳、SQLite 和 Tauri command。
-- `tests/`：领域 A 类、用户行为 D 类、AI 逻辑 L 类测试。
-
-## 常用命令
-
-```powershell
+```bash
 pnpm install
-pnpm dev
-pnpm typecheck
-pnpm test
-pnpm build
-pnpm lint
+pnpm -C app dev        # 浏览器预览（最快）
+pnpm -C app check      # 全部门禁
+pnpm -C app tauri dev  # 真桌面窗口
 ```
 
-桌面层命令在 `src-tauri/` 执行：
-
-```powershell
-cargo fmt --check
-cargo check
-cargo clippy --all-targets -- -D warnings
-cargo test
-```
-
-## 当前状态
-
-交付版本与阶段状态只看上一级 `docs/05-版本状态与计划.md`（当前：`0.5.0` 已交付、`0.6` 在办）；验收是否关闭看 `docs/07-验收记录.md`。本文件只管「代码如何启动和分层」，不复制状态。
+详细文档见仓库根 [README](../README.md) 与 [docs/](../docs/)。

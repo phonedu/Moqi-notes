@@ -3,11 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "墨契块编辑器内核：Block 模型 + 事务 + Lexical 适配 + 宿主契约（workspace 包，见仓库 docs/13-编辑器模块化.md）",
-  "repository": {
-    "type": "git",
-    "url": "未对外发布：先在仓库 workspace 内消费（13-编辑器模块化 §6「怎么发」）"
-  },
+  "description": "墨契块编辑器内核：Block 模型 + 事务 + Lexical 适配 + 宿主契约",
   "keywords": [
     "editor",
     "block-editor",

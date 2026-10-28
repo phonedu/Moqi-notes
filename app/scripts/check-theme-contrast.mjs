@@ -1,5 +1,5 @@
 /**
- * 主题护栏（docs/13-视觉批设计（已归档） §4.2 / §5，集中审点名的风险条款：**随批交付**）。
+ * 主题护栏（主题对比护栏的风险条款：**随批交付**）。
  *
  * 干什么：解析 `src/ui/tokens.css`（默认主题的浅 / 深）与 `src/ui/themes.css`（其余 19 套），
  * 对**每个主题 × 浅深**算四条对比度硬指标 + 两条结构检查，任何一项不过就非零退出并指出
@@ -120,7 +120,7 @@ for (const match of themesTop.matchAll(/html\[data-theme="([a-z0-9-]+)"\]\s*\{([
   const light = colorTokens(match[2])
   const darkMatch = new RegExp(`html\\[data-theme="${id}"\\]\\[data-mode="dark"\\]\\s*\\{([^}]*)\\}`).exec(themesTop)
   if (!darkMatch) {
-    console.error(`主题护栏：${id} 只有浅色块、缺深色成对块（深色必须成对交付，docs/13-视觉批设计（已归档） §4.1）`)
+    console.error(`主题护栏：${id} 只有浅色块、缺深色成对块（深色必须成对交付，主题护栏的成对交付规则）`)
     process.exit(1)
   }
   // 级联：主题块只写它覆盖的令牌，其余回落到默认主题（与浏览器里的表现一致）。

@@ -2,7 +2,7 @@
 
 ## 0.1.0 — 2026-10-26
 
-首个可独立消费的版本（从墨契壳抽出，过程见仓库 `docs/13-编辑器模块化.md`）。
+首个可独立消费的版本（从墨契壳抽出）。
 
 - 块编辑器内核：`domain/`（Block 模型、事务、引用、属性、校验）+ `editor/`（Lexical 适配、输入规则、光标、名字行、宿主契约）
 - 公开面：`MoqiEditor`（最小可复用编辑器）、`EditorHost` / `DocumentStoragePort`、`createMemoryEditorHost`、`EditorBody` / `EditorComposer`、`EditorFeatures` 可选能力判据、`useSlashMenu`（宿主自定义斜杠命令的内核钩子）、`MoqiEditor.plugins` 插槽

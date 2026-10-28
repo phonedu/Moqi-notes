@@ -27,4 +27,4 @@ pnpm -C app tauri dev        # 真桌面窗口
 
 ## 不接受
 
-闭源衍生贡献、绕过 AGPL 的商用授权请求（见 [TRADEMARK](TRADEMARK.md) 与 LICENSE 的再许可条款）。
+闭源衍生贡献、绕过 AGPL 的商用授权请求（见 [TRADEMARK](../TRADEMARK.md) 与 LICENSE 的再许可条款）。

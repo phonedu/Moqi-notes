@@ -1,7 +1,7 @@
 @moqi/editor — Copyright (C) 2026 墨契 (Moqi)
 
 SPDX-License-Identifier: AGPL-3.0-or-later
-选择 AGPL 的理由与「嵌入闭源产品分发需双许可或换证」的裁决记录：仓库 `docs/13-编辑器模块化.md` §6 第 4 条。
+选择 AGPL 的理由：见本仓库 README「为什么是 AGPL」段与 docs/FAQ.md。
 以下为 GNU Affero 通用公共许可证 3.0 的规范全文（https://www.gnu.org/licenses/agpl-3.0.txt）。
 
                     GNU AFFERO GENERAL PUBLIC LICENSE

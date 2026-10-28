@@ -10,7 +10,7 @@
 
 ## 已知加固项（公开 v0.6.1 现状）
 
-- Tauri CSP 当前未配置（`csp: null`）——最小 CSP 在加固计划中
+- Tauri 已配置构建态最小 CSP（脚本 self / 连接限 IPC 与 https 及本地端口 / 图片限 asset 协议；见 `app/src-tauri/tauri.conf.json`）
 - 桌面构建未做代码签名（Windows SmartScreen 会提示）
 
 ## 报告漏洞

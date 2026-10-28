@@ -5,7 +5,7 @@
 
 > 状态：workspace 内部包（`pnpm-workspace.yaml` 成员，源码直连消费）。发布到外部
 > registry 前还有一轮发布打磨（LICENSE 全文随包、发布配置、CSS 全量切分），见仓库
-> `docs/13-编辑器模块化.md`。完整可跑示例：`app/examples/editor-demo`（`cd app && pnpm demo`）。
+完整可跑示例：`app/examples/editor-demo`（`cd app && pnpm demo`）。
 
 ## 快速开始
 
