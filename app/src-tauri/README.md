@@ -1,6 +1,6 @@
 # Tauri 原生层
 
-这里是项目 B 的桌面壳和 SQLite 适配层。前端通过 Port 和 Tauri command 访问它，业务规则仍由 TypeScript domain 层负责。
+这里是墨契的桌面壳和 SQLite 适配层。前端通过 Port 和 Tauri command 访问它，业务规则仍由 TypeScript domain 层负责。
 
 ## 负责的事情
 

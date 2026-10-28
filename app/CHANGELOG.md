@@ -1,6 +1,6 @@
 # 更新日志
 
-本文件是墨契（项目 B）每个交付版本的用户可见变化，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
+本文件是墨契每个交付版本的用户可见变化，格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循 [语义化版本](https://semver.org/lang/zh-CN/)。
 
 分类固定为五个：新增 / 改进 / 修复 / 数据与兼容 / 已知限制。条目只写用户能感知的结果；内部验收与任务编号在私有开发仓，不在本仓库。
 

@@ -7,7 +7,7 @@
  *   ① CSS 不许有档外断点：`src/**\/*.css` 里 `@media (min-width|max-width: Npx)` 的每个 N 必须是
  *      `src/ui/breakpoints.ts` 的 `TIER_MAX_WIDTH` 登记值**或其补数**（`701` 是 `≤700` 从另一侧写的
  *      同一个边界——两边都收）。**不许发明档外断点**（`08`：600 / 840 / 960 那类旧值是跨产品参考，
- *      项目 B 只有四档）。
+ *      墨契共四档）。
  *   ② TS 不许出现裸的宽度媒体字符串：`matchMedia('(max-width: …)')` 式的字面量一律走 `MQ`
  *      （`breakpoints.ts` 自身除外——它就是生成 MQ 的地方）。
  *   ③ `tauri.conf.json` 的窗口下限 ↔ TS 常量：`minWidth` == `MIN_WINDOW_FLOOR`（`ui/minWindowSize.ts`）、
