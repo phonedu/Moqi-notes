@@ -24,3 +24,5 @@ coverage/
 app/scripts/.csp-probe.mjs
 app/scripts/.repair-name*.mjs
 release-assets/
+app/scripts/.*.mjs
+docs/screenshots/.*.png
