@@ -1,0 +1,23 @@
+app/node_modules/
+app/dist/
+app/src-tauri/target/
+app/*.log
+app/src-tauri/*.sqlite3
+prototype/.vite/
+*.sqlite3
+# 例外：实验笔记库是有意入库的资产（见 app/fixtures/library/README.md）；
+# 它旁边的 WAL/SHM 是运行期产物，永远不入库。
+!app/fixtures/library/*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+.env
+.env.*
+!.env.example
+
+# 其他 AI 工具的状态目录（不属项目内容）
+
+# workspace 根级依赖与构建产物（0.6.1 起根目录有 package.json）
+node_modules/
+packages/*/node_modules/
+packages/*/dist/
+coverage/

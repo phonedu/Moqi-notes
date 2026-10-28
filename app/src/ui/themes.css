@@ -1,0 +1,939 @@
+/*
+ * 主题包（docs/13-视觉批设计 §4、指令 §十）——**生成物**：从打样页 theme-palette-candidates.html
+ * 的 20 套取值导出（2026-10-06），浅深成对。默认主题（冷雾·靛蓝）挂在 tokens.css 的 :root /
+ * [data-mode="dark"]，所以这里只有其余 19 套。
+ *
+ * 纪律（§2「主题包纪律」）：**主题块内只有令牌赋值**——不许组件选择器、不许布局、不许字号；
+ * 「加主题永不改组件、改组件永不碰主题」。新增主题 = 加一个令牌块 + 跑 pnpm check:theme。
+ */
+
+/* ---- 暖纸·赭（warm-paper） ---- */
+html[data-theme="warm-paper"] {
+  --accent: #A3744B;
+  --accent-hover: #8F5E36;
+  --accent-soft: #F3ECE2;
+  --accent-text: #875936;
+  --ink: #28231C;
+  --ink-t: #FCF9F4;
+  --hover: #EDEAE3;
+  --ink-soft: #E3DED4;
+  --bg: #F5F3EE;
+  --panel: #FDFCF9;
+  --panel-2: #F1EEE8;
+  --side-bg: #EFEBE4;
+  --star: #D9A62E;
+  --text: #242220;
+  --text-2: #716C63;
+  --text-3: #A5A097;
+  --border: #E4E0D7;
+  --border-2: #D5CFC3;
+  --danger: #B5443C;
+  --ok: #4E7A50;
+}
+
+html[data-theme="warm-paper"][data-mode="dark"] {
+  --accent: #C0875A;
+  --accent-hover: #C99064;
+  --accent-soft: #413A31;
+  --accent-text: #C9926A;
+  --ink: #E5E1D8;
+  --ink-t: #292724;
+  --hover: #3B3832;
+  --ink-soft: #45413A;
+  --bg: #292826;
+  --panel: #302E2A;
+  --panel-2: #3A3733;
+  --side-bg: #242322;
+  --star: #D9A62E;
+  --text: #E9E5DD;
+  --text-2: #9E9A8E;
+  --text-3: #6C6960;
+  --border: #423F38;
+  --border-2: #524E45;
+  --danger: #D47870;
+  --ok: #82AE84;
+}
+
+/* ---- 抹茶·松（matcha） ---- */
+html[data-theme="matcha"] {
+  --accent: #4F775B;
+  --accent-hover: #456A53;
+  --accent-soft: #E9F0EA;
+  --accent-text: #426950;
+  --ink: #202824;
+  --ink-t: #F2F7F3;
+  --hover: #EBEFEC;
+  --ink-soft: #E0E7E0;
+  --bg: #F4F6F3;
+  --panel: #FCFDFC;
+  --panel-2: #EEF1EF;
+  --side-bg: #EBEFEC;
+  --star: #D3A53A;
+  --text: #1E2320;
+  --text-2: #667069;
+  --text-3: #9BA29B;
+  --border: #E0E5DF;
+  --border-2: #CFD5CE;
+  --danger: #B5484A;
+  --ok: #3F7A4E;
+}
+
+html[data-theme="matcha"][data-mode="dark"] {
+  --accent: #7BA487;
+  --accent-hover: #8AB292;
+  --accent-soft: #2D3A32;
+  --accent-text: #89AF92;
+  --ink: #DFE6DF;
+  --ink-t: #232723;
+  --hover: #323934;
+  --ink-soft: #3B433C;
+  --bg: #252926;
+  --panel: #2A2F2C;
+  --panel-2: #333934;
+  --side-bg: #202321;
+  --star: #D3A53A;
+  --text: #E3E8E4;
+  --text-2: #979E98;
+  --text-3: #666D67;
+  --border: #39413B;
+  --border-2: #48514A;
+  --danger: #D27678;
+  --ok: #7FB389;
+}
+
+/* ---- 石墨·钢蓝（graphite） ---- */
+html[data-theme="graphite"] {
+  --accent: #4A6A96;
+  --accent-hover: #405E8C;
+  --accent-soft: #E9EDF4;
+  --accent-text: #3E5A84;
+  --ink: #1E2229;
+  --ink-t: #F5F7FA;
+  --hover: #E9EBEE;
+  --ink-soft: #DFE2E8;
+  --bg: #F3F4F5;
+  --panel: #FCFDFD;
+  --panel-2: #EDEEF0;
+  --side-bg: #EBECEE;
+  --star: #D0A63C;
+  --text: #1B1E22;
+  --text-2: #6C737C;
+  --text-3: #9AA0A8;
+  --border: #DFE2E5;
+  --border-2: #CBCFD5;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="graphite"][data-mode="dark"] {
+  --accent: #7590BE;
+  --accent-hover: #87A2CC;
+  --accent-soft: #2E3747;
+  --accent-text: #88A0C9;
+  --ink: #DDE1E8;
+  --ink-t: #24262A;
+  --hover: #33373F;
+  --ink-soft: #3B404B;
+  --bg: #26282B;
+  --panel: #2C2F33;
+  --panel-2: #343841;
+  --side-bg: #212225;
+  --star: #D0A63C;
+  --text: #E2E6E9;
+  --text-2: #969CA6;
+  --text-3: #64696F;
+  --border: #393E46;
+  --border-2: #484E58;
+  --danger: #D07676;
+  --ok: #7BAE87;
+}
+
+/* ---- 落日·珊瑚（sunset） ---- */
+html[data-theme="sunset"] {
+  --accent: #BE6A50;
+  --accent-hover: #A95743;
+  --accent-soft: #F5EBE6;
+  --accent-text: #A25746;
+  --ink: #262220;
+  --ink-t: #FAF6F4;
+  --hover: #F0EDEB;
+  --ink-soft: #E7E1DE;
+  --bg: #F5F3F1;
+  --panel: #FDFCFC;
+  --panel-2: #F2EFED;
+  --side-bg: #F0EDEB;
+  --star: #D3A03C;
+  --text: #242120;
+  --text-2: #716C69;
+  --text-3: #9F9894;
+  --border: #E6E1DE;
+  --border-2: #D5CFCA;
+  --danger: #B4433D;
+  --ok: #4A7E58;
+}
+
+html[data-theme="sunset"][data-mode="dark"] {
+  --accent: #D8927D;
+  --accent-hover: #D89A87;
+  --accent-soft: #403531;
+  --accent-text: #D29584;
+  --ink: #E7E1DE;
+  --ink-t: #2A2625;
+  --hover: #3A3634;
+  --ink-soft: #453F3C;
+  --bg: #292726;
+  --panel: #312E2C;
+  --panel-2: #3A3634;
+  --side-bg: #252221;
+  --star: #D3A03C;
+  --text: #E9E5E2;
+  --text-2: #9F9A95;
+  --text-3: #6C6662;
+  --border: #433D3A;
+  --border-2: #534C48;
+  --danger: #D37770;
+  --ok: #7FB085;
+}
+
+/* ---- 青瓷·青（celadon） ---- */
+html[data-theme="celadon"] {
+  --accent: #41887F;
+  --accent-hover: #387570;
+  --accent-soft: #E6EFED;
+  --accent-text: #356F68;
+  --ink: #1E2729;
+  --ink-t: #F0F7F6;
+  --hover: #E9EFEE;
+  --ink-soft: #DFE7E6;
+  --bg: #F2F5F4;
+  --panel: #FBFCFC;
+  --panel-2: #EDF1F0;
+  --side-bg: #EAEEED;
+  --star: #D0A43C;
+  --text: #1C2224;
+  --text-2: #677476;
+  --text-3: #95A2A3;
+  --border: #DEE4E3;
+  --border-2: #CAD4D3;
+  --danger: #B24A4A;
+  --ok: #47804F;
+}
+
+html[data-theme="celadon"][data-mode="dark"] {
+  --accent: #68A79E;
+  --accent-hover: #79B4AB;
+  --accent-soft: #273F3A;
+  --accent-text: #76AFA7;
+  --ink: #DBE5E6;
+  --ink-t: #212627;
+  --hover: #30393B;
+  --ink-soft: #384345;
+  --bg: #24292A;
+  --panel: #292F31;
+  --panel-2: #31393B;
+  --side-bg: #1E2324;
+  --star: #D0A43C;
+  --text: #E1E7E8;
+  --text-2: #929C9D;
+  --text-3: #616B6C;
+  --border: #364143;
+  --border-2: #445154;
+  --danger: #D07575;
+  --ok: #7BAE87;
+}
+
+/* ---- 葡萄·紫（grape） ---- */
+html[data-theme="grape"] {
+  --accent: #7C64AC;
+  --accent-hover: #6B56A0;
+  --accent-soft: #EEEAF3;
+  --accent-text: #6A569C;
+  --ink: #232028;
+  --ink-t: #F7F5F9;
+  --hover: #ECEAEF;
+  --ink-soft: #E2DFE8;
+  --bg: #F4F3F6;
+  --panel: #FCFCFD;
+  --panel-2: #F0EFF1;
+  --side-bg: #EDECEF;
+  --star: #D0A03C;
+  --text: #1F1D25;
+  --text-2: #6F6A78;
+  --text-3: #9B95A1;
+  --border: #E1DDE4;
+  --border-2: #D0CAD6;
+  --danger: #B54A56;
+  --ok: #4A7E58;
+}
+
+html[data-theme="grape"][data-mode="dark"] {
+  --accent: #A088CC;
+  --accent-hover: #AA97D8;
+  --accent-soft: #363146;
+  --accent-text: #A894D2;
+  --ink: #E3DFEA;
+  --ink-t: #27242D;
+  --hover: #373442;
+  --ink-soft: #403B4C;
+  --bg: #28272D;
+  --panel: #2F2D34;
+  --panel-2: #383542;
+  --side-bg: #242328;
+  --star: #D0A03C;
+  --text: #E6E4EC;
+  --text-2: #9A95A3;
+  --text-3: #67626F;
+  --border: #3F3B4A;
+  --border-2: #4E495C;
+  --danger: #D17480;
+  --ok: #7BAE87;
+}
+
+/* ---- 樱·玫（sakura） ---- */
+html[data-theme="sakura"] {
+  --accent: #BC5C7A;
+  --accent-hover: #A5506C;
+  --accent-soft: #F4EAED;
+  --accent-text: #9E546B;
+  --ink: #282226;
+  --ink-t: #FAF6F7;
+  --hover: #F1ECEE;
+  --ink-soft: #E8E0E2;
+  --bg: #F6F4F5;
+  --panel: #FDFCFC;
+  --panel-2: #F2EFF0;
+  --side-bg: #F0ECEE;
+  --star: #D0A03C;
+  --text: #242022;
+  --text-2: #746A6F;
+  --text-3: #A2979B;
+  --border: #E8E2E4;
+  --border-2: #D7CDD1;
+  --danger: #B8434A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="sakura"][data-mode="dark"] {
+  --accent: #D18AA1;
+  --accent-hover: #D396AA;
+  --accent-soft: #3D3239;
+  --accent-text: #CE92A4;
+  --ink: #E7E0E3;
+  --ink-t: #292426;
+  --hover: #393436;
+  --ink-soft: #443D40;
+  --bg: #292728;
+  --panel: #302D2F;
+  --panel-2: #3A3437;
+  --side-bg: #252124;
+  --star: #D0A03C;
+  --text: #EBE7E9;
+  --text-2: #A69EA1;
+  --text-3: #6F676B;
+  --border: #433C3F;
+  --border-2: #524A4E;
+  --danger: #D27479;
+  --ok: #7BAE87;
+}
+
+/* ---- 咖啡·琥珀（coffee） ---- */
+html[data-theme="coffee"] {
+  --accent: #A17941;
+  --accent-hover: #8E6734;
+  --accent-soft: #F3EDE1;
+  --accent-text: #87623A;
+  --ink: #26221A;
+  --ink-t: #FAF7F2;
+  --hover: #EEEAE3;
+  --ink-soft: #E4DFD6;
+  --bg: #F4F1EC;
+  --panel: #FCFAF6;
+  --panel-2: #F0ECE5;
+  --side-bg: #EBE7E1;
+  --star: #D0A03C;
+  --text: #232020;
+  --text-2: #706960;
+  --text-3: #9E978E;
+  --border: #E3DED7;
+  --border-2: #D1CCC2;
+  --danger: #B54843;
+  --ok: #4A7E58;
+}
+
+html[data-theme="coffee"][data-mode="dark"] {
+  --accent: #C99B5B;
+  --accent-hover: #CDA362;
+  --accent-soft: #40362A;
+  --accent-text: #C99F5F;
+  --ink: #E5DFD4;
+  --ink-t: #2A2622;
+  --hover: #3A3531;
+  --ink-soft: #443D34;
+  --bg: #292725;
+  --panel: #312E29;
+  --panel-2: #3B3630;
+  --side-bg: #252221;
+  --star: #D0A03C;
+  --text: #E9E5DD;
+  --text-2: #A19A90;
+  --text-3: #6D685F;
+  --border: #433D35;
+  --border-2: #544D42;
+  --danger: #D3766E;
+  --ok: #7BAE87;
+}
+
+/* ---- 苔原·橄榄（olive） ---- */
+html[data-theme="olive"] {
+  --accent: #6B7A3A;
+  --accent-hover: #5C6A2F;
+  --accent-soft: #F0F2E1;
+  --accent-text: #5E6C33;
+  --ink: #23281A;
+  --ink-t: #FAFBF4;
+  --hover: #EDF0E3;
+  --ink-soft: #E2E7D4;
+  --bg: #F3F4EC;
+  --panel: #FCFDF7;
+  --panel-2: #F1F1E9;
+  --side-bg: #ECEBE0;
+  --star: #D0A03C;
+  --text: #20241B;
+  --text-2: #68705F;
+  --text-3: #9BA392;
+  --border: #E1E5D6;
+  --border-2: #D0D6BF;
+  --danger: #B54843;
+  --ok: #4A7E58;
+}
+
+html[data-theme="olive"][data-mode="dark"] {
+  --accent: #A2B264;
+  --accent-hover: #AEBD74;
+  --accent-soft: #39402A;
+  --accent-text: #ABB973;
+  --ink: #E4E9D5;
+  --ink-t: #272A20;
+  --hover: #363A2D;
+  --ink-soft: #404732;
+  --bg: #262921;
+  --panel: #2C3026;
+  --panel-2: #363B2D;
+  --side-bg: #23261E;
+  --star: #D0A03C;
+  --text: #E8ECDC;
+  --text-2: #99A189;
+  --text-3: #686F58;
+  --border: #3D432E;
+  --border-2: #4C543B;
+  --danger: #D57A72;
+  --ok: #7BAE87;
+}
+
+/* ---- 深海·天蓝（deepsea） ---- */
+html[data-theme="deepsea"] {
+  --accent: #3E74C8;
+  --accent-hover: #3362B2;
+  --accent-soft: #E6EDFA;
+  --accent-text: #3464B0;
+  --ink: #1E2436;
+  --ink-t: #F5F8FE;
+  --hover: #E8EBF4;
+  --ink-soft: #DFE3F0;
+  --bg: #F1F3F9;
+  --panel: #FBFCFE;
+  --panel-2: #EEF0F6;
+  --side-bg: #E9EDF4;
+  --star: #D0A63C;
+  --text: #1A1E2B;
+  --text-2: #666D82;
+  --text-3: #99A0B4;
+  --border: #DFE3EF;
+  --border-2: #CBD2E2;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="deepsea"][data-mode="dark"] {
+  --accent: #7CA3E4;
+  --accent-hover: #90B2E9;
+  --accent-soft: #2D3957;
+  --accent-text: #8DAEE8;
+  --ink: #DDE3F1;
+  --ink-t: #212433;
+  --hover: #2F3549;
+  --ink-soft: #373E57;
+  --bg: #232735;
+  --panel: #292E3F;
+  --panel-2: #333A51;
+  --side-bg: #202432;
+  --star: #D0A63C;
+  --text: #E3E8F4;
+  --text-2: #949BB2;
+  --text-3: #616A84;
+  --border: #363D55;
+  --border-2: #454D6A;
+  --danger: #D07676;
+  --ok: #7BAE87;
+}
+
+/* ---- 钢·锈（steel） ---- */
+html[data-theme="steel"] {
+  --accent: #A84E2F;
+  --accent-hover: #94452A;
+  --accent-soft: #F5EAE4;
+  --accent-text: #8E462E;
+  --ink: #1E2226;
+  --ink-t: #FAF8F6;
+  --hover: #E9EBEE;
+  --ink-soft: #DFE2E7;
+  --bg: #F3F4F5;
+  --panel: #FCFDFD;
+  --panel-2: #EDEEF0;
+  --side-bg: #EBECEE;
+  --star: #D0A63C;
+  --text: #1B1E21;
+  --text-2: #6C737C;
+  --text-3: #9AA0A8;
+  --border: #DFE2E5;
+  --border-2: #CBCFD4;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="steel"][data-mode="dark"] {
+  --accent: #D07E5B;
+  --accent-hover: #D98C6B;
+  --accent-soft: #3D2E26;
+  --accent-text: #D4886A;
+  --ink: #DDE1E8;
+  --ink-t: #24262A;
+  --hover: #33373F;
+  --ink-soft: #3B404B;
+  --bg: #26282B;
+  --panel: #2C2F33;
+  --panel-2: #343841;
+  --side-bg: #212225;
+  --star: #D0A63C;
+  --text: #E2E6E9;
+  --text-2: #969CA6;
+  --text-3: #64696F;
+  --border: #393E46;
+  --border-2: #484E58;
+  --danger: #D07676;
+  --ok: #7BAE87;
+}
+
+/* ---- 绯霞·殷红（crimson） ---- */
+html[data-theme="crimson"] {
+  --accent: #AC4257;
+  --accent-hover: #913040;
+  --accent-soft: #F7E9EB;
+  --accent-text: #8F3345;
+  --ink: #2A2224;
+  --ink-t: #FDF7F8;
+  --hover: #F0EAEB;
+  --ink-soft: #EAE2E3;
+  --bg: #F6F4F3;
+  --panel: #FEFDFD;
+  --panel-2: #F1EDEE;
+  --side-bg: #EFEAEB;
+  --star: #D0A03C;
+  --text: #241F20;
+  --text-2: #726A6C;
+  --text-3: #A19A9B;
+  --border: #E7E0E1;
+  --border-2: #D6CCCE;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="crimson"][data-mode="dark"] {
+  --accent: #CC6C7C;
+  --accent-hover: #D67E8D;
+  --accent-soft: #473339;
+  --accent-text: #D2838F;
+  --ink: #E8E1E3;
+  --ink-t: #2C2729;
+  --hover: #3B3537;
+  --ink-soft: #453D3F;
+  --bg: #2B2728;
+  --panel: #332E2F;
+  --panel-2: #3D3638;
+  --side-bg: #252223;
+  --star: #D0A03C;
+  --text: #EDE8E9;
+  --text-2: #A59CA0;
+  --text-3: #71696D;
+  --border: #433B3D;
+  --border-2: #53494C;
+  --danger: #D4787D;
+  --ok: #7BAE87;
+}
+
+/* ---- 麦浪·鎏金（gold） ---- */
+html[data-theme="gold"] {
+  --accent: #9C8026;
+  --accent-hover: #7E641D;
+  --accent-soft: #F3EFE1;
+  --accent-text: #826820;
+  --ink: #292619;
+  --ink-t: #FDFBF2;
+  --hover: #EFEEE3;
+  --ink-soft: #E9E7D9;
+  --bg: #F4F3ED;
+  --panel: #FEFDF8;
+  --panel-2: #F0EFE5;
+  --side-bg: #ECEAE0;
+  --star: #D89B30;
+  --text: #25231B;
+  --text-2: #716D58;
+  --text-3: #A09B85;
+  --border: #E6E4D6;
+  --border-2: #D5D2BF;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="gold"][data-mode="dark"] {
+  --accent: #D2AE4A;
+  --accent-hover: #DAB551;
+  --accent-soft: #453D2B;
+  --accent-text: #D6B34E;
+  --ink: #E9E6D8;
+  --ink-t: #28261E;
+  --hover: #37352A;
+  --ink-soft: #413E32;
+  --bg: #292820;
+  --panel: #312F26;
+  --panel-2: #3B382D;
+  --side-bg: #24231E;
+  --star: #D89B30;
+  --text: #EDEBDF;
+  --text-2: #A29D89;
+  --text-3: #6F6B59;
+  --border: #403D31;
+  --border-2: #504C40;
+  --danger: #D3766E;
+  --ok: #7BAE87;
+}
+
+/* ---- 湖光·孔雀（lake） ---- */
+html[data-theme="lake"] {
+  --accent: #2E7D9E;
+  --accent-hover: #276C8B;
+  --accent-soft: #E4EFF4;
+  --accent-text: #2A6F8F;
+  --ink: #1E262B;
+  --ink-t: #F4F9FB;
+  --hover: #E9EFF2;
+  --ink-soft: #E0E8EC;
+  --bg: #F2F5F7;
+  --panel: #FBFDFD;
+  --panel-2: #EDF1F4;
+  --side-bg: #E9EFF3;
+  --star: #D0A63C;
+  --text: #1A2226;
+  --text-2: #657078;
+  --text-3: #96A1A9;
+  --border: #DEE5E9;
+  --border-2: #CCD6DC;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="lake"][data-mode="dark"] {
+  --accent: #61A9C9;
+  --accent-hover: #6EB5D4;
+  --accent-soft: #263C49;
+  --accent-text: #6FB2D0;
+  --ink: #DDE5EC;
+  --ink-t: #1E262C;
+  --hover: #2E3842;
+  --ink-soft: #38434E;
+  --bg: #212932;
+  --panel: #29333C;
+  --panel-2: #333E48;
+  --side-bg: #1B2227;
+  --star: #D0A63C;
+  --text: #E2E9EE;
+  --text-2: #939EA8;
+  --text-3: #626D77;
+  --border: #36414C;
+  --border-2: #45525F;
+  --danger: #D07676;
+  --ok: #7BAE87;
+}
+
+/* ---- 紫雾·石楠（heather） ---- */
+html[data-theme="heather"] {
+  --accent: #A25E8C;
+  --accent-hover: #8B4F7D;
+  --accent-soft: #F4ECF3;
+  --accent-text: #8C5180;
+  --ink: #262129;
+  --ink-t: #FCF9FC;
+  --hover: #F0EDF2;
+  --ink-soft: #E9E4EC;
+  --bg: #F6F4F7;
+  --panel: #FDFCFE;
+  --panel-2: #F1EFF3;
+  --side-bg: #EFEDF2;
+  --star: #D0A03C;
+  --text: #221E26;
+  --text-2: #6F6878;
+  --text-3: #9C95A6;
+  --border: #E6E1E9;
+  --border-2: #D4CCDB;
+  --danger: #B54A56;
+  --ok: #4A7E58;
+}
+
+html[data-theme="heather"][data-mode="dark"] {
+  --accent: #C893C0;
+  --accent-hover: #D2A1CA;
+  --accent-soft: #43334B;
+  --accent-text: #CF9DC6;
+  --ink: #E7E1EC;
+  --ink-t: #29252C;
+  --hover: #37333B;
+  --ink-soft: #413A48;
+  --bg: #2A272D;
+  --panel: #322E34;
+  --panel-2: #3C373F;
+  --side-bg: #242227;
+  --star: #D0A03C;
+  --text: #EBE7EE;
+  --text-2: #A69FB0;
+  --text-3: #6F6878;
+  --border: #3F3946;
+  --border-2: #4F4757;
+  --danger: #D27682;
+  --ok: #7BAE87;
+}
+
+/* ---- 青屿·薄荷（mint） ---- */
+html[data-theme="mint"] {
+  --accent: #2F8F68;
+  --accent-hover: #267A56;
+  --accent-soft: #E4F1E9;
+  --accent-text: #277D58;
+  --ink: #1E2722;
+  --ink-t: #F3FAF5;
+  --hover: #E9F0EB;
+  --ink-soft: #E1E9E4;
+  --bg: #F2F6F3;
+  --panel: #FAFCFA;
+  --panel-2: #EDF2EE;
+  --side-bg: #E9F0EB;
+  --star: #D0A63C;
+  --text: #1A231D;
+  --text-2: #64726A;
+  --text-3: #97A49B;
+  --border: #DFE7E1;
+  --border-2: #CCD8D0;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="mint"][data-mode="dark"] {
+  --accent: #5FB58D;
+  --accent-hover: #6CC197;
+  --accent-soft: #243A2F;
+  --accent-text: #69BD94;
+  --ink: #DDE6DF;
+  --ink-t: #1C251F;
+  --hover: #2D3731;
+  --ink-soft: #37423B;
+  --bg: #212A25;
+  --panel: #28322C;
+  --panel-2: #323D36;
+  --side-bg: #1B231E;
+  --star: #D0A63C;
+  --text: #E2EAE4;
+  --text-2: #96A29A;
+  --text-3: #65706A;
+  --border: #354038;
+  --border-2: #445148;
+  --danger: #CE7272;
+  --ok: #7BAE87;
+}
+
+/* ---- 宣纸·玄墨（ink） ---- */
+html[data-theme="ink"] {
+  --accent: #3D4B57;
+  --accent-hover: #2F3B46;
+  --accent-soft: #E8EBEE;
+  --accent-text: #394652;
+  --ink: #2A2823;
+  --ink-t: #FFFFFF;
+  --hover: #ECEAE5;
+  --ink-soft: #E5E2DB;
+  --bg: #F5F4F2;
+  --panel: #FDFCFA;
+  --panel-2: #F0EEEA;
+  --side-bg: #EDEBE6;
+  --star: #D0A03C;
+  --text: #26241F;
+  --text-2: #706C62;
+  --text-3: #A29E92;
+  --border: #E2DFD8;
+  --border-2: #D0CCC2;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="ink"][data-mode="dark"] {
+  --accent: #A3B4C0;
+  --accent-hover: #BAC8D2;
+  --accent-soft: #393F45;
+  --accent-text: #ADBECA;
+  --ink: #E8E6E0;
+  --ink-t: #252422;
+  --hover: #35332F;
+  --ink-soft: #3F3D38;
+  --bg: #292826;
+  --panel: #312F2C;
+  --panel-2: #3A3734;
+  --side-bg: #232220;
+  --star: #D0A03C;
+  --text: #ECEAE4;
+  --text-2: #A5A196;
+  --text-3: #716E63;
+  --border: #3D3A35;
+  --border-2: #4F4A43;
+  --danger: #D17277;
+  --ok: #7BAE87;
+}
+
+/* ---- 桑葚·黑加仑（mulberry） ---- */
+html[data-theme="mulberry"] {
+  --accent: #8E4A8A;
+  --accent-hover: #7C3B78;
+  --accent-soft: #F3E9F2;
+  --accent-text: #7C3B78;
+  --ink: #2C2229;
+  --ink-t: #FDF7FC;
+  --hover: #EFEAEE;
+  --ink-soft: #E8E1E7;
+  --bg: #F5F2F4;
+  --panel: #FEFDFE;
+  --panel-2: #F0EBEF;
+  --side-bg: #EEE9ED;
+  --star: #D0A03C;
+  --text: #241F26;
+  --text-2: #736774;
+  --text-3: #9E919C;
+  --border: #E5DEE4;
+  --border-2: #D4CAD2;
+  --danger: #B54A56;
+  --ok: #4A7E58;
+}
+
+html[data-theme="mulberry"][data-mode="dark"] {
+  --accent: #B06AA8;
+  --accent-hover: #BC7AB4;
+  --accent-soft: #453244;
+  --accent-text: #C08FBA;
+  --ink: #E8E0E7;
+  --ink-t: #2C272D;
+  --hover: #383037;
+  --ink-soft: #423A41;
+  --bg: #2A262B;
+  --panel: #322D34;
+  --panel-2: #3E353D;
+  --side-bg: #242126;
+  --star: #D0A03C;
+  --text: #EDE9EE;
+  --text-2: #A99AA5;
+  --text-3: #73656F;
+  --border: #40383F;
+  --border-2: #514650;
+  --danger: #D37884;
+  --ok: #7BAE87;
+}
+
+/* ---- 清泉·松石（turquoise） ---- */
+html[data-theme="turquoise"] {
+  --accent: #1C7E85;
+  --accent-hover: #156873;
+  --accent-soft: #E4F0F0;
+  --accent-text: #166E75;
+  --ink: #202B2C;
+  --ink-t: #F5FBFB;
+  --hover: #E8F0F0;
+  --ink-soft: #E0EBEB;
+  --bg: #F2F5F5;
+  --panel: #FAFCFC;
+  --panel-2: #EAF0F0;
+  --side-bg: #E8EEEE;
+  --star: #D0A63C;
+  --text: #1F2727;
+  --text-2: #5C7070;
+  --text-3: #98ABAB;
+  --border: #DEE8E8;
+  --border-2: #C9D8D8;
+  --danger: #B04A4A;
+  --ok: #4A7E58;
+}
+
+html[data-theme="turquoise"][data-mode="dark"] {
+  --accent: #4FA8A8;
+  --accent-hover: #5FB6B6;
+  --accent-soft: #293D3D;
+  --accent-text: #7FC4C4;
+  --ink: #E2EBEB;
+  --ink-t: #1B2222;
+  --hover: #313939;
+  --ink-soft: #3B4545;
+  --bg: #242929;
+  --panel: #2C3232;
+  --panel-2: #353D3D;
+  --side-bg: #202525;
+  --star: #D0A63C;
+  --text: #E7EEEE;
+  --text-2: #9FAEAE;
+  --text-3: #6C7979;
+  --border: #374040;
+  --border-2: #485454;
+  --danger: #CE7272;
+  --ok: #7BAE87;
+}
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   只重绑底族与激活档，卡与弱面不压暗；深色不参与（`@media` 内的选择器特异性低于 `[data-mode="dark"]`）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   只重绑底族与激活档，卡与弱面不压暗；深色不参与（`@media` 内的选择器特异性低于 `[data-mode="dark"]`）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   只重绑底族与激活档，卡与弱面不压暗；深色不参与（`@media` 内的选择器特异性低于 `[data-mode="dark"]`）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   只重绑底族与激活档，卡与弱面不压暗；深色不参与（`@media` 内的选择器特异性低于 `[data-mode="dark"]`）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   只重绑底族与激活档，卡与弱面不压暗；深色不参与（`@media` 内的选择器特异性低于 `[data-mode="dark"]`）。 */
+/* BEGIN mobile-fork (generated) */
+@media (pointer: coarse) {
+  html[data-theme="warm-paper"] { --side-bg: #E9E5DF; --bg: #EFEDE8; --panel-2: #EBE8E3; --accent-hover: #976944; }
+  html[data-theme="matcha"] { --side-bg: #E5E9E6; --bg: #EEF0ED; --panel-2: #E8EBE9; --accent-hover: #567762; }
+  html[data-theme="graphite"] { --side-bg: #E5E6E8; --bg: #EDEEEF; --panel-2: #E7E8EA; --accent-hover: #57719A; }
+  html[data-theme="sunset"] { --side-bg: #EAE7E5; --bg: #EFEDEB; --panel-2: #ECE9E7; --accent-hover: #AB5A47; }
+  html[data-theme="celadon"] { --side-bg: #E5E8E7; --bg: #ECEFEE; --panel-2: #E7EBEA; --accent-hover: #3E7974; }
+  html[data-theme="grape"] { --side-bg: #E7E6E9; --bg: #EEEDF0; --panel-2: #EAE9EB; --accent-hover: #7865A9; }
+  html[data-theme="sakura"] { --side-bg: #EAE6E8; --bg: #F0EEEF; --panel-2: #ECE9EA; --accent-hover: #A95772; }
+  html[data-theme="coffee"] { --side-bg: #E5E2DC; --bg: #EEEBE6; --panel-2: #EAE6E0; --accent-hover: #906A38; }
+  html[data-theme="olive"] { --side-bg: #E6E5DB; --bg: #EDEEE6; --panel-2: #EBEBE4; --accent-hover: #6C7944; }
+  html[data-theme="deepsea"] { --side-bg: #E4E7EE; --bg: #EBEDF3; --panel-2: #E8EAF0; --accent-hover: #4772BA; }
+  html[data-theme="steel"] { --side-bg: #E5E6E8; --bg: #EDEEEF; --panel-2: #E7E8EA; --accent-hover: #A4614A; }
+  html[data-theme="crimson"] { --side-bg: #E9E5E5; --bg: #F0EEED; --panel-2: #EBE7E8; --accent-hover: #A24F5D; }
+  html[data-theme="gold"] { --side-bg: #E6E5DB; --bg: #EEEDE7; --panel-2: #EAE9E0; --accent-hover: #88702F; }
+  html[data-theme="lake"] { --side-bg: #E4E9ED; --bg: #ECEFF1; --panel-2: #E7EBEE; --accent-hover: #3A7995; }
+  html[data-theme="heather"] { --side-bg: #E9E7EC; --bg: #F0EEF1; --panel-2: #EBE9ED; --accent-hover: #98628B; }
+  html[data-theme="mint"] { --side-bg: #E4EAE5; --bg: #ECF0ED; --panel-2: #E7ECE8; --accent-hover: #2F7F5D; }
+  html[data-theme="ink"] { --side-bg: #E7E5E1; --bg: #EFEEEC; --panel-2: #EAE8E5; --accent-hover: #4E5862; }
+  html[data-theme="mulberry"] { --side-bg: #E8E4E7; --bg: #EFECEE; --panel-2: #EAE5E9; --accent-hover: #90588C; }
+  html[data-theme="turquoise"] { --side-bg: #E3E8E8; --bg: #ECEFEF; --panel-2: #E5EAEA; --accent-hover: #367D87; }
+}
+/* END mobile-fork (generated) */

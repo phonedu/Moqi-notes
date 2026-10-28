@@ -1,0 +1,55 @@
+{
+  "name": "@moqi/editor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "墨契块编辑器内核：Block 模型 + 事务 + Lexical 适配 + 宿主契约（workspace 包，见仓库 docs/13-编辑器模块化.md）",
+  "repository": {
+    "type": "git",
+    "url": "未对外发布：先在仓库 workspace 内消费（13-编辑器模块化 §6「怎么发」）"
+  },
+  "keywords": [
+    "editor",
+    "block-editor",
+    "lexical",
+    "outliner",
+    "moqi"
+  ],
+  "sideEffects": [
+    "*.css"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "build": "tsc --noEmit && vite build && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/placement.test.ts tests/memoryHost.test.ts tests/moqiEditor.test.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@lexical/react": "0.51.0",
+    "lexical": "0.51.0",
+    "lucide-react": "^1.48.0"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^4.3.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "typescript": "^5.9.2",
+    "vite": "^6.4.3",
+    "tsx": "^4.20.5"
+  }
+}

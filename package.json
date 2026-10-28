@@ -1,0 +1,13 @@
+{
+  "name": "moqi-workspace",
+  "private": true,
+  "version": "0.0.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild"
+    ],
+    "overrides": {
+      "source-map-js": ">=1.2.2"
+    }
+  }
+}

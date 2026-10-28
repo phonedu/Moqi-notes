@@ -1,0 +1,6 @@
+# 资产文件必须**逐字节**入库：实验库（`project-b/app/fixtures/library/assets/`）与将来任何 assets
+# 目录里的文件都是「按字节算大小、按内容显示」的东西——换行转换会让 `asset.size` 与磁盘上那份对不上
+# （2026-10-07 补媒体样本时发现：CSV 被 CRLF 化，65 字节变 67）。**路径要写仓库根起的全路径**，
+# 写 `app/...` 是不生效的（第一次就写错了一版，`git check-attr` 一照就露馅）。
+* text=auto
+project-b/app/fixtures/library/assets/** -text

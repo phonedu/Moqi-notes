@@ -1,0 +1,88 @@
+/*
+ * 设置页（`09-桌面端UI规范（视图与组件）` §4.6 的 `R09-SET-16 / 17 / 19`）：桌面外壳（`.mask` 内
+ * 的 `.dlg.set-dlg`，`min(760px, 92vw)` × `min(78vh, 620px)` ＋ 头部「设置」+ ✕）＋ 壳内「左分栏 ＋ 右栏表单」；
+ * **窄档（≤700）= 独立全屏页**（`R09-SET-16` 的另一半；`10` §4.7）——弹窗头退场，改用
+ * **列表页与子页共用的统一标题栏 `.set-topbar`**（返回 ＋ 标题同栏；栏高 48、命中 ≥44、**无底线**，滚动才浮起）。
+ * 为什么单独一份 CSS：`app.css` 由外壳导入、已 2500+ 行；这层只服务设置，家具放在一处好整体替换。
+ * 用色一律走令牌（`check:theme-usage`）；媒体块在文件末尾（`check:css-order` 的规矩）。
+ */
+
+/* ---------- 弹窗面板（挂在弹窗族 `Dialogs.tsx` 的 `.dlg` 上，靠 `className` 追加） ---------- */
+.set-body { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.set-body + .dlg-f { display: none; }   /* 设置没有弹窗样式里的 footer */
+
+.set-dlg { width: min(760px, 92vw); height: min(78vh, 620px); }
+.set-dlg .dlg-h { border-bottom: none; }
+
+/* 左分栏（约 230px，右缘 1px 分隔）：条目 = 图标 ＋ 文字；选中 = 弱主题底 ＋ 主题色文字
+   （与侧栏 `.sb-nav.is-active` 同一组合，2026-10-10 视觉批 ⓓ 的口径）。 */
+.set-split { display: flex; align-items: stretch; flex: 1; min-height: 0; }
+
+.set-nav { flex: 0 0 230px; width: 230px; background: var(--bg); padding: 8px; overflow-y: auto; }
+.set-nav button {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 7px 10px; border: none; border-radius: var(--r-ctrl);
+  background: none; color: var(--text-2); cursor: pointer;
+  font-family: var(--sans); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); text-align: left;
+}
+.set-nav button:hover { background: var(--hover); color: var(--text); }
+.set-nav button.is-active { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
+/* 「数据」组的标题行：与条目同高、不可选，右侧 ▾；子项缩进一级。 */
+.set-nav .set-grp { display: flex; align-items: center; gap: 8px; padding: 7px 10px; color: var(--text-2); font-family: var(--sans); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); }
+.set-nav .set-grp .chev { margin-left: auto; color: var(--text-3); }
+.set-nav .set-sub { padding-left: 26px; }
+
+/* 右栏：页头（面包屑 ＋ 页名）＋ 表单（复用 `.set-card` 一族，见 `app.css`）。
+   **滚动在右栏**（面板高度是定值：`R09-SET-16` 的 min(78vh, 620px)）；左分栏不滚。 */
+.set-pane { flex: 1; min-width: 0; overflow-y: auto; padding: 14px 22px 40px; }
+.set-ph { margin: 2px 0 16px; }
+.set-ph .set-crumb { margin-bottom: 4px; color: var(--text-3); font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
+.set-ph h2 { margin: 0; font-size: var(--type-headline-size); line-height: var(--type-headline-line); font-weight: 700; }
+.set-ph .set-ph-meta { margin-left: 10px; color: var(--text-3); font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); font-weight: 400; }
+
+/* compact 档（≤700）：**整块退化为全屏页**（`R09-SET-16` 的另一半）＋ **分区列表 → 子页**（`10` §4.7）。 */
+@media (max-width: 700px) {
+  /* 遮罩默认带内边距（弹窗族留给居中卡片），设置降级成整屏时要先清零，否则面板比视口小一圈。 */
+  .mask:has(.set-dlg) { padding: 0; }
+  /* `#9` 批 ζ：
+     高度用 `dvh` 并把键盘高度算进去（`#8` 在 `settings.css` 的那一格——设置页有 AI Key 等输入）；
+     `100dvh` 而非 `100vh`（前者随键盘/浏览器栏收缩）。 */
+  .set-dlg { width: 100vw; height: calc(100dvh - env(safe-area-inset-top, 0px) - var(--kb-h, 0px)); margin-top: env(safe-area-inset-top, 0px); max-height: none; border-radius: 0; }
+  /* 窄档不再用弹窗头（`D-068` 真机：✕ 与子页返回叠成两个控件、✕ 也不像移动端的返回）——
+     出口 = 列表页与子页**共用的同一条统一标题栏** `.set-topbar`（`#9` 批 ζ；`10` §4.7）：弹窗头整条退场。 */
+  .set-dlg .dlg-h { display: none; }
+  /* 统一标题栏（返回 + 标题同栏；一层一条；类名契约见 @0）：
+     · 容器 **`.set-topbar`**；栏高 **48**（= 列表行高；写进 `10` §4.7 + §2.3 几何表，**不新增令牌**）；
+     · **无底线**——分隔靠 `background: var(--panel)` + **常驻极淡 `box-shadow: var(--shadow)`**
+      （**不做滚动联动、不依赖 JS 挂类**；口径已冻结）；
+     · 返回盒子 **`.tb-back`**（兼容「首个 button」结构性回退）命中区 **≥44**；
+     · 图标 **`.tb-ic`**；标题 **`.tb-t`**：15px/600 `--text`、单行省略。 */
+  .set-topbar { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; gap: 6px; min-height: 48px; width: 100%; padding: 0 12px; border: none; background: var(--panel); color: var(--text); font-family: inherit; text-align: left; box-shadow: var(--shadow); }
+  .set-topbar > .tb-back, .set-topbar > button:first-child { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; margin-left: -8px; border: none; border-radius: var(--r-ctrl); background: none; color: var(--text-2); }
+  .set-topbar > .tb-back:active, .set-topbar > button:first-child:active { background: var(--hover); }
+  .set-topbar .tb-ic { display: inline-flex; align-items: center; justify-content: center; }
+  .set-topbar > .tb-t, .set-topbar > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); font-weight: 600; color: var(--text); }
+  .set-split { flex-direction: column; }
+  /* 桌面左分栏整条收掉——此前横排成一条 overflow-x 的胶囊带（实测 360 下被截断成「外观与主…」）。 */
+  .set-nav { display: none; }
+  /* 分区列表页（`10` §4.7 的行序）：行 48px、图标 + 标签 + 右箭头；「数据」是组标注 + 三行。 */
+  .set-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 14px 48px; }
+  .set-list .sl-grp { padding: 16px 4px 6px; color: var(--text-3); font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
+  .set-list .sl-row { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 48px; padding: 0 14px; border: none; border-radius: var(--r-ctrl); background: var(--panel); color: var(--text); font-family: inherit; font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); text-align: left; }
+  .set-list .sl-row + .sl-row { margin-top: 6px; }
+  .set-list .sl-row .ic { display: inline-flex; color: var(--text-2); }
+  .set-list .sl-row .ch { display: inline-flex; margin-left: auto; color: var(--text-3); }
+  .set-list .sl-row:active { background: var(--hover); }
+  /* 子页：与列表页**共用同一条标题栏**（`.set-topbar`，由结构侧渲染在两者之上）——
+     两处旧返回行（`.set-back`）已删；上内距归零，不再用宽度补偿对齐。 */
+  .set-pane { padding-top: 0; }
+  /* 窄档：页头 `.set-ph` 整体退场（标题已进标题栏；面包屑 `.set-crumb` 按 `10` §1.1 不用）；
+     窄档表单一行改上下两级——桌面是 [标签 96px][控件]，360 下控件只剩 ~200px（实测被压成「按标 签…」）。 */
+  .set-pane .set-ph, .set-pane .set-crumb { display: none; }
+  .set-pane .frow { flex-direction: column; align-items: stretch; gap: 6px; }
+  .set-pane .frow > label { width: auto; }
+  /* 控件列也竖排、让子控件横向撑满（seg 实测 236px 只有内容宽——撑满后按钮均分）。 */
+  .set-pane .frow .ctl { flex-direction: column; align-items: stretch; }
+  .set-pane .seg { display: flex; flex-wrap: wrap; }
+  .set-pane .seg button { flex: 1 0 auto; white-space: nowrap; }
+}

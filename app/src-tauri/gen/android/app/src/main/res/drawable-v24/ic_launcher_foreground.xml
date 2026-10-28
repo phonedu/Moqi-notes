@@ -1,0 +1,19 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 墨契前景「剖墨」：一滴墨剖而为契（墨 #1E2230 × 靛 #5E6AD2）。源 512 视框等比 0.125 落入安全圆；弧线已转 cubic（VD 不支持 A）。 -->
+    <group
+        android:scaleX="0.125"
+        android:scaleY="0.125"
+        android:translateX="22"
+        android:translateY="23.5">
+        <path
+            android:fillColor="#1E2230"
+            android:pathData="M256,84 C206,168 152,222 152,300 C152,357.44 198.56,404 256,404 L256,354 C285.82,354 310,329.82 310,300 C310,270.18 285.82,246 256,246 L256,84 Z" />
+        <path
+            android:fillColor="#5E6AD2"
+            android:pathData="M256,84 C306,168 360,222 360,300 C360,357.44 313.44,404 256,404 L256,354 C285.82,354 310,329.82 310,300 C310,270.18 285.82,246 256,246 L256,84 Z" />
+    </group>
+</vector>

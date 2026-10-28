@@ -1,0 +1,121 @@
+[
+  {
+    "id": "01_short",
+    "action": "summary",
+    "status": "complete",
+    "items": [
+      "（stub 总结）今天开会讨论了发布计划。"
+    ]
+  },
+  {
+    "id": "01_short",
+    "action": "actions",
+    "status": "complete",
+    "items": [
+      "（stub 行动项）今天开会讨论了发布计划。"
+    ]
+  },
+  {
+    "id": "02_medium",
+    "action": "summary",
+    "status": "complete",
+    "items": [
+      "（stub 总结）周一确定 V2a 目标。"
+    ]
+  },
+  {
+    "id": "02_medium",
+    "action": "actions",
+    "status": "complete",
+    "items": [
+      "（stub 行动项）周一确定 V2a 目标。",
+      "（stub 行动项）周三完成初稿并自测。",
+      "（stub 行动项）周五评审并整理行动项。"
+    ]
+  },
+  {
+    "id": "03_conflict",
+    "action": "summary",
+    "status": "complete",
+    "items": [
+      "（stub 总结）结论：本周五上线。"
+    ]
+  },
+  {
+    "id": "03_conflict",
+    "action": "actions",
+    "status": "complete",
+    "items": [
+      "（stub 行动项）结论：本周五上线。",
+      "（stub 行动项）结论：推迟到下周上线。"
+    ]
+  },
+  {
+    "id": "04_timespan",
+    "action": "summary",
+    "status": "complete",
+    "items": [
+      "（stub 总结）2026-09-01 立项并确定范围。"
+    ]
+  },
+  {
+    "id": "04_timespan",
+    "action": "actions",
+    "status": "complete",
+    "items": [
+      "（stub 行动项）2026-09-01 立项并确定范围。",
+      "（stub 行动项）2026-09-12 完成双链输入。",
+      "（stub 行动项）2026-09-24 完成 V2a 基础 AI。"
+    ]
+  },
+  {
+    "id": "05_isolated",
+    "action": "summary",
+    "status": "complete",
+    "items": [
+      "（stub 总结）随手记一个与当前主题无关的想法。"
+    ]
+  },
+  {
+    "id": "05_isolated",
+    "action": "actions",
+    "status": "complete",
+    "items": [
+      "（stub 行动项）随手记一个与当前主题无关的想法。"
+    ]
+  },
+  {
+    "id": "06_overlong",
+    "action": "summary",
+    "status": "complete",
+    "items": [
+      "（stub 总结）第一部分：需求背景与目标，说明为什么需要基础 AI 以及它只做总结和行动项提取。"
+    ]
+  },
+  {
+    "id": "06_overlong",
+    "action": "actions",
+    "status": "complete",
+    "items": [
+      "（stub 行动项）第一部分：需求背景与目标，说明为什么需要基础 AI 以及它只做总结和行动项提取。",
+      "（stub 行动项）第二部分：约束，原文必须保持不变，结果作为新 Block 插入最后来源子树之后。",
+      "（stub 行动项）第三部分：降级，低置信度或来源不足必须标记为需要人工确认。",
+      "（stub 行动项）第四部分：补充材料，用于拉长输入以触发超长分支，重复内容不会改变契约。",
+      "（stub 行动项）第五部分：补充材料，用于拉长输入以触发超长分支，重复内容不会改变契约。"
+    ]
+  },
+  {
+    "id": "07_missing",
+    "action": "summary",
+    "status": "complete",
+    "items": [
+      "（stub 总结）"
+    ]
+  },
+  {
+    "id": "07_missing",
+    "action": "actions",
+    "status": "complete",
+    "items": []
+  }
+]

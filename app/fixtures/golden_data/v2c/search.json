@@ -1,0 +1,452 @@
+{
+  "version": 1,
+  "note": "V2c 黄金数据集（docs/03 §15.5 的 L 类门槛）。每条含稳定 Block ID、触发文本、允许/禁止来源与人工标注理由——样本按类别覆盖：明确命中 / 多个近似命中 / 无命中 / 同义表达 / 中文分词 / 短块与长块 / 多层子树 / 已删除块 / 来源不足 / 越界问题 / 原文与 AI 结果块混合。指标由 tests/logic/golden-v2c.test.ts 计算（双链建议 Top5 ≥ 80%、误导性候选单独统计、问答来源覆盖 100%、检索与建议的 p50/p95 基线）。",
+  "blocks": [
+    {
+      "entityId": "g-work",
+      "objectName": "工作台",
+      "tags": [
+        "g-t-work"
+      ],
+      "position": 0,
+      "children": [
+        "g-w1",
+        "g-w2",
+        "g-w3"
+      ],
+      "objectRefs": [
+        "g-route"
+      ]
+    },
+    {
+      "entityId": "g-w1",
+      "text": "这条笔记讲的是检索与同步的取舍：本地优先意味着索引也归本机。",
+      "parent": "g-work",
+      "position": 0
+    },
+    {
+      "entityId": "g-w2",
+      "text": "双链笔记要能找回来才有用——搜不到就等于没记。",
+      "parent": "g-work",
+      "position": 1
+    },
+    {
+      "entityId": "g-w3",
+      "text": "短块。",
+      "parent": "g-work",
+      "position": 2
+    },
+    {
+      "entityId": "g-life",
+      "objectName": "读书笔记",
+      "tags": [
+        "g-t-life"
+      ],
+      "position": 1,
+      "children": [
+        "g-l1",
+        "g-l2"
+      ]
+    },
+    {
+      "entityId": "g-l1",
+      "text": "纳瓦尔宝典：幸福是一种可以练习的技能，不是运气。",
+      "parent": "g-life",
+      "position": 0
+    },
+    {
+      "entityId": "g-l2",
+      "text": "长块示例——这一段故意写长一些：双链、反向链接、页面名派生、属性面板、标签字典、搜索索引、同步游标、撤销栈、AI 块的三态生命周期，都在同一篇里出现，用来检验长块里的子串命中不会被截断，也用来检验建议在长块上的表现。",
+      "parent": "g-life",
+      "position": 1
+    },
+    {
+      "entityId": "g-route",
+      "objectName": "产品路线",
+      "tags": [],
+      "position": 2,
+      "children": [
+        "g-r1"
+      ]
+    },
+    {
+      "entityId": "g-r1",
+      "text": "路线里写着：先把「找回来」这一段补上，再谈语义检索。",
+      "parent": "g-route",
+      "position": 0
+    },
+    {
+      "entityId": "g-deep-a",
+      "objectName": "多层子树",
+      "tags": [
+        "g-t-work"
+      ],
+      "position": 3,
+      "children": [
+        "g-da1"
+      ]
+    },
+    {
+      "entityId": "g-da1",
+      "text": "第一层",
+      "parent": "g-deep-a",
+      "position": 0,
+      "children": [
+        "g-da2"
+      ]
+    },
+    {
+      "entityId": "g-da2",
+      "text": "第二层里也提到了双链笔记这条链路",
+      "parent": "g-da1",
+      "position": 0,
+      "children": [
+        "g-da3"
+      ]
+    },
+    {
+      "entityId": "g-da3",
+      "text": "第三层：最深处的一句关于检索性能的话",
+      "parent": "g-da2",
+      "position": 0
+    },
+    {
+      "entityId": "g-same-source",
+      "objectName": "另一篇",
+      "tags": [],
+      "position": 4,
+      "children": [
+        "g-ss1"
+      ],
+      "objectRefs": [
+        "g-route"
+      ]
+    },
+    {
+      "entityId": "g-ss1",
+      "text": "这篇也引用了产品路线，所以与工作台同源。",
+      "parent": "g-same-source",
+      "position": 0
+    },
+    {
+      "entityId": "g-ai",
+      "objectName": "AI 结果块混合",
+      "tags": [],
+      "position": 5,
+      "children": [
+        "g-ai1"
+      ]
+    },
+    {
+      "entityId": "g-ai1",
+      "text": "AI 总结：上面几篇的共性是「本地优先 + 找得回来」。",
+      "parent": "g-ai",
+      "position": 0,
+      "aiMeta": {
+        "action": "summary",
+        "sourceBlockIds": [
+          "g-w1"
+        ],
+        "sourceScope": "selection",
+        "status": "accepted"
+      }
+    },
+    {
+      "entityId": "g-deleted",
+      "objectName": "回收站里的页面",
+      "tags": [
+        "g-t-work"
+      ],
+      "position": 6,
+      "children": [
+        "g-de1"
+      ],
+      "deleted": true
+    },
+    {
+      "entityId": "g-de1",
+      "text": "这条也在回收站里，里面同样有双链笔记四个字",
+      "parent": "g-deleted",
+      "position": 0,
+      "deleted": true
+    },
+    {
+      "entityId": "g-tiny",
+      "objectName": "笔记",
+      "tags": [
+        "g-t-life"
+      ],
+      "position": 7,
+      "children": []
+    },
+    {
+      "entityId": "g-bank",
+      "objectName": "银行与保险",
+      "tags": [],
+      "position": 8,
+      "children": [
+        "g-bank1"
+      ]
+    },
+    {
+      "entityId": "g-bank1",
+      "text": "银行里的钱要算清楚，音乐与快乐不算。",
+      "parent": "g-bank",
+      "position": 0
+    }
+  ],
+  "cases": [
+    {
+      "id": "S1",
+      "kind": "search",
+      "query": "双链笔记",
+      "expectHits": [
+        "g-w2",
+        "g-da2"
+      ],
+      "forbidHits": [
+        "g-de1"
+      ],
+      "note": "明确命中：同一子串在正文块与多层子树深处各一处；回收站里的不进结果"
+    },
+    {
+      "id": "S2",
+      "kind": "search",
+      "query": "检索",
+      "expectHits": [
+        "g-w1",
+        "g-da3",
+        "g-r1"
+      ],
+      "forbidHits": [],
+      "note": "两字词（trigram 索引匹配不了，靠兜底通路）；多个近似命中"
+    },
+    {
+      "id": "S3",
+      "kind": "search",
+      "query": "找回来",
+      "expectHits": [
+        "g-w2",
+        "g-r1"
+      ],
+      "forbidHits": [],
+      "note": "同义/口语表达按子串算命中"
+    },
+    {
+      "id": "S4",
+      "kind": "search",
+      "query": "这一段故意写长",
+      "expectHits": [
+        "g-l2"
+      ],
+      "forbidHits": [],
+      "note": "长块里的子串命中不被截断"
+    },
+    {
+      "id": "S5",
+      "kind": "search",
+      "query": "短块",
+      "expectHits": [
+        "g-w3"
+      ],
+      "forbidHits": [],
+      "note": "短块也要能命中"
+    },
+    {
+      "id": "S6",
+      "kind": "search",
+      "query": "这条短语根本不存在于任何块里",
+      "expectHits": [],
+      "forbidHits": [
+        "g-w1",
+        "g-w2",
+        "g-l1"
+      ],
+      "note": "无命中：不许乱给结果"
+    },
+    {
+      "id": "S7",
+      "kind": "search",
+      "query": "笔记",
+      "expectHits": [
+        "g-tiny"
+      ],
+      "forbidHits": [],
+      "note": "页面名命中（页面排在块前，见 S8）"
+    },
+    {
+      "id": "S8",
+      "kind": "search",
+      "query": "读书",
+      "expectHits": [
+        "g-life"
+      ],
+      "forbidHits": [],
+      "note": "页面名命中：结果里 isObject=true 的那条必须在块之前"
+    },
+    {
+      "id": "S9",
+      "kind": "search",
+      "query": "AI 总结",
+      "expectHits": [
+        "g-ai1"
+      ],
+      "forbidHits": [],
+      "note": "原文与 AI 结果块混合：AI 块与普通块一样可检索"
+    },
+    {
+      "id": "S10",
+      "kind": "search",
+      "query": "本地优先",
+      "expectHits": [
+        "g-w1",
+        "g-ai1"
+      ],
+      "forbidHits": [],
+      "note": "多个来源（原文 + AI 结果）同时命中"
+    },
+    {
+      "id": "G1",
+      "kind": "suggest",
+      "fromId": "g-w1",
+      "query": "",
+      "expectTop5": [
+        "g-same-source"
+      ],
+      "forbidTop5": [
+        "g-work",
+        "g-deleted"
+      ],
+      "note": "同源：都引用了《产品路线》；自引用与回收站页面不许出现"
+    },
+    {
+      "id": "G2",
+      "kind": "suggest",
+      "fromId": "g-w1",
+      "query": "",
+      "expectTop5": [
+        "g-deep-a"
+      ],
+      "forbidTop5": [],
+      "note": "同标签（g-t-work）：建议要覆盖到别的页面"
+    },
+    {
+      "id": "G3",
+      "kind": "suggest",
+      "fromId": "g-w1",
+      "query": "读书",
+      "expectTop5": [
+        "g-life"
+      ],
+      "forbidTop5": [],
+      "note": "标题相似：打了字时标题命中优先"
+    },
+    {
+      "id": "G4",
+      "kind": "suggest",
+      "fromId": "g-w1",
+      "query": "",
+      "expectTop5": [],
+      "forbidTop5": [
+        "g-work"
+      ],
+      "note": "误导性候选统计用：当前页自己永远不许出现在建议里"
+    },
+    {
+      "id": "Q1",
+      "kind": "qa-source",
+      "query": "本地优先是什么意思",
+      "expectSources": [
+        "g-work"
+      ],
+      "allowOnly": [
+        "g-work"
+      ],
+      "degrade": null,
+      "note": "有来源：范围=整篇时来源必须是这一篇的子树，且不为空（来源覆盖 100%）"
+    },
+    {
+      "id": "Q2",
+      "kind": "qa-source",
+      "query": "幸福的技能怎么练",
+      "expectSources": [
+        "g-life"
+      ],
+      "allowOnly": [
+        "g-life"
+      ],
+      "degrade": null,
+      "note": "有来源：跨页检索命中后提问，来源只许是命中的那些块"
+    },
+    {
+      "id": "Q3",
+      "kind": "qa-source",
+      "query": "说说不存在的话题",
+      "expectSources": [],
+      "allowOnly": [],
+      "degrade": "insufficient",
+      "note": "来源不足：没有命中时不许编——预期降级状态是「资料不足」（显式说明，不当成确定事实）"
+    },
+    {
+      "id": "Q4",
+      "kind": "qa-source",
+      "query": "明天股市会涨吗",
+      "expectSources": [],
+      "allowOnly": [],
+      "degrade": "out-of-scope",
+      "note": "越界问题：与笔记无关，预期降级同上（不答而不是乱答）"
+    },
+    {
+      "id": "Q5",
+      "kind": "qa-source",
+      "query": "模型不可用时的问题",
+      "expectSources": [],
+      "allowOnly": [],
+      "degrade": "model-unavailable",
+      "note": "模型不可用：错误态可见（toast/状态），不写任何数据"
+    },
+    {
+      "id": "P1",
+      "kind": "search",
+      "query": "yinhang",
+      "expectHits": [
+        "g-bank"
+      ],
+      "forbidHits": [],
+      "note": "拼音·全拼命中多音字：「银行」→ yinhang（逐字转换会错成 yinxing ⇒ 这条挂了说明拼音库退化了）"
+    },
+    {
+      "id": "P2",
+      "kind": "search",
+      "query": "yh",
+      "expectHits": [
+        "g-bank"
+      ],
+      "forbidHits": [],
+      "note": "拼音·首字母（两位）"
+    },
+    {
+      "id": "P3",
+      "kind": "search",
+      "query": "yinyue",
+      "expectHits": [
+        "g-bank1"
+      ],
+      "forbidHits": [],
+      "note": "拼音·第二个多音字：音乐→yinyue（同块内也能命中）"
+    },
+    {
+      "id": "P4",
+      "kind": "search",
+      "query": "zhongguo",
+      "expectHits": [],
+      "forbidHits": [
+        "g-bank",
+        "g-bank1",
+        "g-w1",
+        "g-w2"
+      ],
+      "note": "拼音·不相关的拼音不许命中（防止「什么都命中」）"
+    }
+  ]
+}

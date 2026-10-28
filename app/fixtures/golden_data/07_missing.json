@@ -1,0 +1,6 @@
+{
+  "id": "07_missing",
+  "name": "缺失字段",
+  "scenario": "边界样本：没有可用来源内容，AI 调用必须是安全 no-op",
+  "notes": []
+}

@@ -1,0 +1,279 @@
+/*
+ * 项目 B 设计令牌唯一来源（docs/08-UI设计令牌与跨端一致性.md、docs/09-桌面端UI与交互规范.md §二）。
+ * 组件只能引用本文件中的语义令牌或组件令牌，禁止在组件 CSS 里新写颜色、阴影、圆角和间距裸值。
+ *
+ * 颜色层（2026-10-06 视觉批）：规范令牌名 = 指令 §三 的那一套（--accent / --bg / --panel / --text…），
+ * 默认主题「冷雾·靛蓝」的浅色挂 :root、深色挂 html[data-mode="dark"]；其余 19 套在 themes.css。
+ * 旧名 `--brand*` / `--color-brand*` 已于 2026-10-06 随「品牌色 → 主题色」术语对齐**删除**（组件全部改用 `--accent*`）；
+ * `--color-surface-*` 等其余兼容别名保留（「加主题永不改组件」）。
+ */
+
+:root {
+  /* ---------- 1. 规范令牌（默认主题「冷雾·靛蓝」· 浅色；指令 §3.1 逐字） ----------
+     主题色只出现在四处：链接族 / AI / 焦点环 / 主操作与选中态填充（--accent-hover + --ink-t 翻转字）；
+     行悬停 / 块选底 / 次按钮一律中性（--hover / --ink-soft）；文字光标用 --ink。
+     2026-10-10 视觉批 ⓓ（参照 awesome-design-md/linear.app 的设计语言重定取值）：表面阶梯去紫、改冷灰中性
+     （紫只留在主题色四处）；文字三档各自加深一档（--text-2 5.9:1 / --text-3 3.2:1 on --panel，元数据不再发灰）；
+     深色由中灰（#24262B 族）改近黑阶梯（#141619 → #1F2226 → #262A30）。结构关系（S-1 阶梯、S-2 卡浮于底）不变。 */
+  --accent: #5E6AD2;
+  --accent-hover: #4F5AC0;
+  --accent-soft: #EEEFFB;
+  --accent-text: #4F5AC0;
+  --accent-muted: color-mix(in srgb, var(--accent) 22%, var(--panel-2));  /* 弱主题底（原 --brand-muted） */
+  --ink: #1E2230;
+  --ink-t: #FFFFFF;
+  --hover: #EEF0F3;
+  --ink-soft: #E4E7EC;
+  --bg: #F6F7F9;
+  --panel: #FFFFFF;
+  --panel-2: #F0F2F5;
+  --side-bg: #ECEEF2;
+  --star: #E5B93C;
+  --text: #17191E;
+  --text-2: #5F6573;
+  --text-3: #979DA9;
+  --border: #E3E6EB;
+  --border-2: #D2D6DE;
+  --danger: #BA544D;
+  --ok: #4E8A5C;
+  --warn: #B27A2B;
+
+  /* 正文层级：L1–L4 是内容侧的三档 + 一档最弱；L2 由 text 与 panel 混合派生（跟主题走）。 */
+  --content-l1: var(--text);
+  --content-l2: color-mix(in srgb, var(--text) 78%, var(--panel));
+  --content-l3: var(--text-2);
+  --content-l4: var(--text-3);
+
+  /* 两层复合阴影（指令 §3.1 / §6.10）：近影定边缘 + 远影托空间。 */
+  --shadow: 0 1px 2px rgba(0, 0, 0, .05), 0 2px 8px rgba(0, 0, 0, .05);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, .04), 0 16px 48px rgba(0, 0, 0, .15);
+  --shadow-popover: var(--shadow-lg);
+  --shadow-modal: 0 18px 48px rgba(0, 0, 0, .24);
+  --shadow-toolbar: 0 -8px 24px rgba(0, 0, 0, .08);
+
+  /* ---------- 2. 兼容别名（旧名 → 规范令牌；新代码请直接用规范名） ----------
+     `--brand*` / `--color-brand*` 于 2026-10-06 删除（术语对齐「品牌色 → 主题色」）。 ---------- */
+  --color-surface-page: var(--bg);
+  --color-surface-panel: var(--panel);
+  --color-surface-subtle: var(--panel-2);
+  --color-text-primary: var(--text);
+  --color-text-secondary: var(--text-2);
+  --color-text-muted: var(--text-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-2);
+  --color-danger: var(--danger);
+  --color-success: var(--ok);
+  --color-warning: var(--warn);
+  --sys-page-title: var(--text);
+  --sys-button-text: var(--text);
+  --sys-section-label: var(--text-2);
+  --sys-empty-title: var(--text);
+  --icon-idle: var(--text-2);
+  --icon-strong: var(--text);
+
+  /* ---------- 2b. 排版轴（指令 §4.7；档位见文件末尾的 data-fs / data-lh / data-colw 块） ----------
+     2026-10-24 字阶批：正文基准 16.5 → **17**（Cupertino body），行高 1.82 → **1.7**（中文正文
+     1.35–1.5 是 HIG 参考，笔记块之间要呼吸，取 1.7；手机上仍是 1.7）；四档字号同步取整：
+     15 / 17 / 19 / 21，行高三档 1.55 / 1.7 / 1.85。页面标题 = 17 × 2 = 34（large-title）。 */
+  --fs-e: 17px;     /* 正文字号基准（标准档；窄屏另有换档，见 app.css 的窄屏媒体块——无独立移动轴） */
+  --lh-e: 1.7;      /* 正文行高（标准档，无单位） */
+  --colw: 680px;    /* 桌面正文列宽（标准档；移动无此轴） */
+
+  /* ---------- 3. 字体（docs/08 §3；2026-10-06 起单轨：正文 / 标题 / UI 全部 --sans，`--serif` / `--font-body` 已删） ----------
+     2026-10-10 视觉批 ⓓ：**系统 UI 字体优先**——Latin / 数字走系统 UI 体（Win = Segoe UI Variable，mac = SF Pro），
+     CJK 按后续栈回落（PingFang SC / 雅黑 UI）。原栈把 `PingFang SC` / `Microsoft YaHei` 放最前，Windows 上
+     连 Latin 与数字一起落在雅黑的西文里（观感粗、字面大），是「发廉价」的来源之一。 */
+  --font-ui: system-ui, -apple-system, "Segoe UI Variable Text", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  --font-mono: "JetBrains Mono", "SF Mono", Menlo, monospace;
+  --sans: var(--font-ui);
+  --mono: var(--font-mono);
+
+  /* ---------- 3b. 字阶（Cupertino 11 档；2026-10-24 全站重排） ----------
+     来源：桌面 `design-systems/cupertino`（iOS / Flutter cupertino_ui 参考值）。**UI 层只许引用本组令牌**，
+     编辑正文仍走 `--fs-e` / `--lh-e`（用户可调轴，见 2b），两者互不侵占。
+     归并规则：9 / 9.5 / 10 / 10.5 / 11 → caption2；11.5 / 12 → caption1；12.5 / 13 → footnote；
+     14 / 14.5 / 15 → subheadline；16 → callout；16.5 / 17 → body；19 / 20 → title3；26 → title1。
+     中文不套 SF 的西文字距（letter-spacing 保持 0）；档位即钳制，禁止再写 12.5px 这类半像素裸值。
+     维护：`pnpm check:type-scale` 看住「UI 层出现裸 font-size px」；值层测试见 `tests/ui/typography.test.ts`。 */
+  --type-large-title-size: 34px; --type-large-title-line: 41px; --type-large-title-weight: 700;
+  --type-title1-size: 28px;      --type-title1-line: 34px;      --type-title1-weight: 700;
+  --type-title2-size: 22px;      --type-title2-line: 28px;      --type-title2-weight: 700;
+  --type-title3-size: 20px;      --type-title3-line: 25px;      --type-title3-weight: 600;
+  --type-headline-size: 17px;    --type-headline-line: 22px;    --type-headline-weight: 600;
+  --type-body-size: 17px;        --type-body-line: 22px;        --type-body-weight: 400;
+  --type-callout-size: 16px;     --type-callout-line: 21px;     --type-callout-weight: 400;
+  --type-subheadline-size: 15px; --type-subheadline-line: 20px; --type-subheadline-weight: 400;
+  --type-footnote-size: 13px;    --type-footnote-line: 18px;    --type-footnote-weight: 400;
+  --type-caption1-size: 12px;    --type-caption1-line: 16px;    --type-caption1-weight: 400;
+  --type-caption2-size: 11px;    --type-caption2-line: 13px;    --type-caption2-weight: 500;
+
+  /* ---------- 4. 间距（4px 网格，docs/08 §3） ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ---------- 5. 圆角（圆角体系 v2，2026-10-06 用户规范；docs/08 §5.2 是唯一来源） ----------
+     总原则：越浮起越圆，越深入越收敛。**只允许下列档位**，禁止发明阶梯之外的圆角值；
+     圆角属结构层：不随字号 / 行高 / 列宽三轴缩放，浅深共用同一套。
+     同心规则（只适用贴边环绕）：内角 = 外角 − 间距；独立控件不套用。
+     连续曲率（squircle）只做窗口壳与 App 图标两处，本产品 ≤10px 一律不做、`corner-shape` 不采用。
+     档位 → 用途的对照表与钉法见 docs/08 §5.2；审计见 scripts/check-theme-contrast.mjs（R-1…R-3）。 */
+  --r-pill: 99px;          /* 胶囊：状态标签 / 计数 / 开关 / 滚动条 / 来源 chip */
+  --r-float: 18px;         /* 浮起层：模态弹窗 / Sheet / FAB */
+  --r-shell: 14px;         /* 窗口外壳（桌面还原态；最大化与贴靠 = 0） */
+  --r-card: 13px;          /* 卡片：设置卡 / 页面库卡 / 面板卡 / 气泡 / 空态卡 */
+  --r-quote-card: 12px;    /* 引用类卡片：引用预览卡 / 反链卡 / 相关页卡 */
+  --r-pop: 10px;           /* 弹层与浮条：菜单 / ⌘K / 选择浮条 / Toast；块级卡面（代码块 / AI 块） */
+  --r-btn-ic: 10px;        /* 图标按钮（≥32 方形）：桌面暂无，移动端 0.6.0 触控层起 */
+  --r-ic-block: 9px;       /* 小图标容器（34 / 32）：同上 */
+  --r-ctrl: 8px;           /* 控件：按钮 / 输入框 / 键帽 / 选择段外框；面板内 24–28 图标按钮 */
+  --r-block: 6px;          /* 编辑区块：块 hover 底 / 名字行 / 行内轨按钮；紧凑弹层贴边行 */
+  --r-tag: 4px;            /* 标签：属性标签 / 行内代码 / 复选框 */
+  --r-inline: 2px;         /* 行内：双链 / 外链 / 行内高亮 / 命中底色 */
+
+
+  /* ---------- 7. 动效（只允许三档；循环动画单独登记） ---------- */
+  --dur-fast: 0.12s;
+  --dur-mid: 0.18s;
+  --dur-slow: 0.25s;
+  --motion-fast: 120ms;
+  --motion-normal: 200ms;
+  --motion-slow: 300ms;
+  --dur-caret: 1.1s;
+  --dur-flash: 1.6s;
+
+  /* ---------- 8. 布局（docs/08 §5 组件令牌） ---------- */
+  --layout-page-library: 240px;
+  --layout-inspector: 300px;
+  /* 排版轴的旧名（正文列宽 / 字号 / 标题字号）已由 --colw / --fs-e 与 §4.2 的倍率取代（2026-10-06 视觉批）。 */
+  --layout-mobile-topbar: 52px;
+  --layout-mobile-bottom-bar: 54px;
+  --layout-mobile-fab: 56px;
+  --editor-block-gap: 8px;
+  --editor-toolbar-height: 44px;
+  --editor-gutter-width: 24px;
+  --side-w: 250px;
+  /* 原生栏高度（无边框窗口的标题栏，docs/09 §3.1） */
+  --wbar-h: 40px; /* 标题栏（三色分块体系 §一-3：40px，主列首行、与顶栏同色融合） */
+  --ref-w: 340px;
+  --topbar-h: 44px;
+  --fmtbar-h: 40px;
+  --lib-col-min: 340px;
+  /* 编辑器左侧「页面列表」列宽（docs/09 §八） */
+  --pagecol-w: 350px;
+  /* 列表卡默认高度（精简卡：标题 + 两行摘要 + 一行时间） */
+  --list-card-h: 128px;
+  /* 11px 轨道 + 拇指 3px 透明边 = 视觉 5px 细条（指令 §6.10；见 app.css 的 ::-webkit-scrollbar-thumb） */
+  --scrollbar-size: 11px;
+
+  /* ---------- 9. 图标（docs/08 §8） ---------- */
+  --icon-size-sm: 16px;
+  --icon-size-md: 18px;
+  --icon-size-lg: 20px;
+  --icon-stroke: 2;
+
+  /* ---------- 10. Z-index（docs/08 §3） ----------
+     层级关系（顺序即规则）：
+       sticky(100)  界面头部三条 —— 压住正文里的覆盖层（把手 / AI 标签行，5/6 裸值）
+       toolbar(200) 浮出工具栏（块工具栏 / 文本选中工具栏）
+       panel(250)   **右侧覆盖式面板**（AI 助手 / 引用预览 / 属性）——与 drawer 同属**覆盖层族**，
+                    两者只在窄屏同屏竞争，规则是**互斥**（开一个收起另一个，`09-桌面端UI规范` §四；台账 D-017：
+                    2026-10-05 实测「页面库抽屉开着时点『就这些问 AI』，面板开在遮罩底下：看得见、
+                    点不动，点面板等于点遮罩」——根因就是这三个 z 是 30/35/40 的裸值）。
+       drawer(300)  窄屏抽屉（侧栏 / 页面列）
+       popover(400) **菜单与弹层在最上层交互面之上** —— 卡片 ⋯ 菜单、筛选、标签菜单、
+                    斜杠 / 引用候选都可能生在抽屉**内部**；popover 低于 drawer 时它们会被抽屉自己盖住
+                    （2026-09-28 实测：窄屏下页面库卡片的 ⋯ 点了没反应 = 菜单开在抽屉背后）。
+       modal(500) / toast(600) / emergency(700) 依次更高。 */
+  --z-base: 0;
+  --z-sticky: 100;
+  --z-toolbar: 200;
+  --z-panel: 250;
+  --z-drawer: 300;
+  --z-popover: 400;
+  --z-modal: 500;
+  --z-toast: 600;
+  --z-emergency: 700;
+}
+
+/* ---------- 深色（指令 §3.2；data-mode 只管浅深，主题 id 在 data-theme） ---------- */
+html[data-mode="dark"] {
+  --accent: #7C86E0;
+  --accent-hover: #8F98E8;
+  --accent-soft: #2C3149;
+  --accent-text: #A3ACF2;
+  --ink: #E2E5EC;
+  --ink-t: #1A1C20;
+  --hover: #24272D;
+  --ink-soft: #2B2F37;
+  --bg: #191B1F;
+  --panel: #1F2226;
+  --panel-2: #262A30;
+  --side-bg: #141619;
+  --star: #E5B93C;
+  --text: #EDEFF2;
+  --text-2: #9CA3AF;
+  --text-3: #787F8C;
+  --border: #2E323A;
+  --border-2: #3C414A;
+  /* 状态色深色提亮：浅色值直接带进深色对比度不足（§3.4 规则 2）。 */
+  --danger: #D98079;
+  --ok: #7DBB8A;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 2px 8px rgba(0, 0, 0, .25);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, .35), 0 16px 48px rgba(0, 0, 0, .5);
+  --shadow-modal: 0 18px 48px rgba(0, 0, 0, .55);
+  --shadow-toolbar: 0 -8px 24px rgba(0, 0, 0, .32);
+}
+
+/* ---------- 排版档位（指令 §4.7「档位即钳制」；属性挂在 <html> 上，与主题两轴互不干扰） ---------- */
+html[data-fs="small"] { --fs-e: 15px; }
+html[data-fs="large"] { --fs-e: 19px; }
+html[data-fs="xlarge"] { --fs-e: 21px; }
+html[data-lh="tight"] { --lh-e: 1.55; }
+html[data-lh="loose"] { --lh-e: 1.85; }
+html[data-colw="narrow"] { --colw: 620px; }
+html[data-colw="wide"] { --colw: 800px; }
+
+/* ---------- 减少动效偏好（docs/08 §3） ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   改公式后重跑脚本；值层校验见 `pnpm check:theme`（移动档恒序 + 约束② + 20 套齐全）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   改公式后重跑脚本；值层校验见 `pnpm check:theme`（移动档恒序 + 约束② + 20 套齐全）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   改公式后重跑脚本；值层校验见 `pnpm check:theme`（移动档恒序 + 约束② + 20 套齐全）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   改公式后重跑脚本；值层校验见 `pnpm check:theme`（移动档恒序 + 约束② + 20 套齐全）。 */
+
+/* 移动档分叉（`08` §3；A3 批）。**本块由 `scripts/gen-mobile-fork.mjs` 生成，勿手改**——
+   改公式后重跑脚本；值层校验见 `pnpm check:theme`（移动档恒序 + 约束② + 20 套齐全）。 */
+/* BEGIN mobile-fork (generated) */
+@media (pointer: coarse) {
+  :root {
+  --side-bg: #E6E8EC;
+  --bg: #F0F1F3;
+  --panel-2: #EAECEF;
+  --accent-hover: #646EC8;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.09), 0 2px 8px rgba(0, 0, 0, 0.09);
+  --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.072), 0 16px 48px rgba(0, 0, 0, 0.27);
+  }
+}
+/* END mobile-fork (generated) */

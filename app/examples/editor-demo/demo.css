@@ -1,0 +1,211 @@
+:root { color-scheme: light; }
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+.demo-page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 44px 24px 72px;
+}
+
+.demo-head {
+  max-width: 720px;
+  margin-bottom: 28px;
+}
+
+.demo-kicker {
+  margin: 0 0 8px;
+  color: var(--accent-text);
+  font-size: var(--type-caption1-size);
+  font-weight: 600;
+}
+
+.demo-head h1 {
+  margin: 0 0 10px;
+  font-size: 34px;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+
+.demo-head p {
+  margin: 0;
+  color: var(--text-2);
+  font-size: var(--type-subheadline-size);
+  line-height: 1.7;
+}
+
+.demo-head code,
+.demo-host code {
+  padding: 1px 5px;
+  border-radius: var(--r-tag);
+  background: var(--panel-2);
+  font-family: var(--mono);
+  font-size: .92em;
+}
+
+.demo-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 18px;
+  align-items: start;
+}
+
+.demo-editor {
+  /* 编辑器正文样式住 @moqi/editor 的 src/editor.css（M6）；这里只管页面壳。 */
+  min-width: 0;
+  padding: 16px 24px 30px;
+  border-radius: var(--r-card);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.demo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 12px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.demo-toolbar button {
+  min-width: 30px;
+  height: 30px;
+  padding: 0 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-ctrl);
+  background: var(--panel);
+  color: var(--text-2);
+  font: inherit;
+  font-size: var(--type-caption1-size);
+  cursor: pointer;
+}
+
+.demo-toolbar button:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.demo-toolbar-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 3px;
+  background: var(--border);
+}
+
+.demo-host {
+  padding: 18px;
+  border-radius: var(--r-card);
+  background: var(--panel-2);
+  color: var(--text-2);
+  font-size: var(--type-caption1-size);
+  line-height: 1.6;
+}
+
+.demo-host h2 {
+  margin: 0 0 8px;
+  color: var(--text);
+  font-size: var(--type-subheadline-size);
+}
+
+.demo-host p { margin: 0 0 14px; }
+
+.demo-host dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+
+.demo-host dl div {
+  padding: 10px;
+  border-radius: var(--r-ctrl);
+  background: var(--panel);
+}
+
+.demo-host dt { color: var(--text-3); }
+
+.demo-host dd {
+  margin: 2px 0 0;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.demo-host details { border-top: 1px solid var(--border); padding-top: 10px; }
+
+.demo-host summary { cursor: pointer; color: var(--text); }
+
+.demo-host pre {
+  max-height: 280px;
+  overflow: auto;
+  margin: 10px 0 0;
+  padding: 10px;
+  border-radius: var(--r-ctrl);
+  background: var(--panel);
+  color: var(--text-2);
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 820px) {
+  .demo-page { padding: 28px 14px 48px; }
+  .demo-grid { grid-template-columns: 1fr; }
+  .demo-head h1 { font-size: 28px; }
+  .demo-editor { padding: 12px 16px 24px; }
+  .demo-content .moqi-block[data-block-object="true"] { font-size: 28px; }
+}
+
+/* 宿主自定义斜杠命令菜单（DemoSlashPlugin） */
+.demo-slash {
+  position: fixed;
+  z-index: 40;
+  min-width: 240px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-card);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.demo-slash-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--r-ctrl);
+  background: none;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--type-caption1-size);
+  text-align: left;
+  cursor: pointer;
+}
+
+.demo-slash-item.is-active {
+  background: var(--hover);
+}
+
+.demo-slash-hint {
+  color: var(--text-3);
+}
+
+.demo-slash-empty,
+.demo-slash-foot {
+  padding: 7px 10px;
+  color: var(--text-3);
+  font-size: var(--type-caption2-size);
+}
