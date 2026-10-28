@@ -1,6 +1,6 @@
 # 内置 AI 提示词
 
-AI 助手七条指令的系统提示词唯一真源 = `packages/editor/src/editor/../..`（实际位置：`packages/editor/src` 内由 `app/src/adapters/ai.ts` 消费的 `SYSTEM_PROMPTS`——见该文件）。这里列出七条指令各自做什么：
+AI 助手七条指令的系统提示词唯一真源 = `app/src/adapters/ai.ts` 的 `SYSTEM_PROMPTS`。这里列出七条指令各自做什么：
 
 | 指令 | 行为 |
 |---|---|

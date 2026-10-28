@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  web:
+    name: 前端门禁（typecheck / 测试 / 各项检查）
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - name: 编辑器包测试与构建
+        run: |
+          pnpm -C packages/editor test
+          pnpm -C packages/editor build
+      - name: 产品门禁（typecheck / 测试 / 主题与排版检查 / 覆盖率）
+        run: pnpm -C app check
+
+  rust:
+    name: Rust（clippy / 测试）
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+      - name: cargo clippy
+        working-directory: app/src-tauri
+        run: cargo clippy --all-targets -- -D warnings
+      - name: cargo test
+        working-directory: app/src-tauri
+        run: cargo test

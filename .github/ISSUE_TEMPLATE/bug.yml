@@ -1,0 +1,23 @@
+name: 报告问题
+description: 崩溃、数据异常、行为不符合预期
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    validations: { required: true }
+    attributes:
+        { label: 发生了什么？ }
+  - type: textarea
+    id: steps
+    validations: { required: true }
+    attributes: { label: 复现步骤, description: 最好能从新页面一步步走到问题 }
+  - type: input
+    id: version
+    validations: { required: true }
+    attributes: { label: 版本, placeholder: "关于页可见，如 0.6.1" }
+  - type: dropdown
+    id: platform
+    validations: { required: true }
+    attributes: { label: 平台, options: [Windows, Android, 浏览器预览] }
+  - type: textarea
+    attributes: { label: 其他（截图 / 日志 / 数据目录信息——**不要贴笔记正文**） }

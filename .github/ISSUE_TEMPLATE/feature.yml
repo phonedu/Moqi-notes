@@ -1,0 +1,9 @@
+name: 功能想法
+description: 提议一个能力或改进
+labels: [enhancement]
+body:
+  - type: textarea
+    validations: { required: true }
+    attributes:
+      label: 你的使用场景
+      description: 描述真实场景而不是方案——先读 docs/ROADMAP.md 的「不做」清单
