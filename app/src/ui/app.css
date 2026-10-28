@@ -3,7 +3,7 @@
 
 /*
  * 桌面端应用样式（docs/09-桌面端UI与交互规范.md）。
- * 结构直接对应交互原型 prototype/ui/desktop-interactive.html：
+ * 结构直接对应交互原型（设计原稿，未随公开仓）：
  * .app = 侧栏 + .main；.main 内为四个互斥视图（页面库 / 回收站 / 编辑器 / 设置）+ 浮层。
  * 页面本身不滚动（html/body overflow:hidden），只有正文列、卡片网格和面板内部滚动。
  */
@@ -2211,7 +2211,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 }
 
 /* 窄屏（<900px）：侧栏改为覆盖式抽屉，避免正文列被挤到不可读（原型同值：
-   prototype/ui/desktop-interactive.html 在 innerWidth<900 时给 body 加 no-side）。 */
+   设计原稿在 innerWidth<900 时给 body 加 no-side）。 */
 @media (max-width: 899px) {
   .sidebar { position: fixed; inset: 0 auto 0 0; z-index: var(--z-drawer); box-shadow: var(--shadow-lg); }
   /* 抽屉是 fixed 浮层、不吃 body 的安全区内边距（`D-068` 真机：导航行直冲状态栏）——顶部自己让出。 */

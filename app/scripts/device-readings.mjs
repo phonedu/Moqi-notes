@@ -39,7 +39,7 @@ const resolveWs = () => {
   return require(join(pnpmDir, dir, 'node_modules', 'ws'))
 }
 const WebSocket = resolveWs()
-const ADB = join(process.env.ANDROID_HOME ?? 'D:/Android/Sdk', 'platform-tools', 'adb.exe')
+const ADB = join(process.env.ANDROID_HOME ?? '', 'platform-tools', 'adb.exe')
 const OUT_DIR = join(tmpdir(), 'moqi-device-readings')
 mkdirSync(OUT_DIR, { recursive: true })
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))

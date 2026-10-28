@@ -12,6 +12,19 @@
 
 **维护模式起步的开源首版（v0.6.1）**：桌面 + Android 的核心闭环（记下来 / 连起来 / 找回来 / 带得走）已可用并经过 214 项自动化验收；同步反馈面、部分导入保真等已知缺口见下方「已知限制」与 [ROADMAP](docs/ROADMAP.md)。
 
+## 界面速览
+
+<table>
+  <tr>
+    <td><img src="docs/screenshots/desktop-library-light.png" alt="桌面 · 页面库与编辑区（浅色）" width="420"></td>
+    <td><img src="docs/screenshots/desktop-editor-dark.png" alt="桌面 · 编辑器（深色）" width="420"></td>
+  </tr>
+  <tr>
+    <td><img src="docs/screenshots/mobile-home.png" alt="手机 · 首页页面库" width="220"></td>
+    <td><img src="docs/screenshots/mobile-edit.png" alt="手机 · 编辑" width="220"></td>
+  </tr>
+</table>
+
 ## 从源码构建
 
 ```bash
