@@ -1,5 +1,5 @@
 /**
- * 编辑器插件宿主（2026-10-09 收口，外壳拆分第二刀；来源：`06` §6「外壳新代码免入」）。
+ * 编辑器插件宿主（ 收口，外壳拆分第二刀；来源：`06` §6「外壳新代码免入」）。
  *
  * **职责**：Lexical 的四个交互插件（斜杠菜单 / 引用候选 / 悬停速览 / 文本选中工具栏）＋ 输入与结构键的
  * 编排（Enter / Tab / Backspace / 名字行锚点）＋ `useStableCallback`（插件 effect 的唯一形态）。
@@ -122,7 +122,7 @@ export function EditorPlugins({ enabled, onEnter, onLeaveList, onIndent, onOutde
         clearConvertIntent={clearLinkConvert}
       />
       <PeekPlugin enabled={enabled} resolve={resolvePeek} onJump={onJumpRef} resolveTitle={resolveRefTitle} />
-      {/* 桌面选中工具栏**不上手机**（`10` §6.3）：触控档的文字动作 = 选区气泡 / 格式栏——θ13（2026-10-13 真机轮）
+      {/* 桌面选中工具栏**不上手机**（`10` §6.3）：触控档的文字动作 = 选区气泡 / 格式栏——θ13（ 真机轮）
           把口径从「只在触控编辑态让位」收成**整个 compact 档让位**：只读态保留原生选词（用户同日裁定），
           但原生选词不该顺带把桌面浮条钓出来。 */}
       <TextToolbarPlugin

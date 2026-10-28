@@ -12,7 +12,7 @@ import { DomainStore } from '../../src/application/store'
 import { emptyRegistry, inferPropertyType } from '@moqi/editor'
 
 // ---------------------------------------------------------------------------
-// 导入（迁移）的前置：**通用 Markdown 导入测试**（13-导出与媒体设计（已归档） §「导入」，用户裁决 2026-10-06）。
+// 导入（迁移）的前置：**通用 Markdown 导入测试**（13-导出与媒体设计（已归档） §「导入」，用户裁决 ）。
 // 验收两条：① 往返——自家导出物导回来，页名 / 层级 / 块类型 / 行内格式 / 标签与属性还原；
 // ② 通用文档——任意 CommonMark 文档读成块树、**不丢字**。
 // 命名用规则 ID（`R09-EXPORT-*` / `R09-MD-*` 前缀），理由同别处：`MEDIA-*` 那种形状要进 `11`。
@@ -354,7 +354,7 @@ test('R09-MD-7 粘贴：`[[页名]]` / `((块名))` 是**可读取的引用语�
   ])
 
   // ①b 与「复制为块引用」是**同一张语法表**（`selectionText.refToken` 写、`mdRefs.splitInlineRefs` 读）——
-  // 用户 2026-10-08 报的缺口正是这条往返：菜单写出去的语法自己粘回来不认。这条断言把它钉死。
+ // 用户 报的缺口正是这条往返：菜单写出去的语法自己粘回来不认。这条断言把它钉死。
   const pageBlock = createTextBlock({ entityId: 'rt-page', blockUid: 'rtpg0001', text: '产品路线', isObject: true, objectName: '产品路线' })
   const plainBlock = createTextBlock({ entityId: 'rt-blk', blockUid: 'rtblk001', text: '方案要点' })
   assert.deepEqual(splitInlineRefs(refToken(pageBlock)), [{ kind: 'object', target: '产品路线', display: '产品路线', raw: '[[产品路线]]' }], '页面：refToken 写出 `[[…]]`、splitInlineRefs 必须认回来')
@@ -400,7 +400,7 @@ test('R09-MD-7 粘贴：按名解析单一所有者（`store.resolveInlineRef`�
 test('R09-MD-7 粘贴：行内记号与代码不被引用还原吃掉——`**粗** [[页名]]` 的粗体保住、转义读回字面、代码里的跨度不还原', () => {
   const resolve = (_kind: 'object' | 'block', label: string) => (label === '产品路线' ? 'p1' : null)
 
-  // ① 记号行里「粗体 + 引用」同行：marks 保住（2026-10-08 修——此前从原始文字重建会把 `**` 漏进正文）
+ // ① 记号行里「粗体 + 引用」同行：marks 保住（ 修——此前从原始文字重建会把 `**` 漏进正文）
   const marked = parseMarkdownOutline('- **粗** [[产品路线]] 哦')!
   assert.deepEqual(resolveInlineRefs(marked, resolve).drafts[0].content, [
     { t: 'text', v: '粗', marks: [{ type: 'bold' }] },
@@ -447,7 +447,7 @@ test('R09-MD-7 粘贴：行内记号与代码不被引用还原吃掉——`**�
 })
 
 // ---------------------------------------------------------------------------
-// 2026-10-10「Obsidian 互通」批：通用 MD 的边角 + Obsidian 语法 → 块树（读回侧）
+// 「Obsidian 互通」批：通用 MD 的边角 + Obsidian 语法 → 块树（读回侧）
 // ---------------------------------------------------------------------------
 
 test('R09-MD-3 通用文档：围栏里的 `# ` 不算页名（页名摘取跳过围栏）——代码块那行一个字不丢', () => {
@@ -673,7 +673,7 @@ test('R09-EXPORT-2 往返：一篇「什么都有」的页面导出再导入—�
 })
 
 
-// 行内标签采集（用户 2026-10-10 裁决：导入页开关"行内标签 → 页面标签"；判据照 Obsidian）
+// 行内标签采集（用户 裁决：导入页开关"行内标签 → 页面标签"；判据照 Obsidian）
 test('IMPORT-TAG-1 行内标签采集：判据照 Obsidian（行首/空白起、非纯数字、进代码不算、父子标签原样、保序去重）', () => {
   const scan = (text: string) => collectInlineTags(parseMarkdownDocument(text).roots)
 

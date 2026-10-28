@@ -1,4 +1,4 @@
-//! 数据安全：本地快照与整库导出（`docs/03` §15.9；用户 2026-10-05 裁决排 0.5 第一项）。
+//! 数据安全：本地快照与整库导出（`docs/03` §15.9；用户 裁决排 0.5 第一项）。
 //!
 //! **快照与导出都用 SQLite 自带的 `VACUUM INTO`**：产出一份一致的、整理过的单文件副本——
 //! 不停写、不用管 WAL、体积就是真实大小。恢复是「先给当前库留一份、再覆盖」。
@@ -10,7 +10,7 @@ use rusqlite::Connection;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-/// 保留策略（用户 2026-10-05 拍：7 日 + 4 周，最多 11 份）。
+/// 保留策略（用户 拍：7 日 + 4 周，最多 11 份）。
 pub const KEEP_DAILY: usize = 7;
 pub const KEEP_WEEKLY: usize = 4;
 /// 恢复前自动留的那些（`restore-backup-<时间>.sqlite3`）最多留几份。
@@ -257,7 +257,7 @@ fn swap_in_database(db: &Path, source: &Path) -> Result<(), String> {
 
 /// 一键导出：把**当前库**连同资产导成 `exports/<file_name>.zip`（`project-b.sqlite3` + `assets/`）。
 ///
-/// `13-媒体设计` §6 / `13-数据安全设计` §4.3 的 2026-10-06 修订：**整库导出必须是 zip**——
+/// `13-媒体设计` §6 / `13-数据安全设计` §4.3 的 修订：**整库导出必须是 zip**——
 /// 只带 sqlite 的话图片与附件还留在数据目录里，「一键带走」名不副实；恢复流程不受影响
 /// （应用内恢复走快照列表，不选文件；这个包是留给「换机器 / 留档」的）。
 /// 库文件先 `VACUUM INTO` 出一份独立副本（一致、不停写），打完包就把中转文件删掉。
@@ -608,7 +608,7 @@ mod tests {
     fn export_database_and_snapshot_produce_openable_files() {
         let temp = TempDir::new("export");
         seed(&temp.db(), 2);
-        // 整库导出是 **zip 包**（2026-10-06 修订）：库文件 + assets/ 一起走，否则「一键带走」丢图。
+    // 整库导出是 **zip 包**（ 修订）：库文件 + assets/ 一起走，否则「一键带走」丢图。
         crate::assets::write_asset(&temp.db(), "a1b2c3.png", &[0x89, 0x50, 0x4e, 0x47])
             .expect("写资产");
         create_snapshot(&temp.db(), "2026-10-04", "2026-W40").expect("建快照");
@@ -662,7 +662,7 @@ mod tests {
         assert_eq!(count(&one), 2);
     }
 
-    /// 边界电池④（2026-10-11）：恢复前必须清掉主库旁的 `-wal` / `-shm`——`VACUUM INTO` 产物是
+  /// 边界电池④（）：恢复前必须清掉主库旁的 `-wal` / `-shm`——`VACUUM INTO` 产物是
     /// 自包含的，留着旧 WAL 会让 SQLite 拿它去「补」新库。这里塞两个**垃圾旁文件**模拟崩溃残留：
     /// 恢复要照常成功、旁文件被清掉、回来的是快照那一刻的内容。
     #[test]

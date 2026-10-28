@@ -6,7 +6,7 @@ import { propertyNameToast, type PropertyEditorCallbacks } from './PropertyRows'
 import { pushRecentProperty, toggleField, type UiPrefs } from './uiPrefs'
 
 /**
- * 属性 / 标签的**写入口**（外壳拆分第四刀，2026-10-09 从 `EditorShell` 抽出）。
+ * 属性 / 标签的**写入口**（外壳拆分第四刀， 从 `EditorShell` 抽出）。
  *
  * 为什么是 `use*` 模块（`06` §6 落点四问第 ③ 条）：它是一组**闭包在会话状态上的写操作**——
  * 改注册表（属性定义）、改页面上的取值与标签、挂属性时记一笔「最近使用」。面板（`Property.tsx`）
@@ -58,7 +58,7 @@ export function usePropertyEditor({
       return
     }
     updateRegistry(created.registry)
-    // `§0-6`（2026-10-10 裁决）：**成功不弹通知**（界面自证——属性已出现在面板/属性库里）。
+  // `§0-6`（ 裁决）：**成功不弹通知**（界面自证——属性已出现在面板/属性库里）。
   }
 
   /**
@@ -81,7 +81,7 @@ export function usePropertyEditor({
     updatePrefs(pushRecentProperty(prefs, created.def.id))
   }
 
-  /** 改名：**成功不弹通知**、失败**返回原因**由调用方就地显示（`§0-6`，2026-10-10 裁决）。 */
+ /** 改名：**成功不弹通知**、失败**返回原因**由调用方就地显示（`§0-6`， 裁决）。 */
   function handleRenameProperty(defId: string, name: string): string | null {
     const problem = propertyNameToast(name, registry, defId)
     if (problem) return problem
@@ -187,7 +187,7 @@ export function usePropertyEditor({
   }
 
   /**
-   * 「添加属性」（`13-属性区重规划` §0-1/§0-2/§0-3/§0-9，2026-10-10 裁决）：
+  * 「添加属性」（`13-属性区重规划` §0-1/§0-2/§0-3/§0-9， 裁决）：
    * 默认字段（标签 / 创建时间 / 编辑时间）→ 进 `propertyShown` 即出现（没有值可写）；
    * 用户属性 → 出一档 `propertyHidden`（从本页删过的再加回来）＋ 写初始值（既有行为）。
    * 两侧都**不做限制**：已添加再点 = 幂等。
@@ -213,7 +213,7 @@ export function usePropertyEditor({
       propertyShown: nextShown,
       propertyHidden: nextHidden,
     })
-    // 「最近使用」记一笔（添加属性弹窗的快捷组；2026-10-09 新设计）。
+  // 「最近使用」记一笔（添加属性弹窗的快捷组； 新设计）。
     updatePrefs(pushRecentProperty(prefs, defId))
     closeDialog()
   }

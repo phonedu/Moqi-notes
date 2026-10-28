@@ -13,7 +13,7 @@ import { readFileSync } from 'node:fs'
  * 基线写在 `.moqi-block`，类型覆盖写在它后面——两者都是单类选择器（权重相同），靠**源顺序**
  * 决定胜负，所以这份测试同时看护「声明存在」与「类型规则必须排在基线之后」。
  *
- * 2026-10-06 视觉批改契约：字号由**倍率**（`calc(var(--fs-e) × N)`）出，**不用 em**——
+ * 视觉批改契约：字号由**倍率**（`calc(var(--fs-e) × N)`）出，**不用 em**——
  * 块 DOM 是真嵌套，字号写 em 会顺着父块漏下去（容器标题 1.88em ⇒ 下面全部放大 1.88 倍）；
  * 间距仍是 em（CSS 语义：margin / padding 的 em 相对块自身字号，随块字号等比）。
  */
@@ -92,7 +92,7 @@ test('排版轴：编辑区吃 --fs-e / --lh-e，正文列吃 --colw（切档只
   assert.ok(rule('.editor-content').body.includes('font-size: var(--fs-e)'), '编辑区字号要挂在轴变量上')
   assert.ok(rule('.editor-content').body.includes('line-height: var(--lh-e)'), '编辑区行高要挂在轴变量上')
   assert.ok(rule('.doc-inner').body.includes('max-width: var(--colw)'), '正文列宽要挂在轴变量上')
-  // 倍率：**页面标题 2**（2026-10-24 字阶批：基准 17px × 2 = 34px，落在 Cupertino large-title 档；
+ // 倍率：**页面标题 2**（ 字阶批：基准 17px × 2 = 34px，落在 Cupertino large-title 档；
   // 原 2.35 × 16.5 = 38.8px 比该档大一档）/ H1 1.45 / H2 1.21 / H3 1.03 / H5 .97 / H6 .94；H4 = 1×（与正文同号）
   for (const [selector, ratio] of [['.moqi-block[data-block-object=\'true\']', '2'], ['.moqi-block-heading1', '1.45'], ['.moqi-block-heading2', '1.21'], ['.moqi-block-heading3', '1.03'], ['.moqi-block-heading5', '.97'], ['.moqi-block-heading6', '.94']] as Array<[string, string]>) {
     assert.ok(rule(selector).body.includes(`calc(var(--fs-e) * ${ratio})`), `${selector} 的倍率要写成 calc(var(--fs-e) * ${ratio})`)
@@ -101,7 +101,7 @@ test('排版轴：编辑区吃 --fs-e / --lh-e，正文列吃 --colw（切档只
 })
 
 /**
- * UI 字阶（2026-10-24，Cupertino 11 档）：UI 层只许 `--type-*`，编辑正文仍走 `--fs-e`。
+ * UI 字阶（，Cupertino 11 档）：UI 层只许 `--type-*`，编辑正文仍走 `--fs-e`。
  * 这条测试看两件事：① 11 组令牌齐全且值 = 设计稿；② 组件 CSS 里不再出现裸 `font-size: Npx`。
  * 引用层门禁（任何 CSS / TSX 里新增裸字号）在 `scripts/check-type-scale.mjs`。
  */

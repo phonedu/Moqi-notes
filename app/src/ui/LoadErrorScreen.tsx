@@ -4,7 +4,7 @@ import { clipboardPort, createDefaultBackupPort } from '../composition'
 import { recoveryRows, restoreStamp, type SnapshotInfo } from '../application/backup'
 
 /**
- * 载入失败屏（`G-34` 的最小步；用户 2026-10-11 裁决选项 b）：「库打不开」不再是死胡同——
+ * 载入失败屏（`G-34` 的最小步；用户 裁决选项 b）：「库打不开」不再是死胡同——
  * 先给一条最可能救回来的路（**从快照恢复**，与设置页同一条流程：Rust 先留「恢复前」后悔药 →
  * 覆盖 → 整页重载，`03` §15.9），再给两条手动路（重新尝试 / 复制数据目录路径）。
  *

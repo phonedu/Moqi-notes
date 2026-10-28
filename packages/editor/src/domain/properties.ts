@@ -191,7 +191,7 @@ export function propertyNameProblem(name: string, registry: MetadataRegistry, ex
 }
 
 /**
- * 建属性定义（属性名唯一，2026-10-06）：名字是标签、**键必须唯一**——同名定义会让导出物出现
+ * 建属性定义（属性名唯一，）：名字是标签、**键必须唯一**——同名定义会让导出物出现
  * 重复的 front-matter 键（YAML 非法、Obsidian 也明说同一篇不许属性重名），所以闸门放在这里：
  * 空 / 保留键 / 重名（忽略首尾空白与大小写）一律返回 `null`，界面据此说清原因并不创建。
  * 属性**类型**同样在这一刻定死——`registry.properties` 的写入路径只有「建 / 改名 / 停用 / 加选项」，
@@ -211,7 +211,7 @@ export function createPropertyDef(name: string, type: PropertyDef['type'], regis
 }
 
 /**
- * 改属性名（2026-10-06）：**与建属性共用同一套判据**（`propertyNameProblem`）——名字是标签，但键必须唯一。
+ * 改属性名（）：**与建属性共用同一套判据**（`propertyNameProblem`）——名字是标签，但键必须唯一。
  * 值不动：页面上的取值按 `defId` 挂，改名只影响导出时写出的键名与新编辑（`PropertyValue.defId` 不变）。
  * 类型不可改（那条是契约）；改成自己的名字 = 无操作（返回 `null`，界面不必提示）。
  */
@@ -237,7 +237,7 @@ export function deletePropertyDef(defId: string, registry: MetadataRegistry): Me
 }
 
 /**
- * **导入时**按 front-matter 的写法反解属性类型（2026-10-10「Obsidian 互通」批）：
+ * **导入时**按 front-matter 的写法反解属性类型（「Obsidian 互通」批）：
  * 导出侧的类型矩阵（13-导出与媒体设计（已归档） §5）是**一次定死的契约**，反解就照同一张表读：
  * `checkbox` 裸 `true`/`false`、`number` 裸数字、`date` 裸 `YYYY-MM-DD`、其余（含**引号化**的值）
  * 都是 `text`——导出侧对 `text` 一律引号化，所以「有引号 = 文本」这条判据不会有歧义

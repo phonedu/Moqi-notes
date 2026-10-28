@@ -34,7 +34,7 @@ export function EditorShell() {
           // 第四道：老数据里由标题控件写下的页面名落到正文首行（否则名字会看着丢）
           const named = adoptObjectNames(adopted.blocks)
           // 第六道：分隔线不承载正文——线上那份挪到紧随其后的新块（`02` §「类型转换」）。
-          // 老数据的来历：转换路径曾经只改当前节点、镜像又把正文写回线上（2026-10-03 用户实测）。
+     // 老数据的来历：转换路径曾经只改当前节点、镜像又把正文写回线上（ 用户实测）。
           const splitDividers = adoptDividerBodies(named.blocks)
           const notices: string[] = []
           if (repaired.removed > 0) notices.push(`已修复 ${repaired.removed} 处失效的层级引用（${repaired.repairedBlockIds.length} 个块）`)

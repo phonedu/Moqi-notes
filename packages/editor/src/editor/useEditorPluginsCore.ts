@@ -62,7 +62,7 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
   /**
    * 回调一律走稳定包装，下面的 effect **只注册一次**。
    *
-   * 为什么必须有（2026-09-28 实测，用户现象「标题点不进去」）：父组件用内联箭头传回调，
+  * 为什么必须有（ 实测，用户现象「标题点不进去」）：父组件用内联箭头传回调，
    * 每次渲染都是新引用；effect 把它们放进依赖数组 → 每次渲染都重新 `registerNodeTransform`
    * → Lexical 会把该类型的节点标脏并**触发一次 `editor.update`** → 这次更新的 selection 提交
    * 走到 `$updateDOMSelection`，在「焦点不在编辑器里」（用户点了页面标题）时会把焦点
@@ -97,7 +97,7 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
 
   useEffect(() => editor.registerCommand(KEY_ENTER_COMMAND, () => (enabled ? enter(editor) : false), COMMAND_PRIORITY_HIGH), [editor, enabled, enter])
 
-  // 软换行从根上取消（`04` §3 `R04-ENTER-5`，W6 2026-10-10 裁决）：**块内换行只允许出现在代码块**。
+ // 软换行从根上取消（`04` §3 `R04-ENTER-5`，W6 裁决）：**块内换行只允许出现在代码块**。
   // 输入侧两道：
   // ① Ctrl+O —— Lexical 在 **macOS** 把 `Ctrl+O` 映射成「插入 LineBreakNode」（LexicalEvents 的
   //    IS_APPLE 分支，自己 preventDefault）；这里在 KEY_DOWN_COMMAND 层（HIGH，先于 Lexical 内建的
@@ -115,7 +115,7 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
   }, [editor, enabled, enter])
 
   // `INSERT_LINE_BREAK_COMMAND` 的守门：**只允许落脚在代码块里**（`R04-ENTER-6`，W6 机制 A，
-  // 2026-10-10 定案；此前是"全拦"——那让代码块的换行也进不来）。非代码块一律吃掉（「块内换行只允许
+ // 定案；此前是"全拦"——那让代码块的换行也进不来）。非代码块一律吃掉（「块内换行只允许
   // 出现在代码块」）；代码块里放行给 Lexical 的默认处理器（`selection.insertLineBreak()`，
   // 与 `onEnter` 的新行动作同源）。
   useEffect(() => editor.registerCommand(INSERT_LINE_BREAK_COMMAND, () => {
@@ -319,13 +319,13 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
     })
   }, [editor, enabled, jumpRef])
 
-  // 触控编辑层的效果与三件浮动面都在 `useTouchEditorLayer` 里（2026-10-11 体量门拆模块）。
+ // 触控编辑层的效果与三件浮动面都在 `useTouchEditorLayer` 里（ 体量门拆模块）。
 
   // 粘贴纯 URL → 当场变外部链接（`R09-ELINK-4` / `04` `R04-PASTE-1`）：判据在输入规则层，
   // 写入走与对话框**同一条命令入口**；其余粘贴（含 `[文字](url)` 语法）一律按普通文本进来。
   // 一次撤销回到纯文本（领域一步事务），不抢菜单、IME 组合态不触发。
   //
-  // MD 输入层 · 粘贴侧（`R09-MD-3`，2026-10-06）：整段像是 Markdown 大纲（含记号行）时，
+ // MD 输入层 · 粘贴侧（`R09-MD-3`，）：整段像是 Markdown 大纲（含记号行）时，
   // 解析成草稿树**一个事务**插到光标块之后（`R09-MD-4.4`：一次撤销整批退掉）；
   // 记号表与导出侧的转义共用一份（`domain/mdSyntax`），`\-` 读回字面——导出 → 粘贴的往返无歧义。
   // 打字侧（打 `- ` / `# ` / 行内成对即转）还没有；`R09-MD-4.5`（不抢菜单）在打字侧才需要管。
@@ -373,9 +373,9 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
         return true
       }
       // `parseMarkdownOutline` 见「整篇没有块记号」就返回 null（放行走默认粘贴）——但**行内引用语法本身**
-      // 也得被认（`[[页名]]` / `((块名))` 可以出现在无记号的纯文字里，用户 2026-10-08 报的正是这种粘法）：
+   // 也得被认（`[[页名]]` / `((块名))` 可以出现在无记号的纯文字里，用户 报的正是这种粘法）：
       // 这时按「文档」解析出一棵树（永远给树），让下游的 `resolveInlineRefs` 有活干。
-      // **多行无记号纯文本同样按行建块**（`R04-ENTER-5` 的另一半，W6 2026-10-10 裁决：软换行从根上
+   // **多行无记号纯文本同样按行建块**（`R04-ENTER-5` 的另一半，W6 裁决：软换行从根上
       // 取消——「多行全挤进一个块」正是它的一种表现）；单行（含尾随换行）与贴进代码块的多行仍走
       // 默认粘贴，不无谓转换。
       const outline = parseMarkdownOutline(text)
@@ -401,7 +401,7 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
     })
   }, [editor, enabled, adoptRoot])
 
-  // MD 输入层 · 打字触发（`R09-MD-2` / `R09-MD-4`，2026-10-06）：判据在输入规则层（纯函数），这里只做转发。
+ // MD 输入层 · 打字触发（`R09-MD-2` / `R09-MD-4`，）：判据在输入规则层（纯函数），这里只做转发。
   //
   // 两条纪律写在守卫里：**IME 组合态不触发**、**光标必须就在这个文本节点末尾**——程序化写回
   // （AI 流式、撤销、粘贴解析）都不在节点末尾，因此天然不误触（`R09-MD-4.2「不打扰写作」`）。

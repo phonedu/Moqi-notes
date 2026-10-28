@@ -6,7 +6,7 @@ import { planMarkdownExport } from '@moqi/editor'
 import { createTextBlock, type Block } from '@moqi/editor'
 
 /**
- * Markdown 导出的原生通道（`EXPORT-ASSET-1`，2026-10-11 审计）。
+ * Markdown 导出的原生通道（`EXPORT-ASSET-1`， 审计）。
  *
  * 为什么有它：桌面端「设置 → 导出」的整条链此前**三处断**——① 调用点不传 `existingAssets`
  * ⇒ 每张图都走「（图片缺失）」降级；② `plan.assets`（搬运单）在端口边界被丢 ⇒ Rust 收不到；

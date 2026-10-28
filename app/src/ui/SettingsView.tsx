@@ -58,7 +58,7 @@ type SettingsViewProps = {
   columnWidth: ColumnWidthStep
   /** 只传改动的那几项（主题 id / 浅深 / 三个排版档）。 */
   onSetAppearance: (patch: Partial<Pick<UiPrefs, 'themeId' | 'mode' | 'fontSize' | 'lineHeight' | 'columnWidth'>>) => void
-  /** 导入页的行内标签开关（用户 2026-10-10 裁决；本机偏好，默认开）。 */
+ /** 导入页的行内标签开关（用户 裁决；本机偏好，默认开）。 */
   importInlineTags: boolean
   onToggleImportInlineTags: () => void
   /** 当前分区（**受控**：外壳持有——「打开导出页并预选」与模态化都要从外面切页，`EXPORT-MENU-1`）。 */
@@ -90,7 +90,7 @@ type SettingsViewProps = {
   /** 窄档列表页的出口（`D-068` 真机：弹窗头 ✕ 与子页返回叠成两个控件、✕ 也不符合移动直觉）——
       列表页自己带一条 sticky「← 返回」；桌面与子页不受影响。 */
   onClose?: () => void
-  /** 批 ζ（2026-10-12）：移动端**层级单源**（提到外壳）——列表页 / 子页；屏上返回与系统返回共用它。 */
+ /** 批 ζ（）：移动端**层级单源**（提到外壳）——列表页 / 子页；屏上返回与系统返回共用它。 */
   level: SettingsLevel
   onLevelChange: (level: SettingsLevel) => void
 }
@@ -147,7 +147,7 @@ export function SettingsView({
 
   return (
     <div className="set-body">
-      {/* 批 ζ（2026-10-12）：**统一标题栏**（返回 ＋ 标题同栏，`10` §4.7）——列表页与子页**同一个控件**，
+      {/* 批 ζ（）：**统一标题栏**（返回 ＋ 标题同栏，`10` §4.7）——列表页与子页**同一个控件**，
           只有标题与 `onBack` 不同（原来两条 `.set-back` 一「返回」一「设置」、几何也两套）。 */}
       {/* 类名按批 ζ 契约（`@0` 614）：`.set-topbar` / `.tb-back` / `.tb-ic` / `.tb-t`——样式在 `settings.css`。
           阴影 = **常驻极淡 `--shadow`**（分隔靠它；无底线）——620 已撤回「仅滚动时浮起」，**不需要滚动挂钩**。 */}

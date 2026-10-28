@@ -33,7 +33,7 @@ type PageLibraryViewProps = CardActions & {
 function CardHeader({ card, onCardMenu, onToggleStar }: { card: LibraryCard; onCardMenu: CardActions['onCardMenu']; onToggleStar: CardActions['onToggleStar'] }) {
   return (
     <div className="hd">
-      {/* 置顶标记放在时间之前（用户口径 2026-09-30）：置顶页只是排在前面的话，
+      {/* 置顶标记放在时间之前（用户口径 ）：置顶页只是排在前面的话，
           页面一多就看不出置顶区到哪结束了。 */}
       {card.pinned ? <span className="ppin">已置顶</span> : null}
       <span className="tm"><b>{card.updatedLabel}</b></span>
@@ -64,11 +64,11 @@ function CardHeader({ card, onCardMenu, onToggleStar }: { card: LibraryCard; onC
 
 /**
  * 列表卡片：四段结构（头部信息 / 内容 / 属性行 / 反链行），三行正文**直接截断**（`-webkit-line-clamp`
- * 截在行边界 + 省略号；**不做渐隐遮罩**——2026-10-09 用户裁决，docs/09 §4.1）：
+ * 截在行边界 + 省略号；**不做渐隐遮罩**—— 用户裁决，docs/09 §4.1）：
  * - 「展开」在**内容区右下角**（`R09-CARD-2`）——不占卡片自己的行；
  * - 「收起」是**浮动**的 sticky 胶囊（原型 `.clps`：`position: sticky; bottom: 10px; margin: 12px 0 2px auto`，
  *   下限为内容末尾），展开后随滚动悬浮，落在内容末尾就位；
- * - 两者都只在内容真溢出时出现，且样式同为胶囊、不带图标（用户口径 2026-09-29）。
+ * - 两者都只在内容真溢出时出现，且样式同为胶囊、不带图标（用户口径 ）。
  * 卡片固定默认高 `--list-card-h`（内容区吃剩余高度、属性 / 反链行贴底），展开时 `height: auto` 自增。
  */
 function ListCard({ card, actions, current }: { card: LibraryCard; actions: CardActions; current: boolean }) {
@@ -97,7 +97,7 @@ function ListCard({ card, actions, current }: { card: LibraryCard; actions: Card
 
 /** 简约卡片：同样四段，压扁成「头部一行 + 标题与两行正文 + 脚注行（属性 / 反链）」，不设展开。 */
 function CompactCard({ card, actions, current }: { card: LibraryCard; actions: CardActions; current: boolean }) {
-  // 两行截断走 `-webkit-line-clamp`（截在行边界，不做渐隐——2026-10-09）；简约卡**不设展开入口**，
+ // 两行截断走 `-webkit-line-clamp`（截在行边界，不做渐隐——）；简约卡**不设展开入口**，
   // 所以不需要溢出测量（原来那套 `useContentOverflow` 只为渐隐服务，已随渐隐一起删）。
   return (
     <article
@@ -131,7 +131,7 @@ function CompactCard({ card, actions, current }: { card: LibraryCard; actions: C
 /**
  * 列表滚动位置跨「折叠 / 展开」保留：页面列折叠时本组件**整体卸载**
  * （`EditorShell` 里是 `pageColumnVisible ? … : null`），不记一笔的话再打开就回到开头——
- * 用户实测 2026-10-03「点开一张卡片后再展开页面库，不保持在上次那张卡片的位置，直接回到开头」。
+ * 用户实测 「点开一张卡片后再展开页面库，不保持在上次那张卡片的位置，直接回到开头」。
  * 键按「位置（整页 `full` / 侧列 `column`）× 列表形态（列表 / 简约）」分开，两种形态各有各的位置。
  * 放在模块级：它要活过组件的卸载。
  */

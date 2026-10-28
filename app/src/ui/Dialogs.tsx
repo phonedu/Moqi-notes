@@ -21,7 +21,7 @@ type DialogProps = {
  */
 export function Dialog({ title, subtitle, small = false, onClose, children, footer, initialFocus, className }: DialogProps) {
   const panelRef = useRef<HTMLDivElement | null>(null)
-  // **焦点 effect 必须只跑一次**（2026-10-08 修）：它的依赖里若放 （调用方一律传内联箭头、
+ // **焦点 effect 必须只跑一次**（ 修）：它的依赖里若放 （调用方一律传内联箭头、
   // 每次渲染都是新身份），effect 就每渲染重跑一次、把焦点从输入框抢回面板——症状是「打一个字，选中态
   // 从输入框跳到整张卡片」（用户实测）。onClose 走 ref 取最新值即可。
   const closeRef = useRef(onClose)

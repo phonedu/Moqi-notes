@@ -5,7 +5,7 @@ import { browserClipboardBackend, createDefaultClipboardPort, LayeredClipboardPo
 /**
  * `ClipboardPort` 的分层判据（`04` `R04-CLIP-1`；台账 `D-090`）。
  *
- * 真机事实（2026-10-24）：Android WebView 的 `navigator.clipboard.writeText` 在真实手势下
+ * 真机事实（）：Android WebView 的 `navigator.clipboard.writeText` 在真实手势下
  * 仍报 `NotAllowedError: Write permission denied`；`execCommand('copy')` 同机可用。
  * 因此端口必须满足三件事：① 原生插件可用时**只走原生**；② 原生失败时**退回浏览器层**，
  * 不把这次复制静默丢掉；③ 两层都失败才抛错，让界面如实提示。读同理（读不到 = 不摆「粘贴」）。

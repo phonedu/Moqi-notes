@@ -4,7 +4,7 @@
 /**
  * **front-matter 的唯一所有者**（YAML 子集的读半边；导出侧写在 `exportMd.ts` 的 `frontMatterLines`）。
  *
- * 为什么单独一件（2026-10-10，随「Obsidian 互通」批拆册）：`mdSyntax.ts` 里同时住着行引擎、
+ * 为什么单独一件（，随「Obsidian 互通」批拆册）：`mdSyntax.ts` 里同时住着行引擎、
  * 文档解析与 front-matter，三者各自是独立的知识；拆开两边都短、也各自能单测。
  *
  * 读法（只认导出侧写得出的那几种形态 + 手写文档的常见变体，不做通用 YAML）：

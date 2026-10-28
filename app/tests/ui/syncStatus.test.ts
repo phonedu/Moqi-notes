@@ -4,7 +4,7 @@ import { syncPresentation } from '../../src/ui/Sidebar'
 import type { SyncStatus } from '../../src/ui/types'
 
 /**
- * 状态门（治理期还债 #4b，2026-10-04）：同步态与保存态的**用户可见面**。
+ * 状态门（治理期还债 #4b，）：同步态与保存态的**用户可见面**。
  *
  * `09-桌面端交互规范` `R09-SYNC-1` 把同步写成一个四态自动状态机（未配置 / 同步中 / 已同步 / 离线队列），
  * `R09-SYNC-2…5` 规定了每一态的文案与圆点。转换本身在 `ui/useSyncEngine.ts` 里由真实事件驱动，

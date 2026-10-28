@@ -9,8 +9,8 @@ import { focusBlockEnd, type TouchFocusTarget } from '../editor/touchFocus'
  * 触控编辑态（`10` §6.3，compact 档——**窗口宽度决定交互形态**，与 0.6 第 12 项同一口径）：
  * `null` = 只读态（编辑器整体不可编辑、单击无操作）；非 null = 打字态的焦点块。
  * 「双击进编辑（只读态）/ 点空白退」的事件接线在 `editorPlugins` 的触控效果里，这里管状态与动作；
- * **编辑态内点另一块 = 光标一步到位**（θ6，2026-10-13）；**选中入口只剩「编辑态内左滑 → 选择模式」**
- * （γ1，2026-10-12 用户裁定）——点块**不入选区**。
+ * **编辑态内点另一块 = 光标一步到位**（θ6，）；**选中入口只剩「编辑态内左滑 → 选择模式」**
+ * （γ1， 用户裁定）——点块**不入选区**。
  */
 
 /** 内核句柄的结构型端口（`ui/` 不直连 `lexical`——边界门 ③；真实编辑器是它的结构超集）。 */
@@ -61,7 +61,7 @@ export function useTouchEdit({ compact, store, revision, editorRef, focusNameRow
     else focusBlockEnd(editor, blockId)
   }, [editorRef, store, focusNameRow])
 
-  /** θ6（2026-10-13）：编辑态内点另一块 = **光标一步到位**——光标已由浏览器放在点按处，
+ /** θ6（）：编辑态内点另一块 = **光标一步到位**——光标已由浏览器放在点按处，
    *  这里**只把「编辑块」标记跟过去**（`setTouchEditId`），不 `focus`、不 `focusBlockEnd`
    *  （那会把光标推到块尾，毁掉「点哪儿落哪儿」）。 */
   const followTouchBlock = useCallback((blockId: string) => { setTouchEditId(blockId) }, [])
@@ -74,7 +74,7 @@ export function useTouchEdit({ compact, store, revision, editorRef, focusNameRow
     editorRef.current?.getRootElement()?.blur()
   }, [editorRef, exitSelection])
 
-  /** 编辑态内点空白（θ13，2026-10-13 用户走查）：**只回打字态，不退编辑**——只读态只在「完成」/ Esc / 返回 /
+ /** 编辑态内点空白（θ13， 用户走查）：**只回打字态，不退编辑**——只读态只在「完成」/ Esc / 返回 /
    *  退出再进来 才出现（旧版「没有块选中就退编辑」被真机上的双击空白误触成两段退 ⇒ 用户：选中态退出也该留在编辑态）。 */
   const touchBlankTap = useCallback(() => {
     exitSelection()

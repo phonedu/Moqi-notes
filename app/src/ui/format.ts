@@ -16,21 +16,21 @@ export function formatDayMonth(timestamp: number): string {
   return `${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
-/** 完整日期：2026-09-21。 */
+/** 完整日期：。 */
 export function formatDate(timestamp: number): string {
   const date = new Date(timestamp)
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
 }
 
-/** 完整日期时间：2026-09-21 14:30。 */
+/** 完整日期时间： 14:30。 */
 export function formatDateTime(timestamp: number): string {
   const date = new Date(timestamp)
   return `${formatDate(timestamp)} ${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
 /**
- * 斜杠「插入」组的日期文本（`13-功能缺口总账` `G-E06`，2026-10-11）：`today` = `2026-10-11`、
- * `now` = `2026-10-11 14:30`——插入一个**装着日期的普通文本块**（不加新块类型，`09` `R09-FMT-5` 组内）。
+ * 斜杠「插入」组的日期文本（`13-功能缺口总账` `G-E06`，）：`today` = ``、
+ * `now` = ` 14:30`——插入一个**装着日期的普通文本块**（不加新块类型，`09` `R09-FMT-5` 组内）。
  */
 export function insertDateText(kind: 'today' | 'now', now = Date.now()): string {
   return kind === 'today' ? formatDate(now) : formatDateTime(now)

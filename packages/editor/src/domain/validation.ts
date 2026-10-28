@@ -222,7 +222,7 @@ export function validateBlockGraph(blocks: BlockMap): ValidationIssue[] {
 /**
  * 只有**结构性错误**才拒绝写入（docs/04 §2「保存契约」）。
  *
- * 区分两类问题（2026-09-28 用户实测后定案）：
+ * 区分两类问题（ 用户实测后定案）：
  * - **结构性错误**（父链断裂、缺字段、成环……）：块图本身不自洽，写入必须拒绝（原子回滚）。
  * - **引用悬空**（`dangling-inline-ref` / `dangling-block-ref` / `dangling-object-ref`）：**报告但不阻断**。
  *   回收站里的页面/块不在活跃块图里（`list_active` 只加载未删除的块），引用它**是合法状态**、且 30 天内可恢复；
@@ -246,7 +246,7 @@ const STRUCTURAL_CODES = new Set([
 /**
  * 这个形状码是不是**结构性**的（拒绝写入）。**载入面**（`serialization.parseBlockForLoad`）也用它：
  * 报告级的码（媒体四条、`pinned` / `starred` 两条……）没有理由挡启动——那些数据的修法就是
- * 「进应用 → 删掉那一块」，挡在载入上等于连修的机会都没有（2026-10-11 属性批·审计；此前
+ * 「进应用 → 删掉那一块」，挡在载入上等于连修的机会都没有（ 属性批·审计；此前
  * `parseBlock` 对**任何**形状问题都抛，桌面端遇到一行这类数据会整屏「无法恢复项目 B」）。
  */
 export function isStructuralCode(code: string): boolean {
@@ -256,7 +256,7 @@ export function isStructuralCode(code: string): boolean {
 export function assertValidBlockGraph(blocks: BlockMap): void {
   const issues = validateBlockGraph(blocks).filter((issue) => STRUCTURAL_CODES.has(issue.code))
   // 报错必须能定位到块：这条消息会原样进 toast / 控制台，缺 blockId 时只能靠翻库对账
-  // （2026-09-28 的 parent-child-mismatch 就是这么查出来的）。
+ // （ 的 parent-child-mismatch 就是这么查出来的）。
   if (issues.length > 0) {
     throw new Error(issues.map((issue) => `${issue.code}${issue.blockId ? `@${issue.blockId}` : ''}: ${issue.message}`).join('; '))
   }
@@ -287,7 +287,7 @@ export function dropDanglingChildren(blocks: Block[]): { blocks: Block[]; repair
  *
  * 这一类不一致会让块图**长期**不自洽：`assertValidBlockGraph` 之后会拒绝每一次领域写入，
  * 而 Lexical 侧照旧能打字——用户看到的正是「缩进 / 反缩进 / 行尾 ＋ / 类型转换全部没反应，
- * 字却还能敲进去」（2026-09-28 实测：5 个空块漏记 children，整篇编辑器变成只读，
+ * 字却还能敲进去」（ 实测：5 个空块漏记 children，整篇编辑器变成只读，
  * 根因是子块与父块 children 分两次落库、其中一次丢了）。
  *
  * 位置按 `position` 判定（域内每次插入 / 移动都会对同一父块归一化 position）：
@@ -337,7 +337,7 @@ export function adoptOrphanedChildren(blocks: Block[]): {
 }
 
 /**
- * 载入自愈（第四道）：把**老数据里的页面名落进正文首行**（2026-09-28 用户实测发现）。
+ * 载入自愈（第四道）：把**老数据里的页面名落进正文首行**（ 用户实测发现）。
  *
  * 「页面名 = 正文首行」之前，名字由独立标题控件写进 `objectName`，正文里没有对应那一行；
  * 改成派生之后，这类页面的名字会回落成「未命名页面」——名字看着就丢了。迁移规则：
@@ -362,7 +362,7 @@ export function adoptObjectNames(blocks: Block[]): { blocks: Block[]; adopted: {
  * 紧随其后的新 `text` 块）。
  *
  * 历史数据里可能带着正文：转换路径曾经只改当前节点，编辑器随后把正文镜像回领域——于是正文
- * 既留在线上、又在下面重复一份（2026-10-03 用户实测「块里有字转成分隔线」时发现）。这里把
+ * 既留在线上、又在下面重复一份（ 用户实测「块里有字转成分隔线」时发现）。这里把
  * 线上那份挪到紧随其后的新块（与转换时的做法一致），线上留空。新块沿用分隔线的 `position`
  * 加半格，**排在其后**，下一次插入时由领域的 `normalizePositions` 归整。
  */

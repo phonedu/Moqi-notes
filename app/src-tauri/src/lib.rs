@@ -53,7 +53,7 @@ fn sync_read_others(
     sync_files::read_others(&directory, &device_id)
 }
 
-/// 资产随同步（`docs/03` §14.2「媒体文件」；13-媒体设计（已归档）§2 第 3 行的裁决，2026-10-11 落地）：
+/// 资产随同步（`docs/03` §14.2「媒体文件」；13-媒体设计（已归档）§2 第 3 行的裁决， 落地）：
 /// 推本机有、共享目录没有的资产，拉本机缺、共享目录有的资产；只增不减，缺失的如实报回。
 #[tauri::command]
 async fn sync_assets_exchange(
@@ -86,7 +86,7 @@ fn load_blocks(app: AppHandle) -> Result<Vec<String>, String> {
     let store =
         SqliteBlockStore::open(path).map_err(|error| format!("打开 SQLite 失败: {error}"))?;
     // 带上回收站里的块（`list_all`）：回收站列表与「30 天到期清理」都从载入的块里找
-    // （2026-10-03 清单 C 实测：只载入存活块会让回收站重启后变空、到期清理永不触发）。
+  // （ 清单 C 实测：只载入存活块会让回收站重启后变空、到期清理永不触发）。
     store
         .list_all_json()
         .map_err(|error| format!("读取 Block 失败: {error}"))
@@ -538,7 +538,7 @@ pub fn run() {
         .setup(|app| {
             // 资产协议（asset protocol）：图片 / 附件在**桌面窗口里**的显示地址是
             // `convertFileSrc(<数据目录>/assets/<磁盘名>)`——协议默认 `enable: false` 且 scope 为空，
-            // 不在这里放行，WebView 会把地址拒掉：图块画灰/破图、灯箱显示裂图（用户 2026-10-10 实测）。
+      // 不在这里放行，WebView 会把地址拒掉：图块画灰/破图、灯箱显示裂图（用户 实测）。
             // **必须在运行时放行**：数据目录可被 `MOQI_DATA_DIR` 改写，写死在 tauri.conf 的 scope 里盖不住。
             use tauri::Manager;
             if let Ok(db) = database_path(app.handle()) {

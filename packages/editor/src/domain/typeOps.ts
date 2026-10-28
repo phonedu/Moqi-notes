@@ -55,7 +55,7 @@ export function convertBlockType(
 ): Omit<Transaction, 'inverse'> | null {
   const block = blocks.get(blockId)
   if (!block || block.deleted || !convertible.has(nextType)) return null
-  // D13（2026-10-05 裁决）：页面容器不参与转换。界面置灰只是第一道，域层也要把关
+ // D13（ 裁决）：页面容器不参与转换。界面置灰只是第一道，域层也要把关
   // （与置顶上限同一做法：单一所有者）。顺带审计见 treeOps 的移动守卫。
   if (block.isObject) return null
 
@@ -63,7 +63,7 @@ export function convertBlockType(
 
   const text = bodyLength(content)
   const movesBody = nextType === 'divider' && text > 0
-  // D11（2026-10-05 裁决）：勾选态**保留**——转出 todo 不清 `checked`（数据留、界面无痕），
+ // D11（ 裁决）：勾选态**保留**——转出 todo 不清 `checked`（数据留、界面无痕），
   // 转回 todo 即还原。以前在这里清零，等于让转换不可逆（与「AI 采用」的哲学相反）。
   const changes: Partial<Block> = { type: nextType, content: movesBody ? [] : content }
   if (nextChecked !== undefined) changes.checked = nextChecked

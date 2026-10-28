@@ -26,7 +26,7 @@ const card = (id: string, extra: Partial<LibraryCard> = {}): LibraryCard => ({
   ...extra,
 })
 
-// 固定「现在」：2026-10-04 15:00 本地时间，时间窗的断言才稳定。
+// 固定「现在」： 15:00 本地时间，时间窗的断言才稳定。
 const NOW = new Date(2026, 9, 4, 15, 0, 0).getTime()
 const day = 24 * 60 * 60 * 1000
 

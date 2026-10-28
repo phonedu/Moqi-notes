@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { decideBlockMarkerTrigger, decideCodeEnter, decideEmptyEnter, decideInlinePairTrigger, decideLeaveListOnBackspace, decideListEnter, decideTab } from '@moqi/editor'
-// 名字行那两个判据（`decideNameRowCross` / `decideNameRowEdge`）2026-10-05 随名字行收口（T5）
+// 名字行那两个判据（`decideNameRowCross` / `decideNameRowEdge`） 随名字行收口（T5）
 // 迁去 `nameLine.test.ts`——判据一字未改，只是跟着模块换了家。
 //
 // 本文件测的是**输入规则层**（T8）：Enter / Tab / Backspace 的判据（IME 组合态让路是通则）。
@@ -50,7 +50,7 @@ test('R04-ENTER-4 列表项行首 Backspace：本项退出列表（空项与块�
   assert.equal(decideLeaveListOnBackspace({ isList: false, hasText: true, atStart: true }), false, '不是列表：不动既有行为')
 })
 
-// MD 输入层 · 打字触发（`09-桌面端交互规范` §6.12 `R09-MD-2`/`R09-MD-4`，2026-10-06）
+// MD 输入层 · 打字触发（`09-桌面端交互规范` §6.12 `R09-MD-2`/`R09-MD-4`，）
 test('R09-MD-3 打字触发判据：整行就是记号才转（记号自带尾随空格，别 trim 掉）；句中与表外不动', () => {
   // 正例：整行就是触发词（含那个空格）
   assert.equal(decideBlockMarkerTrigger('- ')?.type, 'bullet')
@@ -101,7 +101,7 @@ test('R09-MD-3 块级判据容忍编辑器侧的零宽锚点（`- \u200b` 也要
   assert.equal(decideBlockMarkerTrigger('- \u200b记着买牛奶'), null, '去掉零宽后仍是「记号 + 正文」⇒ 不触发')
 })
 
-// MD 输入层 · 全角 / 中文标点归一（用户 2026-10-10 裁决：第 22 项只做"归一"这一半；`09` §6.12 `R09-MD-4.3`）
+// MD 输入层 · 全角 / 中文标点归一（用户 裁决：第 22 项只做"归一"这一半；`09` §6.12 `R09-MD-4.3`）
 test('FMT-MD-10 打字触发：中文标点 / 全角态的记号字符归一后照样触发（落库仍是半角）', () => {
   // 中文标点态：`>` `1.` `[ ]` 被输入法换成 `》`／`。`／`【】`
   assert.equal(decideBlockMarkerTrigger('》 ')?.type, 'quote')

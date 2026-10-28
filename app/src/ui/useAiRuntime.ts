@@ -13,7 +13,7 @@ import type { AiAnswer } from './Panels'
 /**
  * AI 块的一生：生成（流式）→ 停止 / 失败 → 采用 / 丢弃，外加助手面板的问答与载入收口。
  *
- * 还债 #2 的模块③：2026-10-04 从 `EditorShell.tsx` 整块搬出来，**行为零变化**
+ * 还债 #2 的模块③： 从 `EditorShell.tsx` 整块搬出来，**行为零变化**
  * （安全网 = `accept:AI-STREAM-1 / AI-UNDO-1 / AI-STOP-1 ×2 / AI-ERROR-1 / AI-REGEN-1`
  * + `accept:R09-AIB-5 / R09-AIB-6` + `AI-*` 单测）。
  *
@@ -144,7 +144,7 @@ export function useAiRuntime(options: AiRuntimeOptions) {
 
     // 来源**范围**（标签怎么说）与落点（`R09-AIB-6`：选中块 > 光标块 > 正文最后一块）都来自
     // 入口的那份声明（`aiSourcePlan`），不再由「数组非空」反推——反推会把「整篇」错认成
-    // 「选中了页面容器这一个块」（用户实测 2026-09-29）。
+  // 「选中了页面容器这一个块」（用户实测 ）。
     const sourceScope: 'page' | 'selection' = plan.scope
     let blockId = options.targetBlockId ?? null
     // 落点算一次，两条路径（流式占位块 / 行动项替换占位块）共用同一个锚点（`R09-AIB-6`）。
@@ -158,7 +158,7 @@ export function useAiRuntime(options: AiRuntimeOptions) {
     } else {
       // 在**目标块**下方插入生成中的 AI 块（docs/09 §6.11 R09-AIB-6：选中块 > 光标块 > 正文最后一块）：
       // AI 结果永远是新块，不覆盖原文。「读什么」（sources）与「放哪」（anchor）是两件事——
-      // 面板的「基于本篇」读整篇，结果落在光标那一块下面，不是文章末尾（用户实测 2026-09-29）。
+   // 面板的「基于本篇」读整篇，结果落在光标那一块下面，不是文章末尾（用户实测 ）。
       const anchor = anchorId ? store.get(anchorId) : undefined
       if (!anchorId || !anchor) return
       // 来源就是页面本身时，结果落进页面内部；落到根级会变成一个额外的"页面"。
@@ -315,7 +315,7 @@ export function useAiRuntime(options: AiRuntimeOptions) {
     if (!blockIds) return null
     reloadFromStore()
     // 返回**落点块 id**（原来当前页模式恒回 null——调用方分不清成败，窄档「插入后收 Sheet」就没法做；
-    // 2026-10-11 第 5 项）。存成新页模式回的是新页 id，两种模式调用方都拿得到「落在哪」。
+  // 第 5 项）。存成新页模式回的是新页 id，两种模式调用方都拿得到「落在哪」。
     return blockIds[0] ?? null
   }
 
@@ -328,7 +328,7 @@ export function useAiRuntime(options: AiRuntimeOptions) {
       source: 'user',
       // 采用 = 转普通块：块不再有任何 AI 外观（虚线框 / 标签行 / 操作条 / 标记全无），
       // 但 **`aiMeta` 留在数据里**——来源与操作类型「保留至采用或丢弃」（docs/09 R09-AIB-7，
-      // 方案 A，用户 2026-09-29 裁决：界面什么都不显示，只留数据）。
+   // 方案 A，用户 裁决：界面什么都不显示，只留数据）。
       operations: [{ type: 'update', opId: crypto.randomUUID(), blockId, changes: { aiMeta: { ...block.aiMeta, status: 'accepted' } }, previous: { aiMeta: block.aiMeta } }],
     })
     const editor = getEditor()
@@ -337,10 +337,10 @@ export function useAiRuntime(options: AiRuntimeOptions) {
   }
 
   /**
-   * 丢弃 AI 块：**AI 程序产物不进回收站**（台账 `D-003`，2026-10-05 用户裁决走 (b)）。
+  * 丢弃 AI 块：**AI 程序产物不进回收站**（台账 `D-003`， 用户裁决走 (b)）。
    *
    * 回收站是「用户内容」的保险——AI 草稿不是用户写的，扔进去只会让 30 天后的清理面变脏
-   * （2026-10-05 清真实库时，48 个页面根里混着一批 AI/测试产物）。所以走**真删**而不是软删：
+  * （ 清真实库时，48 个页面根里混着一批 AI/测试产物）。所以走**真删**而不是软删：
    * 不产生回收站条目、也没有 `⌘Z`（面板的对话里还留着这条回答，想要可以再插一次）。
    */
   function discardAiBlock(blockId: string) {

@@ -11,7 +11,7 @@ export function normalizeBlock(block: Block): Block {
   if (typeof block.pinned !== 'boolean') block.pinned = false
   if (typeof block.starred !== 'boolean') block.starred = false
   if (!Array.isArray(block.tags)) block.tags = []
-  // 属性面板的本页两档（`13-属性区重规划` §0-1/§0-3/§0-10，2026-10-10）：旧库缺字段 = 空 = 现有行为。
+ // 属性面板的本页两档（`13-属性区重规划` §0-1/§0-3/§0-10，）：旧库缺字段 = 空 = 现有行为。
   if (!Array.isArray(block.propertyShown)) block.propertyShown = []
   if (!Array.isArray(block.propertyHidden)) block.propertyHidden = []
   if (!Array.isArray(block.properties)) block.properties = []
@@ -25,7 +25,7 @@ export function normalizeBlock(block: Block): Block {
  * 载入时修补 aiMeta 的**必填字段**，其余字段原样保留。
  *
  * 这里过去是「白名单重建」：按固定字段重新拼一个对象 ⇒ **新加的字段（后来是 `sourceScope`）
- * 在载入时被静默丢掉**（用户实测 2026-09-29：AI 块的来源文案回到旧口径「来源 N 块」；
+ * 在载入时被静默丢掉**（用户实测 ：AI 块的来源文案回到旧口径「来源 N 块」；
  * 顺带发现 `ask` 动作与 `generating` 状态的整条记录也会被判非法、直接丢成 null）。
  * 规则改成：**先展开原对象、再修必填字段**——白名单只用来**判非法**（返回 null），
  * 不再用来决定「保留什么」。加字段时不必回来改这里（`docs/06` §4.2 对照表）。

@@ -109,7 +109,7 @@ export type AiMeta = {
   /**
    * 来源**范围**（docs/09 §6.11 R09-AIB-7 的来源标签文案）：整篇（面板「基于本篇」）
    * 还是按块选的。标签上写范围、不写块数——「来源 2 块」既不说是来自哪、也不说是什么
-   * （用户 2026-09-29 裁决换成范围口径）。
+  * （用户 裁决换成范围口径）。
    */
   sourceScope?: 'page' | 'selection'
   status: AiStatus
@@ -184,7 +184,7 @@ export type Block = {
   tags: string[]
   properties: PropertyValue[]
   /**
-   * 属性面板 · **本页加进来的行**（`13-属性区重规划` §0-1/§0-3/§0-10，2026-10-10 用户裁决）：
+  * 属性面板 · **本页加进来的行**（`13-属性区重规划` §0-1/§0-3/§0-10， 用户裁决）：
    * 值域 = 默认字段 id（`sys:tags` / `sys:created` / `sys:edited`）或用户属性 defId。缺省 `[]`
    * ⇒ 新页面不显示任何默认属性（默认属性必须先「添加属性」加进来才出现）。
    */
@@ -204,7 +204,7 @@ export type Block = {
 
 export type BlockMap = Map<string, Block>
 
-/** V2b: how many pages may be pinned at once (user ruling 2026-09-30: more than 5 is meaningless). */
+/** V2b: how many pages may be pinned at once (user ruling : more than 5 is meaningless). */
 export const MAX_PINNED_PAGES = 5
 
 /** V2b: 回收站保留期（天）。到期自动从本机彻底删除（`09-桌面端UI规范` `R09-TRASH-3`）。 */

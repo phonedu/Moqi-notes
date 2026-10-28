@@ -1,7 +1,7 @@
 import type { AiAction } from '@moqi/editor'
 import type { AIPort, AiProposal, AiRequest } from '../application/aiPort'
 
-/** 端口的家在 `application/aiPort.ts`（2026-10-09 上提）；这里 re-export，既有 `from '../adapters/ai'` 引用不断。 */
+/** 端口的家在 `application/aiPort.ts`（ 上提）；这里 re-export，既有 `from '../adapters/ai'` 引用不断。 */
 export type { AIPort, AiProposal, AiRequest } from '../application/aiPort'
 
 export type AiConfig = { baseUrl: string; apiKey: string; model: string; provider?: string }
@@ -169,7 +169,7 @@ export const SYSTEM_PROMPTS: Record<AiAction, string> = {
  * 把模型输出规整成块文本行（`summary` / `ask` 不拆行；其余按行拆成条目）。
  *
  * 行首列表符（`- ` / `* ` / `• ` / `1. ` / `1、`）要剥掉——模型常自带编号，落成块文本没有意义。
- * 但**不能把正文吃进去**（台账 D-019，2026-10-05）：原先的 `[-*•]\s*` 允许列表符后跟**零个**空白，
+ * 但**不能把正文吃进去**（台账 D-019，）：原先的 `[-*•]\s*` 允许列表符后跟**零个**空白，
  * 于是行首 `**加粗**` 被吃成一个 `*`（13-AI评测材料（已归档）「换角度」那条格式破损的真因）、
  * `1.5 倍` 被吃成 `5 倍`、`2026.10.05` 被吃成 `10.05`。现在两条口径：
  * - `-` / `*` / `•` 只有**后面跟空白**才算列表符（`-5 度`、`*斜体*`、`**加粗**` 都是正文）；

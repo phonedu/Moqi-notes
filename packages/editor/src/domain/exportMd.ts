@@ -113,7 +113,7 @@ function escapeLabel(text: string): string {
 
 /** 一段行内文本 → 导出文本：字面反斜杠先按 CommonMark 双写（读回 `\\` → `\`），再给「看起来成对」
  * 的记号加 `\`；**行内代码里的原样**（代码跨度不处理转义）。不双写的后果：正文里的 `\\<` / `\*`
- * 会被读回侧当转义吃掉一个反斜杠（2026-10-11 属性测试 `PROP-MD-1` 抓到；台账 `D-061`）。 */
+ * 会被读回侧当转义吃掉一个反斜杠（ 属性测试 `PROP-MD-1` 抓到；台账 `D-061`）。 */
 function fragmentText(fragment: ContentFragment): string {
   const raw = fragment.v ?? ''
   const isCode = fragment.marks?.some((mark) => mark.type === 'code') ?? false
@@ -151,7 +151,7 @@ function assetDisplayName(block: Block): string {
 /**
  * 包内相对路径 → Markdown 链接目标：含空格 / 括号 / 尖括号时**加 `<>`**（CommonMark 的正确写法；
  * 与 `R09-EXPORT-3` 对外链、`R09-EXPORT-4` 对页面链接同一条规矩——资产链接过去漏了它，
- * 文件名带空格时在严格解析器里是断链，2026-10-10 互通批补）。
+ * 文件名带空格时在严格解析器里是断链， 互通批补）。
  * 不编码成 `%20`：读回侧（`mdSyntax.mediaRefOf` 与各家工具）都直接认字面路径，编码反而多一层。
  */
 function linkTarget(path: string): string {
@@ -267,7 +267,7 @@ function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): s
     case 'code': {
       // **围栏里的一切都原样**：代码块正文不能走行内转义——`fragmentText` 的免转义守卫只认
       // 「行内代码标记」，而代码块的片段是普通文本 ⇒ 此前 `*a*` / `~x~` 这类"看起来成对"的记号
-      // 会被转义成 `\*a\*` 写进围栏，导回来多出反斜杠（2026-10-11 属性测试 `PROP-MD-1` 抓到；
+   // 会被转义成 `\*a\*` 写进围栏，导回来多出反斜杠（ 属性测试 `PROP-MD-1` 抓到；
       // 台账 `D-059`）。围栏长度也按**原文**算（转义会改变反引号连续段的长度）。
       const raw = block.content.map((fragment) => fragment.v ?? '').join('')
       const fence = fenceFor(raw, 3)
@@ -359,7 +359,7 @@ function markerLines(text: string, indent: string, marker: string): string[] {
   const first = (lines[0] ?? indent).slice(indent.length)
   // 空正文的记号行**保留尾空格**（`2. ` / `- ` / `# `）：`trimEnd` 会把它吃成裸 `2.`，
   // 而解析侧的记号表要求「记号 + 空格」⇒ 自家导出的空列表项 / 空标题读不回来
-  // （2026-10-11 属性测试 `PROP-MD-1` 抓到；台账 `D-062`）。
+ // （ 属性测试 `PROP-MD-1` 抓到；台账 `D-062`）。
   return [first.length > 0 ? `${indent}${marker} ${first}`.trimEnd() : `${indent}${marker} `, ...lines.slice(1)]
 }
 

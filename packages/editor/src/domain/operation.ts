@@ -26,7 +26,7 @@ export type Transaction = { id: string; operations: Operation[]; inverse: Operat
  * 落盘是按块增量写的（`ui/EditorShell` 的 `persist`）。漏一个父块，库里的 `children` 就少一条；
  * 下次载入时块图不自洽，之后**每一次**领域写入都会被校验拒绝——用户看到的是
  * 「缩进 / 反缩进 / 行尾 ＋ / 转类型全都没反应，字却还能敲」
- * （2026-09-28：行尾 ＋ 连续插入几个空块后，父块的 children 没跟着落盘，整篇变成只读）。
+ * （：行尾 ＋ 连续插入几个空块后，父块的 children 没跟着落盘，整篇变成只读）。
  * 所以「谁动了 children，谁就必须落盘」这条规则放在领域里，由 store 自动记账，
  * 写入点不需要各自记得补父块 id。
  */
@@ -219,7 +219,7 @@ function applyMove(blocks: BlockMap, operation: Extract<Operation, { type: 'move
   normalizePositions(blocks, operation.newParentId)
   // 逆操作也遵守同一条索引约定（`newIndex` 是「块仍在原位」那份列表里的空位），所以同父往回插时：
   // 目标是比现在（effectiveNewIndex，块此刻占的那一格）更靠后的原索引，就要 +1 让开自己。少了这一步，
-  // 「上移一步」的撤销原地不动（⌘⇧↑ → ⌘Z 不还原）、根级上移的撤销少走一格（2026-10-05 实测，
+ // 「上移一步」的撤销原地不动（⌘⇧↑ → ⌘Z 不还原）、根级上移的撤销少走一格（ 实测，
   // tests/domain.test.ts 的 BLOCK-DRAG-3 覆盖）。跨父级不适用：目标父级里没有块自己那一格。
   const inverseIndex = operation.oldParentId === operation.newParentId && operation.oldIndex > effectiveNewIndex
     ? operation.oldIndex + 1

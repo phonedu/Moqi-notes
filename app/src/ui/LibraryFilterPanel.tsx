@@ -145,7 +145,7 @@ export function LibraryFilterPanel({ anchor, filter, resultCount, totalCount, ta
       </div>
       {sortOpen ? (
         /* 排序是**替换内容**的子视图，不是叠在条件上的浮层：352px 宽的面板里再浮一层会互相压字
-           （2026-10-04 实测：说明文字被挤成一列、标题折行）。 */
+           （ 实测：说明文字被挤成一列、标题折行）。 */
         <div className="fp-sort-view" role="group" aria-label="排序">
           {SORT_FIELDS.map((item) => (
             <button type="button" key={item.value} className={(!filter.sort && item.value === 'default') || filter.sort?.field === item.value ? 'fp-sort-row is-on' : 'fp-sort-row'} onClick={() => setSort(item.value)}>

@@ -132,7 +132,7 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
    * 嵌入块落空占位再选来源——`R09-BLOCK-24`）。
    *
    * 为什么要收这一台：斜杠菜单原先直接把 `item.insert` 喂给 `insertBlockOfType`（只认三种文字型，
-   * 当初靠一句 `as` 谎报类型压住 TS）——2026-10-06 媒体三件套摘掉 version 后**自动进了斜杠菜单**，
+  * 当初靠一句 `as` 谎报类型压住 TS）—— 媒体三件套摘掉 version 后**自动进了斜杠菜单**，
    * 从那条路插图片 / 附件会落下一个没有 asset 的空壳块（正是「文件缺失」那一类脏数据）。
    */
   function pickInsert(editor: LexicalEditor, kind: InsertKind) {
@@ -159,7 +159,7 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
     }
     const paragraphs: string[] = []
     // 与 `useDerivedData` 的库卡片同口径：根块正文 = 页面名，标题行已经显示一次，摘要从子块起算
-    // （2026-10-10 视觉批 ⓓ）。
+  // （ 视觉批 ⓓ）。
     for (const childId of block.children) {
       const child = snapshot.get(childId)
       if (!child || child.deleted) continue
@@ -235,7 +235,7 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
   } = data
   // ---------- 属性编辑 ----------
   // 写入口（建 / 改名 / 改选项 / 挂载 / 取值 / 标签；**停用已取消**——`13-属性区重规划` §0-4）
-  // 住在 `ui/usePropertyEditor.ts`——这里只接线（外壳拆分第四刀，2026-10-09）。
+ // 住在 `ui/usePropertyEditor.ts`——这里只接线（外壳拆分第四刀，）。
   const { propertyCallbacks, createProperty, createAndAddProperty, deleteProperty, handleRenameProperty, handleAddPropertyOption, mountProperty, handleRenamePropertyOption, handleRemovePropertyOption, handleMovePropertyOption, handleMoveProperty, nameProblemText } = usePropertyEditor({
     registry, updateRegistry, store, activePageId, prefs, updatePrefs, persist, notify, closeDialog,
   })
@@ -243,7 +243,7 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
   const blockTypeOfCursor: BlockType = activeBlock?.type ?? activePage?.type ?? 'text'
 
   // 锚在滚动列表里的菜单（页面库卡片 ⋯、侧栏标签 ⋯）：位置跟着锚点重测；**列表一滚动就收起**
-  // （用户实测 2026-10-03：滚动时既不收也不跟，直接感觉「关不掉」）。收起由 `useFloatingAnchor`
+ // （用户实测 ：滚动时既不收也不跟，直接感觉「关不掉」）。收起由 `useFloatingAnchor`
   // 在测量里判定（锚点相对打开那一刻移动了 / 滚出可见带），回调用 ref 存，不会把 effect 绑到每次渲染。
   const listAnchorMenu = menu?.kind === 'card' || menu?.kind === 'tag' ? menu : null
   /** 块菜单的目标块（`R09-BEDIT-10`）：单选时才谈「折叠 / 展开」这类要具体块的条目。 */
@@ -253,7 +253,7 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
   const listAnchorRect = floatingAnchor?.anchor ?? listAnchorMenu?.anchor ?? null
   const listAnchorVisible = listAnchorMenu !== null && (floatingAnchor ? floatingAnchor.inView : true)
   // 离开编辑器就把它的浮层与选中一起收干净：**菜单**已经按视图门住（不会画在别的视图上），但状态还留着
-  // ——不清的话切回编辑器时它们会原样冒出来（用户实测 2026-10-03）。放到下一帧：不在 effect 体里同步 setState。
+ // ——不清的话切回编辑器时它们会原样冒出来（用户实测 ）。放到下一帧：不在 effect 体里同步 setState。
   // **设置弹窗也算「离开编辑器」**（`R09-SET-16` 改成居中模态后它不改 `view`，光靠 `view` 门不住：
   // `FLOAT-VIEW-1` 要求浮层不画在设置弹窗上，所以把 `settingsOpen` 一起看住）。清选区走 `exitSelection`。
   useEffect(() => {

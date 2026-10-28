@@ -4,7 +4,7 @@
 /**
  * **行内记号的唯一所有者**（`09-桌面端交互规范` §6.12 `R09-MD-3` 的第二段）：成对表 / 转义 / 反解 / 切片段。
  *
- * 为什么单独一件（2026-10-10，随代码体量门拆册）：`mdSyntax.ts` 里同时住着「行首记号」与「行内记号」
+ * 为什么单独一件（，随代码体量门拆册）：`mdSyntax.ts` 里同时住着「行首记号」与「行内记号」
  * 两件事，长过红线；行内这一簇自成一个知识（表 + 三个方向），搬出来两边都短、边界也更清楚。
  *
  * 两个方向吃它：
@@ -35,7 +35,7 @@ type ReadbackPattern = { pattern: RegExp; mark: InlineMark | 'underline'; extra?
 /** 读回侧的成对表（含 `underline`）：**只走"读回来"那条路**，见文件头注。 */
 const READBACK_INLINE_PATTERNS: ReadbackPattern[] = [
   // `***粗斜***`（CommonMark 的加粗 + 斜体）——**必须排在 `**` 前面**：不然 `**粗斜**` 先命中，
-  // 两侧多余的 `*` 会以字面落进正文（2026-10-10 互通批：Obsidian 文档里这个写法很常见）。
+ // 两侧多余的 `*` 会以字面落进正文（ 互通批：Obsidian 文档里这个写法很常见）。
   { pattern: /\*\*\*([^*\n]+)\*\*\*/, mark: 'bold', extra: 'italic' },
   { pattern: /<u>([^<\n]+)<\/u>/, mark: 'underline' },
 ]
@@ -52,7 +52,7 @@ function escapeInlineMarker(marker: string): string {
 /**
  * 行内反解：`\*` → `*`、`\<` → `<`、**`\\` → `\`**（粘贴 / 导入用）。最后那条是 CommonMark 的
  * 「字面反斜杠」写法——缺了它，正文里的 `\\<` 这类组合会被前一条吃掉一个反斜杠
- * （2026-10-11 属性测试 `PROP-MD-1` 抓到，台账 `D-061`；导出侧同批改为双写字面反斜杠）。
+ * （ 属性测试 `PROP-MD-1` 抓到，台账 `D-061`；导出侧同批改为双写字面反斜杠）。
  */
 export function unescapeInline(text: string): string {
   return text.replace(/\\([\\*~=<`])/g, '$1')
@@ -83,7 +83,7 @@ function isEscaped(text: string, index: number): boolean {
  *
  * **先认旗再切**（与行首记号那条同一条纪律）：`\*不是斜体\*` 里的星号**不算记号**，整段是字面文本。
  * 这条是往返的命门——导出侧会把「看起来成对但不是格式」的记号转义成 `\*…\*`（`escapeInlineMarkers`），
- * 导入侧若不认旗就会把它读成斜体，**字面变格式**（2026-10-07 由往返语料逮到）。
+ * 导入侧若不认旗就会把它读成斜体，**字面变格式**（ 由往返语料逮到）。
  * 片段里的字面转义在**这里**反解（`unescapeInline`），调用方拿到的就是最终文字。
  */
 export function splitInlineSegments(text: string): Array<{ text: string; mark?: InlineMark | 'underline'; extra?: InlineMark }> {

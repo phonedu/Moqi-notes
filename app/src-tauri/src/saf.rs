@@ -2,7 +2,7 @@
 //!
 //! 为什么不能在 JS 里用 `fs` 插件：插件**所有 JS 命令**（`read_file` / `write_file` / `copy_file` /
 //! `stat`）在 Rust 侧都先过 `SafeFilePath::into_path()`——`content://` 转不成路径，一律
-//! `InvalidPathUrl`（2026-10-16 真机实测：导入与导出双双失败）。插件里支持内容 URI 的通道只有
+//! `InvalidPathUrl`（ 真机实测：导入与导出双双失败）。插件里支持内容 URI 的通道只有
 //! Rust 的 `Fs::open()`（Android 侧走 `ContentResolver.openAssetFileDescriptor` 拿 fd），
 //! 所以「搬缓存 / 拷落点」这两步必须住在 Rust 命令里。
 //!

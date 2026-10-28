@@ -8,7 +8,7 @@ import { PROPERTY_TYPE_META, PropertyRows, TypeGlyph, type PropertyEditorCallbac
 
 /**
  * 属性摘要钉住条（`PropertyBrief`）与添加属性弹窗（`AddPropertyDialog`）。
- * 行构件箱（行解剖 / 行内 ⋯ / 类型元数据 / 属性名反馈）拆在 `PropertyRows.tsx`（2026-10-10，体量门）。
+ * 行构件箱（行解剖 / 行内 ⋯ / 类型元数据 / 属性名反馈）拆在 `PropertyRows.tsx`（，体量门）。
  */
 
 type PropertyBriefProps = PropertyEditorCallbacks & {
@@ -89,7 +89,7 @@ type AddPropertyDialogProps = {
 }
 
 /**
- * 添加属性弹窗（docs/09 §4.4.1，2026-10-09 轻结构）：顶部搜索 →「最近使用」→「全部属性」
+ * 添加属性弹窗（docs/09 §4.4.1， 轻结构）：顶部搜索 →「最近使用」→「全部属性」
  * （**点了即加即关**）；新建收成**底部一行式**（名字 + 类型 chip + 建并添加）；⚙ 角落入口去设置页。
  */
 export function AddPropertyDialog({ defs, mounted, recentIds, onAdd, onCreate, onOpenSettings, onClose }: AddPropertyDialogProps) {

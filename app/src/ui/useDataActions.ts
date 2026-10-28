@@ -14,7 +14,7 @@ import { prefetchPinyinModule } from './usePinyinBackfill'
 import { formatDate } from './format'
 
 /**
- * 导出 / 快照 / 拼音这批「命令与 IO」（外壳拆分第八刀，2026-10-09）：**没有渲染、没有派生视图**——
+ * 导出 / 快照 / 拼音这批「命令与 IO」（外壳拆分第八刀，）：**没有渲染、没有派生视图**——
  * 只有「点一下 → 调端口 → 如实报结果」。与外壳的耦合收成三样：端口（`searchPort` / `backupPort` /
  * `exportPort`，仍在外壳创建）、`notify` / `closeDialog` 两个界面动作、以及一个能力
  * `cancelPendingPersist`（恢复快照前要扔掉「等落盘的那一份」，那两个 ref 是外壳保存队列的家产）。
@@ -27,7 +27,7 @@ export type DataActionsInputs = {
   backupPort: BackupPort
   exportPort: ExportPort
   /**
-   * 媒体资产端口（2026-10-11 审计补）：Markdown 导出要拿「磁盘上真实存在的资产名」——
+  * 媒体资产端口（ 审计补）：Markdown 导出要拿「磁盘上真实存在的资产名」——
    * 域层按它决定每张图是搬进包里还是降级成文件名文字（此前不传 ⇒ 导出永远不带图）。
    */
   assetPort: AssetPort
@@ -192,7 +192,7 @@ export function useDataActions(inputs: DataActionsInputs) {
   function restoreFromSnapshot(name: string) {
     // 恢复之后**重载应用**（设计稿 §4.2 的原话：「覆盖主库 → 重启应用」）。
     // 为什么不能只 reloadFromStore：编辑器里还挂着「恢复前」的行内状态，重建编辑器这一拍本身就会
-    // 把它再镜像回领域、排上一次保存（2026-10-05 验收实测：恢复成 2 块，紧接着又被写回 3 块、
+  // 把它再镜像回领域、排上一次保存（ 验收实测：恢复成 2 块，紧接着又被写回 3 块、
     // 打的那一行也回来了）。整页重载是唯一把内存痕迹清干净的做法；结果用一条「启动通知」告诉用户。
     cancelPendingPersist()
     void backupPort.restore(name, restoreStamp(new Date()))

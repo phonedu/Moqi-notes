@@ -10,7 +10,7 @@ import type { LibraryCard, NavEntry, TagMenuTarget } from './types'
 type MenuProps = { anchor: AnchorRect; onClose: () => void }
 
 /**
- * 移动端底部 Sheet（`10` §三/§2.3，2026-10-11 4b-①）：底滑面板——默高 72%、重面板 88%。
+ * 移动端底部 Sheet（`10` §三/§2.3， 4b-①）：底滑面板——默高 72%、重面板 88%。
  * 浮层 = 全屏遮罩 + 底部面板；关闭 = ✕ / 点遮罩。**只由 compact 档的调用点渲染**（桌面各走
  * 原 Popover / Dialog，形态不动）。首个消费者 = 卡片 ⋯（§4.1.2 六项 + 底部说明）。
  */
@@ -66,7 +66,7 @@ export function MoreMenu({ anchor, onClose, refOpen, onToggleRef, showRefPanel =
   onExport: () => void
   starred: boolean
   onToggleStar: () => void
-  /** 「属性」入口（`13-属性区重规划` §0-1，2026-10-10 裁决：摘要条不再常驻，入口回到 ⋯）。 */
+ /** 「属性」入口（`13-属性区重规划` §0-1， 裁决：摘要条不再常驻，入口回到 ⋯）。 */
   onOpenProperties: () => void
 }) {
   const run = (action: () => void) => () => { onClose(); action() }
@@ -432,7 +432,7 @@ function highlight(text: string, query: string): ReactNode {
 
 /** 快捷键速查面板（docs/09 §九）。 */
 export function KeyboardDialog({ onClose }: { onClose: () => void }) {
-  // 速查表（`R09-KEY-12`）**对的是真实路由**：⌘K 是已实现的全局搜索（2026-10-10 撤掉「后续版本实现」
+ // 速查表（`R09-KEY-12`）**对的是真实路由**：⌘K 是已实现的全局搜索（ 撤掉「后续版本实现」
   // 那截陈旧括注）；本表随快捷键一起改（`W5`：补 ⌘U / ⌘L / ⌘⇧↑↓ / 块级 ⌘C ⌘X ⌫ / ⇧⌘Z / ⌘,）。
   const groups: { title: string; rows: [string, string[]][] }[] = [
     {
@@ -522,7 +522,7 @@ export function StatDialog({ stats, onClose }: { stats: { blocks: number; backli
 /**
  * 图片预览（`R09-BLOCK-19`）：只读预览，不改数据。「另存副本」与附件的下载同一条路
  * （复制进认得的目录 + 显示路径；浏览器通道直接下载）。
- * **两态两形**（θ17，2026-10-13 用户裁定）：
+ * **两态两形**（θ17， 用户裁定）：
  * - `tools`（编辑态）：**图标化工具条** = 适应 / 缩小 / 放大 / 保存副本 / ✕（去掉文件名与大小——「实在不行就取消他的名字和大小」）；
  * - `viewer`（只读态）：只留三个图标 = 关闭 / 保存 / 分享（**分享未接入 ⇒ 禁用并写明**，`R09-SET-20` 不做假按钮）。
  */
@@ -561,7 +561,7 @@ export function MediaPreview({ src, name, mode, onSaveCopy, onClose }: {
           )}
           <button type="button" aria-label={mode === 'tools' ? '关闭' : '退出'} onClick={onClose}><Icon name="x" size={18} decorative /></button>
         </div>
-        {/* 没有「适应」键了（用户 2026-10-14）：**点图本身 = 回到适应**——缩放过就点一下回整幅。 */}
+        {/* 没有「适应」键了（用户 ）：**点图本身 = 回到适应**——缩放过就点一下回整幅。 */}
         <div className={zoom === 'fit' ? 'lb-stage is-fit' : 'lb-stage'} onClick={() => setZoom('fit')}>
           <img src={src} alt={name} style={zoom === 'fit' ? undefined : { transform: `scale(${scale})` }} />
         </div>

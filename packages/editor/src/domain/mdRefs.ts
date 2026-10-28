@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
- * **引用的读回半边**（`\`……` 的两个语法族 + 媒体引用的落地）——2026-10-10 随「Obsidian 互通」批
+ * **引用的读回半边**（`\`……` 的两个语法族 + 媒体引用的落地）—— 随「Obsidian 互通」批
  * 从 `mdSyntax.ts` 拆册（体量门 + 名实归位：行引擎与引用还原各是一个知识）。
  *
  * 两个族（同一台切跨度的机 `spliceDraftRefs`）：
@@ -68,7 +68,7 @@ export type PageRefSpan = { label: string; file: string }
  * 只认指向 `.md` 的链接——外部链接（`http…`）与附件（`assets/x.csv`）不在这里。
  * **两种写法都认**：`[名](目标.md)` 与 `[名](<目标.md>)`——导出侧对行内引用**总是**加尖括号
  * （`exportMd.ts` 的 `fragmentMarkdown`：名字里有空格时那是 CommonMark 的正确写法），
- * 读回侧不认它的话，自家导出物再导入会**静默退化成字面文本**（台账 D-045，2026-10-10 修）。
+ * 读回侧不认它的话，自家导出物再导入会**静默退化成字面文本**（台账 D-045， 修）。
  */
 export function splitPageRefs(text: string): Array<{ text: string } | PageRefSpan> {
   const spans: Array<{ text: string } | PageRefSpan> = []
@@ -139,7 +139,7 @@ export type InlineRefSpan = { kind: 'object' | 'block'; target: string; display:
 /**
  * 一行里的 `[[…]]` / `((…))` 跨度（纯函数）。
  *
- * **Obsidian 的三处扩展都认**（2026-10-10，互通批）：
+ * **Obsidian 的三处扩展都认**（，互通批）：
  * - `[[页名|别名]]` → 显示文字取别名（我们的 `inline-ref` 本来就有显示文字字段，**无损**）；
  * - `[[路径/页名]]` → 解析按**全名与末段**各试一次（Obsidian 的库是文件夹，链接可带路径）；
  *   `[[页名.md]]` 也认（去扩展名）；
@@ -313,7 +313,7 @@ export function splitAutolinks(text: string): Array<{ text: string } | AutolinkS
 // ---------------------------------------------------------------------------
 
 /**
- * 把草稿树里的**行内标签**收成名字清单（纯函数；用户裁决 2026-10-10：导入时按开关收成页面标签）。
+ * 把草稿树里的**行内标签**收成名字清单（纯函数；用户裁决 ：导入时按开关收成页面标签）。
  *
  * **只读不写**：正文一个字不动——改了字就不幂等、往返也不再逐字一致（那是本项目的命门）。
  * 所以这里只交出"有哪些标签"，登记与去重由调用方（导入流程）按标签注册表做。

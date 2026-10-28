@@ -32,7 +32,7 @@ export const WORK_AREA_SHARE = 0.9
  * - `tablet` / `desktop`（验证期后按 `05` 的待裁项定）：最小值随之上移到该档起点。
  *   两档的差别只有一句：**电脑端要不要进入平板档**（`tablet` = 只挡手机档，`desktop` = 只走电脑端界面）。
  */
-export const WINDOW_FLOOR_TIER: WidthTier = 'tablet' // 2026-10-14 裁决（触发点观察区第 8 项）：验证期结束，下限从手机档上移到 tablet——701–899 段留给 0.7 平板两轴当验收台；手机档版面改由真机 / 无头 360 视口验收
+export const WINDOW_FLOOR_TIER: WidthTier = 'tablet' //  裁决（触发点观察区第 8 项）：验证期结束，下限从手机档上移到 tablet——701–899 段留给 0.7 平板两轴当验收台；手机档版面改由真机 / 无头 360 视口验收
 
 export interface MinWindowInput {
   /** 版面要求从哪一档起算（生产调用方一律用 `WINDOW_FLOOR_TIER`；参数留着是为了让用例能逐档验算）。 */

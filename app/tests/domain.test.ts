@@ -83,7 +83,7 @@ function outlineDocument() {
 /**
  * 与 `outlineDocument` 同，但另有**一页别的页面**（`other`，含一个正文块 `ob1`）。
  *
- * 为什么需要它（D-014，2026-10-04）：把「自引用」拒到页级之后，`outlineDocument` 里那个唯一的目标
+ * 为什么需要它（D-014，）：把「自引用」拒到页级之后，`outlineDocument` 里那个唯一的目标
  * `page` 变成了**本篇自己**——原先靠它来测「对象引用」的用例全都变成在测被拒的路径。这些用例要测的是
  * 引用通路本身，所以补一页当目标；「本篇不能被引用」另有 D-014 那条专门钉住。
  */
@@ -385,7 +385,7 @@ function groupFixture() {
   return { store: new DomainStore([page, a, b, c, d, b1]), page, a, b, c, d, b1 }
 }
 
-// γ2（2026-10-12）：移动端「选择模式内拖拽」= 块组一次事务移动。
+// γ2（）：移动端「选择模式内拖拽」= 块组一次事务移动。
 test('BLOCK-DRAG-1（块组）：整组一次事务移动、保持相对顺序、一步撤销', () => {
   const { store } = groupFixture()
   // 选 A 与 C 一起拖到列表末尾（去掉 A/C 后 ['b','d']，落点 index 4 = 追加）
@@ -476,7 +476,7 @@ test('V2A-03: undo and redo restore a drag move', () => {
   assert.equal(validateBlockGraph(store.snapshot()).length, 0)
 })
 
-// 2026-10-05 逮到（T6 ④ 加「上移 / 下移」时）：同父移动的撤销只在**往下移**时正确。
+// 逮到（T6 ④ 加「上移 / 下移」时）：同父移动的撤销只在**往下移**时正确。
 // 「上移一步」的逆操作落点会被 -1 规则吃掉（空位索引正好等于块自己那一格 → 原地不动），
 // 根级上移的撤销则少走一格。修法是逆操作也遵守「newIndex 是块仍在原位时的空位索引」——
 // 目标比现在靠后就让开自己那一格（见 domain/operation.ts applyMove 的注释）。
@@ -516,7 +516,7 @@ test('BLOCK-MOVE-1: 同父换位的撤销回到原位（上移一步 / 下移 / 
   assert.equal(validateBlockGraph(store.snapshot()).length, 0)
 })
 
-// 2026-10-05 逮到：撤销是**反序**回放，同级兄弟若按正序记录，插回时就越插越靠后
+// 逮到：撤销是**反序**回放，同级兄弟若按正序记录，插回时就越插越靠后
 // （删「甲、乙」再 ⌘Z 得到「甲、丙、乙」；块选中态 ⌫ 删两块时可见）。记录顺序改为从后往前。
 test('SELECT-4: 批量删除的撤销按原顺序插回（含中间隔着没删的兄弟）', () => {
   const page = createTextBlock({ entityId: 'page', blockUid: 'page00001', text: '页面', isObject: true, objectName: '页面' })
@@ -690,7 +690,7 @@ test('REF-DANGLE-1: danglingRefCount —— 引用点计数（被删集合内部
   assert.equal(danglingRefCount(blocks, ['target']), 2, '已删来源不数')
 })
 
-// D11（2026-10-05 裁决，原判据「离开 todo 就清空勾选」被改掉）：勾选态**保留**——
+// D11（ 裁决，原判据「离开 todo 就清空勾选」被改掉）：勾选态**保留**——
 // 数据留、界面无痕、转回即还原（与「AI 采用」同一条哲学：转换可逆）。
 // 界面无痕由渲染层保证（复选框只画在 todo 上），域层不再替用户清数据。
 test('BLOCK-TYPE-6 / V2A-04: todo carries checked, and converting away keeps it hidden in the data（D11）', () => {
@@ -714,7 +714,7 @@ test('BLOCK-TYPE-6 / V2A-04: todo carries checked, and converting away keeps it 
   assert.equal(store.get('p1')?.checked, true, '撤销也保留勾选态')
 })
 
-// D13（2026-10-05）：页面容器不参与类型转换——界面置灰只是第一道，域层也要把关
+// D13（）：页面容器不参与类型转换——界面置灰只是第一道，域层也要把关
 // （与置顶上限同一条做法）。顺带审计：缩进 / 反缩进本来就靠 `parent === null` 拦住，
 // 移动则要补一条「页面容器不能被移进别的块」。
 test('BLOCK-TYPE-7 / BLOCK-DRAG-4: 页面容器拒绝转换与下移（域层守卫，D13）', () => {
@@ -834,7 +834,7 @@ test('REF-LINK-4: a `((` block link writes blockRefs/blockBackRefs and rejects s
 })
 
 /**
- * D-014（2026-10-04）：**页级自引用也拒**——不只是「同一个块」。
+ * D-014（）：**页级自引用也拒**——不只是「同一个块」。
  *
  * `02`「自引用……不写半成品」与 `11` `REF-LINK-4`「自引用被拒」说的是自引用这件事，
  * 而实现此前只拒 `fromId === targetId`：一篇页面的正文块回头引用**本篇**既能被选中、也真能插进去，
@@ -1302,7 +1302,7 @@ test('V2A-10/11: aiMeta defaults to null and round-trips through Block JSON', ()
 })
 
 /**
- * D-018（2026-10-05，用真实模型实测抓到）：「整篇」的来源必须**展开成子树**。
+ * D-018（，用真实模型实测抓到）：「整篇」的来源必须**展开成子树**。
  *
  * 面板宫格传进来的是 `[pageId]`，而 `dedupeSelection` 不替它展开 ⇒ 六项指令只把**页面名**
  * 喂给了模型（润色的输出就是「产品路线」四个字）。`R09-AIB-12` 当年只修了标签与落点。
@@ -1330,7 +1330,7 @@ test('D-018: expandAiSources —— 整篇展开成子树、选区原样、已�
 })
 
 /**
- * R09-AIPANEL-3c（2026-10-05 用户裁决「③+②」）：面板宫格的**作用范围按动作分两类**。
+ * R09-AIPANEL-3c（ 用户裁决「③+②」）：面板宫格的**作用范围按动作分两类**。
  *
  * 产出型（总结 / 提取行动 / 反问我）产出新内容、天然跨块 ⇒ 保留整篇；
  * 改写型（润色 / 扩写 / 换角度）的输出是逐行改写 ⇒ 只作用于一段（多块或无目标都不给跑）。
@@ -1627,7 +1627,7 @@ test('STORE-HEAL-2 adoptOrphanedChildren 把漏记 children 的块按 position �
   const page = createTextBlock({ entityId: 'p', blockUid: 'p0000001', isObject: true, objectName: '页面' })
   const first = createTextBlock({ entityId: 'a', blockUid: 'a0000001', text: '一', parent: 'p' })
   const third = createTextBlock({ entityId: 'c', blockUid: 'c0000001', text: '三', parent: 'p' })
-  // 复现 2026-09-28 的坏数据：子块 parent 指向 page，但 page.children 里没有它
+ // 复现 的坏数据：子块 parent 指向 page，但 page.children 里没有它
   const orphan = createTextBlock({ entityId: 'b', blockUid: 'b0000001', text: '二', parent: 'p' })
   first.position = 0
   orphan.position = 1
@@ -1668,7 +1668,7 @@ test('adoptOrphanedChildren 不动自洽的图（对象相同，避免无谓落�
 
 test('STORE-TOUCH-1 touchedBlockIds 把父块算进来：插入 / 移动都会改父块的 children', () => {
   const inserted = createTextBlock({ entityId: 'n', blockUid: 'n0000001', parent: 'p' })
-  // 行尾 ＋：新块落在父块 p 下——p 的 children 变了，必须一起落盘（漏掉就是 2026-09-28 的只读故障）
+ // 行尾 ＋：新块落在父块 p 下——p 的 children 变了，必须一起落盘（漏掉就是 的只读故障）
   assert.deepEqual(
     touchedBlockIds([{ type: 'insert', opId: 'o1', block: inserted, parentId: 'p', index: 0 }]).sort(),
     ['n', 'p'],
@@ -2187,7 +2187,7 @@ test('SYNC-QUEUE-1 空事务不进日志（no-op 不该在 oplog 里留痕）', 
 })
 
 test('STORE-HEAL-3 分隔线不承载正文：线上那份挪到紧随其后的新块（父子两档都覆盖）', () => {
-  // 2026-10-03 用户实测：转换路径只改当前节点，镜像又把正文写回线上——线上与下面各留一份。
+ // 用户实测：转换路径只改当前节点，镜像又把正文写回线上——线上与下面各留一份。
   const page = createTextBlock({ entityId: 'dpage', blockUid: 'dpage001', isObject: true, objectName: '分隔线检查' })
   const rootDivider = createTextBlock({ entityId: 'dr', blockUid: 'dr000001', parent: null, text: '根上的正文' })
   rootDivider.type = 'divider'
@@ -2312,7 +2312,7 @@ test('R09-EXPORT-2 逐块映射：十二种块 × 嵌套 2 空格 × 空块跳�
     '\n- [ ] 待办\n',
     '\n- [x] 已办\n',
     // 空壳列表项（无正文、有子块）：记号后**保留尾空格**（`- `）——裸 `-` 解析侧的记号表
-    // （「记号 + 空格」）认不出，自家导出的空壳列表项会读不回来（2026-10-11 属性测试抓到；台账 `D-062`）。
+  // （「记号 + 空格」）认不出，自家导出的空壳列表项会读不回来（ 属性测试抓到；台账 `D-062`）。
     '\n- \n  - 空壳的子块\n',
     '\n---\n',
   ]) {
@@ -2545,7 +2545,7 @@ test('R09-MD-3 记号表：行首识别（含长度）/ 打字触发只看整行
   assert.deepEqual(blockMarkerOf('12. '), { type: 'numbered', checked: undefined, length: 4, handled: undefined })
   assert.deepEqual(blockMarkerOf('---'), { type: 'divider', checked: undefined, length: 3, handled: undefined })
   assert.equal(blockMarkerOf('```')?.handled, 'fence')
-  // 表外与句中：不动（`5 - 3` / `2026-10-04` / `[文字](url)` 都不该被认成记号）
+ // 表外与句中：不动（`5 - 3` / `` / `[文字](url)` 都不该被认成记号）
   assert.equal(blockMarkerOf('-'), null, '光一个减号不是记号')
   assert.equal(blockMarkerOf('5 - 3'), null)
   assert.equal(blockMarkerOf('2026-10-04 上线'), null)
@@ -2886,7 +2886,7 @@ test('ENTER-CODEBLOCK-1 导出：代码块里的多行（\\n）落在同一个�
 test('LOAD-TOLERANT-1 载入面只挡结构性码：报告级形状问题随块放行（桌面不再整屏「无法恢复项目 B」）', () => {
   // 报告级（媒体四条其一）：图片块没有 payload——按设计「用户该能删掉那块来修」，
   // 此前 `parseBlock` 对它也抛 ⇒ TauriStoragePort.loadBlocks 整库载入失败、应用打不开
-  // （2026-10-11 审计；写入面本来就由 `assertValidBlockGraph` 过滤，不挡修）。
+ // （ 审计；写入面本来就由 `assertValidBlockGraph` 过滤，不挡修）。
   const image = createTextBlock({ entityId: 'img', blockUid: 'img00001', text: '' })
   image.type = 'image'
   assert.deepEqual(validateBlockShape(image).map((issue) => issue.code), ['image-payload-required'], '前提：这是报告级码')
@@ -2897,7 +2897,7 @@ test('LOAD-TOLERANT-1 载入面只挡结构性码：报告级形状问题随块�
   const broken = { ...createTextBlock({ entityId: 'b1', blockUid: 'b1000001', text: '' }), type: 'nope' } as unknown as Block
   assert.throws(() => parseBlockForLoad(JSON.stringify(broken)), /不支持的 Block 类型/)
 
-  // 边界电池（2026-10-11）：**根本解析不了的 JSON 行**是 fail-closed——载入整体失败、
+ // 边界电池（）：**根本解析不了的 JSON 行**是 fail-closed——载入整体失败、
   // 界面进失败屏（`LOAD-RECOVER-1` 给快照恢复出路）。存储侧原样读出（`list_all_returns_broken_json_rows_verbatim`），
   // 「怎么处置」刻意不在解析层发明宽容档：一个坏行静默消失比"看得见的失败"更糟。
   assert.throws(() => parseBlockForLoad('{oops'), SyntaxError)
@@ -2930,7 +2930,7 @@ test('SIDE-STATS-2 统计数字简写：千位 k、万位 万、亿位 亿', () 
 })
 
 test('SIDE-HEAT-1 热力图按天统计有改动的页面，同一页面多块只算一次，未来格子不计数', () => {
-  const now = new Date(2026, 9, 24, 12).getTime() // 2026-10-24 周六
+  const now = new Date(2026, 9, 24, 12).getTime() //  周六
   const day = (d: number, h = 12) => new Date(2026, 9, d, h).getTime()
   const a = createTextBlock({ entityId: 'ha', blockUid: 'ha000001', text: 'A', isObject: true, objectName: 'A', now: day(24) })
   const aChild = createTextBlock({ entityId: 'hac', blockUid: 'hac00001', text: 'A 子块', parent: 'ha', now: day(24) })

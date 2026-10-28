@@ -126,7 +126,7 @@ export function deleteBlocks(blocks: BlockMap, blockIds: Iterable<string>, optio
   if (roots.length === 0) return null
   // 同级的多个根**从后往前**记录：撤销是一次反序回放（`applyTransaction` 把 `inverse` 反着排），
   // 反序插回时才是升序，落回原位（`applyRestore` 只按 `prevIndex` 往 `children` 里 splice）。
-  // 正序记录的话，删掉「甲、乙」再 ⌘Z 会得到「甲、丙、乙」（2026-10-05 实测，块选中态 ⌫ 删两块）。
+ // 正序记录的话，删掉「甲、乙」再 ⌘Z 会得到「甲、丙、乙」（ 实测，块选中态 ⌫ 删两块）。
   // 跨父级的先后不影响结果——各自插回各自的父级；同索引不同父级时按输入顺序（sort 稳定）。
   const inTreeOrder = [...roots].sort((left, right) => prevIndexOf(blocks, right) - prevIndexOf(blocks, left))
   const operations: Operation[] = inTreeOrder.map((rootId) => {

@@ -56,7 +56,7 @@ export class TauriAssetPort implements AssetPort {
     // **Rust 返回的是元组 **（过 IPC 是 JSON 数组，磁盘名由调用方给）——这里必须
     // 映射成对象再交出去。直接原样返回会让调用方把数组当对象读，三个字段全是 undefined：
     // 症状 ① 拖图报 "Cannot read properties of undefined (reading 'includes')"；
-    // 症状 ② 导入的图片块 payload 里名字为空 ⇒ 当场显示「文件缺失」灰色（2026-10-08 用户实测两条）。
+  // 症状 ② 导入的图片块 payload 里名字为空 ⇒ 当场显示「文件缺失」灰色（ 用户实测两条）。
     // 之前三条媒体管道只端到端验了浏览器那两条，桌面这条是第一次真跑 ⇒ 这个形状错一直没被逮到。
     const [originalName, sizeBytes] = await this.invoke<[string, number]>('import_asset', { sourcePath, diskName })
     return { diskName, originalName, sizeBytes }

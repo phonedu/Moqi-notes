@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
- * 行内格式的三层作用域（用户 2026-09-27 定案，docs/09 §6.9）。
+ * 行内格式的三层作用域（用户 定案，docs/09 §6.9）。
  *
  * | 入口 | 管什么 |
  * |---|---|
@@ -15,10 +15,10 @@
  * 有选区 = 作用在选区、并让之后的输入延续这个格式」（见 `$formatText` / `$updateTextFormat`），
  * 所以顶部格式栏与快捷键**不需要**任何额外分支——直接调用它，折叠与选区两种情况天然都对外。
  *
- * 教训（2026-09-27 第 4 轮）：此前给「没有选区」补了一条「作用于光标块」的回退，等于把顶部格式栏
+ * 教训（ 第 4 轮）：此前给「没有选区」补了一条「作用于光标块」的回退，等于把顶部格式栏
  * 变成了第二个块工具栏，和用户的心智模型冲突。
  *
- * 2026-10-24 模块化 M2-1：从 `ui/formatState.ts` 搬进 `editor/`，`TextFormatType` 收成编辑器自己的
+ * 模块化 M2-1：从 `ui/formatState.ts` 搬进 `editor/`，`TextFormatType` 收成编辑器自己的
  * 六格式联合；UI 不再直接 import Lexical 的类型。
  */
 export type EditorTextFormat = 'bold' | 'italic' | 'underline' | 'strikethrough' | 'code' | 'highlight'

@@ -5,7 +5,7 @@ import { join, posix } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 /**
- * 结构边界门（编辑器重规划 · 步 1，2026-10-05 成门）。
+ * 结构边界门（编辑器重规划 · 步 1， 成门）。
  *
  * 为什么要有它：`13-编辑器重规划`§2.2 把「内核可替换」列为明文约束，
  * 而约束只有在**有执行者**时才算约束——这份测试就是那三条的第一批执行者。
@@ -18,7 +18,7 @@ import { fileURLToPath } from 'node:url'
  *      `editor/` 端口层的过程中，每收干净一个就划掉一个；名单变长 = 又有人在 ui 里
  *      直接碰内核——先在这里拦下，再决定「走端口」还是「改口径」。
  *
- * 2026-10-09 收口扩两条：④ `ui/**` 不许碰平台 API（`@tauri-apps/**`，**静态与动态都算**；已知债务冻结在 `UI_PLATFORM_ALLOWLIST`，只许变短）；
+ * 收口扩两条：④ `ui/**` 不许碰平台 API（`@tauri-apps/**`，**静态与动态都算**；已知债务冻结在 `UI_PLATFORM_ALLOWLIST`，只许变短）；
  * ⑤ `ui/**` 不许直连 `adapters/**`——端口一律从**合成根** `src/composition.ts` 取（`06` §6 落点四问第 ② 条，零例外）。
  * 仍不在本门范围：`ui/` 里 import 内核**做什么**（只查 import 事实）；`ui/` 内部互相引用；`application` ↔ `adapters` 两个方向（先出读数，见 `docs:check` ⑩）。
  */
@@ -28,7 +28,7 @@ const APP = fileURLToPath(new URL('../../', import.meta.url))
 const PKG = fileURLToPath(new URL('../../../packages/editor/src/', import.meta.url))
 
 /**
- * M2（2026-10-25）已收口：`ui/` 与内核零直连，不再有冻结名单。
+ * M2（）已收口：`ui/` 与内核零直连，不再有冻结名单。
  * 口径 = 从 `lexical` 或 `@lexical/*` 任一处 import（含 `@lexical/react`）。
  */
 
@@ -47,7 +47,7 @@ function sourceFiles(dir: 'domain' | 'editor' | 'ui' | 'application'): string[] 
   return found
 }
 
-/** 静态 import、副作用 import 与**动态 import()** 的说明符（2026-10-09 收口：动态也算，`ui/windowChrome.ts` 就这么绕过旧门）。 */
+/** 静态 import、副作用 import 与**动态 import()** 的说明符（ 收口：动态也算，`ui/windowChrome.ts` 就这么绕过旧门）。 */
 function specifiersOf(file: string): string[] {
   const text = readFileSync(file, 'utf8')
   const fromImports = [...text.matchAll(/from\s+['"]([^'"]+)['"]/g)]
@@ -115,7 +115,7 @@ test('ui/ 不直接 import 内核（M2 收口，零例外）', () => {
 })
 
 /**
- * ④（2026-10-09 收口）`src/ui/**` 不许碰平台 API（`@tauri-apps/**`）——静态与动态都算。
+ * ④（ 收口）`src/ui/**` 不许碰平台 API（`@tauri-apps/**`）——静态与动态都算。
  *    已知债务冻结在名单里（**只许变短**）：`ui/windowChrome.ts` 的无边框窗口控制（该收进 adapters 的一小块）。
  */
 const UI_PLATFORM_ALLOWLIST = [join(APP, 'src', 'ui', 'windowChrome.ts')]
@@ -136,7 +136,7 @@ test('冻结名单里的文件若已不再依赖平台 API，必须从名单划�
 })
 
 /**
- * ⑤（2026-10-09 收口）`src/ui/**` 不许直接 import `../adapters/**`——**只许从合成根 `src/composition.ts` 取端口**。
+ * ⑤（ 收口）`src/ui/**` 不许直接 import `../adapters/**`——**只许从合成根 `src/composition.ts` 取端口**。
  *    这一条是 `06` §6 落点四问第 ② 条的机器执行者；零例外。
  */
 test('ui 层不许直连 adapters（端口一律从合成根 composition.ts 取）', () => {
@@ -150,7 +150,7 @@ test('ui 层不许直连 adapters（端口一律从合成根 composition.ts 取�
 })
 
 /*
- * ⑥ 应用层不许反向引用 adapters（2026-10-09 收口 D6）——六边形的方向：**端口由上层定义、适配器实现它**
+ * ⑥ 应用层不许反向引用 adapters（ 收口 D6）——六边形的方向：**端口由上层定义、适配器实现它**
  *   （`application/aiPort.ts` 就是这么来的）；`application → adapters` 会把方向倒过来（换实现要动
  *   应用逻辑）。合成根 `src/composition.ts` 不在 `application/` 里，它同时引两边是它的本职。
  *   立这条门时读数已经从 1 归零（那 1 处就是 `aiService.ts` 的端口类型导入）——钉住，别让它回来。

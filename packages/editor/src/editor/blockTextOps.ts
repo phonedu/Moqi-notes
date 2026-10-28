@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
- * 块级**键盘写入**的编排（2026-10-10 从外壳搬出——`06` §6「外壳新代码免入」；**住 `editor/` 是因为它直接碰内核**：
+ * 块级**键盘写入**的编排（ 从外壳搬出——`06` §6「外壳新代码免入」；**住 `editor/` 是因为它直接碰内核**：
  * `ui/` 不许直接 import `lexical`（`tests/logic/import-boundaries.test.ts` ③ 的冻结名单只许变短），
  * 而「内核可替换」的方向是 `ui → editor → domain`；store 只按结构化端口取）。
  *
@@ -35,7 +35,7 @@ export type BlockTextOpsDeps = {
 }
 
 /**
- * 代码块里的回车（`R04-ENTER-6`，W6 2026-10-10 裁决；机制 A）：**Enter = 换行**——插
+ * 代码块里的回车（`R04-ENTER-6`，W6 裁决；机制 A）：**Enter = 换行**——插
  * `LineBreakNode`（渲染 `<br>`，光标/点击/打字都是浏览器标准行为），适配器序列化成 `\n` 落库；
  * **空行上再按 = 退出代码块**（空块转 text；非空块收掉尾随换行后新建 text 块）。
  * 光标不在块级代码块里 → 返回 false（交给外壳走既有链路）。
@@ -114,7 +114,7 @@ function exitCodeBlock(editor: LexicalEditor, block: Block, stripped: string, de
 }
 
 /**
- * 列表的降级出口（`R04-ENTER-4` 的另一半，用户实测 2026-09-30）：光标在**有内容的列表项行首**
+ * 列表的降级出口（`R04-ENTER-4` 的另一半，用户实测 ）：光标在**有内容的列表项行首**
  * 按 Backspace → 本项退出列表（变回普通文本块），内容与光标都不动；**再按一次**才轮到原来的
  * 合并 / 跨行逻辑。空项不在这里处理（让给既有的「空块合并」通路，语义更自然）。
  */

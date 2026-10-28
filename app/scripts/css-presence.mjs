@@ -1,9 +1,9 @@
 /**
- * 关键选择器「在场计数」自检（团队硬规第二条，2026-10-12 立）。
+ * 关键选择器「在场计数」自检（团队硬规第二条， 立）。
  *
  * 为什么有它：改 `app.css` / `tokens.css` / `themes.css`（以及 **Android 壳 `MainActivity.kt`**）时，最容易出的错不是语法错，
  * 而是**整块规则/代码被顶掉、误删**——门禁（css-order / theme）看不出来（少几条仍然"绿"），
- * 而事故就是这样发生的：2026-10-12 一次 `edit` 锚点选错，把批 α 的三条规则整块替换掉了；
+ * 而事故就是这样发生的： 一次 `edit` 锚点选错，把批 α 的三条规则整块替换掉了；
  * **同日第二起**：批 β 改 `MainActivity.kt` 加 IME insets 时把 `D-069` 的背键覆写**整段误删**，
  * 而 `accept:MOBILE-BACK-1` 只看 JS 侧 `window.__moqiBack` ⇒ **门照绿（门盲区）**、真机上返回键直接退出。
  * ⇒ 规矩：**改完 CSS 或 Android 壳先跑本脚本**，计数符合预期再跑门禁。
@@ -50,11 +50,11 @@ const MUST = [
   { name: '触屏档 · app.css 单一块', pattern: String.raw`@media \(pointer: coarse\) \{`, where: ['app.css'], expect: 1, why: '`10` §七 + `08` §3：触屏通则可一处（分批时勿新增第二块）' },
   // 批 η ①：窄档筛选 chip 的**形状**必须回归控件族（回归 `--r-pill` 就是用户报的「椭圆形」）
   { name: '批 η ① · 筛选 chip 形状 = 控件族', pattern: String.raw`\.pop\.fp \.fp-chip \{ padding: 3px 9px; border-radius: var\(--r-ctrl\); \}`, where: ['app.css'], expect: 1, why: '批 η ①：48 高 × `--r-pill` 99px = 药丸球观感（用户反馈）；回归 ⇒ 该行报 0、门红' },
-  // θ13（2026-10-13 真机轮）：θ7 的「容器级子块左内距归零」必须**排除标记族**——它们的左内距是给 `•`/序号/复选框让位的。
+ // θ13（ 真机轮）：θ7 的「容器级子块左内距归零」必须**排除标记族**——它们的左内距是给 `•`/序号/复选框让位的。
   // 回归（`:not()` 被抹掉）⇒ 真机上「光标跑到列表原点前面、一打字列表没了」「待办文字压住复选框」（同源 · `011be20` 的回归）。
   { name: 'θ13 · θ7 归零规则排除标记族', pattern: String.raw`data-block-object="true"\] > \.moqi-block:not\(\.moqi-block-bullet\):not\(\.moqi-block-numbered\):not\(\.moqi-block-todo\) \{ padding-left: 0; \}`, where: ['app.css'], expect: 1, why: 'θ13：标记族除外（回归 ⇒ 该行报 0、门红）' },
   { name: 'θ13 · ai-block 内距规则同样排除标记族', pattern: String.raw`\.moqi-block\.ai-block \.moqi-block:not\(\.moqi-block-bullet\):not\(\.moqi-block-numbered\):not\(\.moqi-block-todo\) \{ padding-left: 10px; \}`, where: ['app.css'], expect: 1, why: 'θ13：同上（AI 块里的列表 / 待办照旧吃让位内距）' },
-  // D-071（2026-10-13 · 图片块真比例）：补行规则必须**排除重占用 ::before 的三类**（图片本体 / 附件图标 /
+ // D-071（ · 图片块真比例）：补行规则必须**排除重占用 ::before 的三类**（图片本体 / 附件图标 /
   // 嵌入卡头）——它们命中这条会被整条换成 1lh 空行（真机：竖屏图被压成一根细条 21.67px）。
   // 回归（任一 `:not()` 被抹）⇒ 该行报 0、门红；accept 的「R09-BLOCK-19 块内真比例」同步转红。
   { name: 'D-071 · 补行规则排除 ::before 重占用三类', pattern: String.raw`data-own-line='missing'\]:not\(\[data-block-object='true'\]\):not\(\.moqi-block-image\):not\(\.moqi-block-file\):not\(\.moqi-block-embed\)::before`, where: ['app.css'], expect: 1, why: '`D-071`：三类块的 ::before 是块内容（图片本体 / 📎 / 卡头），被补行规则命中 ⇒ 内容换空行' },

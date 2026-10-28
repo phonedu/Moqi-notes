@@ -60,9 +60,9 @@ export type UiPrefs = {
   fontSize: FontSizeStep
   lineHeight: LineHeightStep
   columnWidth: ColumnWidthStep
-  /** 页面库卡片属性行上被「卡片显隐」关掉的字段 id（属性定义 id 或系统字段 id；入口在属性行的 ⋯ 菜单，2026-10-09 起）。 */
+ /** 页面库卡片属性行上被「卡片显隐」关掉的字段 id（属性定义 id 或系统字段 id；入口在属性行的 ⋯ 菜单， 起）。 */
   hiddenCardFields: string[]
-  /** 最近挂到页面上的属性定义 id（最新在前；添加属性弹窗的「最近使用」组，2026-10-09 新设计）。 */
+ /** 最近挂到页面上的属性定义 id（最新在前；添加属性弹窗的「最近使用」组， 新设计）。 */
   recentProperties: string[]
   sidebarCollapsed: boolean
   /** 页面库形态：画册 / 列表 / 简约（docs/09 §4.1）。 */
@@ -74,7 +74,7 @@ export type UiPrefs = {
   /** 中间页面库栏宽度（px）。 */
   pagecolWidth: number
   /**
-   * 导入时把正文里的**行内标签**（Obsidian 的 `#标签`）收成页面标签（用户 2026-10-10 裁决：
+  * 导入时把正文里的**行内标签**（Obsidian 的 `#标签`）收成页面标签（用户 裁决：
    * 做成导入页的开关；默认开——对齐 Obsidian 语义"行内标签 ⊂ 这篇笔记的标签"）。
    * **只登记、不改字**：正文一字不动（幂等、往返逐字一致），见 `domain/mdRefs.collectInlineTags`。
    */
@@ -125,9 +125,9 @@ export function loadUiPrefs(): UiPrefs {
       sidebarCollapsed: parsed.sidebarCollapsed === true,
       // 只认显式的 `false`：老偏好（没这一项）落到默认值「收」（与 defaultUiPrefs 一致）。
       importInlineTags: parsed.importInlineTags !== false,
-      // 画册形态已移除（2026-09-27）：历史偏好一律落到列表。
+   // 画册形态已移除（）：历史偏好一律落到列表。
       libraryView: parsed.libraryView === 'compact' ? 'compact' : 'list',
-      // 移动骨架（`10` §三，2026-10-11 4a）：compact 档**进应用 = 首页**——启动时让上一轮的
+   // 移动骨架（`10` §三， 4a）：compact 档**进应用 = 首页**——启动时让上一轮的
       // 「页面列收起」意图让位（只影响启动落点；跨断点不写它，`R09-RESP-15` 意图不被宽度改写）。
       listColumnCollapsed: parsed.listColumnCollapsed === true && !matchMediaSafe(MQ.compact),
       sidebarWidth: clampWidth(parsed.sidebarWidth, 200, 420, 250),

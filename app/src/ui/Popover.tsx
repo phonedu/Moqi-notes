@@ -32,7 +32,7 @@ export function Popover({ anchor, align = 'left', width, maxHeight, className = 
   const ref = useRef<HTMLDivElement | null>(null)
   // 视口尺寸要**订阅**而不是只在渲染时读一次：打开瞬间（尤其移动端键盘收起 / WebView 首帧）
   // innerHeight 还在变——旧做法只在父级重渲染时重算 limit，于是面板「先一小截、过会儿变大」
-  // （用户 2026-10-26 报，手机 ⋮ 更多菜单）。订阅 resize / visualViewport resize 后随动。
+ // （用户 报，手机 ⋮ 更多菜单）。订阅 resize / visualViewport resize 后随动。
   const [viewport, setViewport] = useState(() => ({ h: typeof window === 'undefined' ? 800 : window.innerHeight, w: typeof window === 'undefined' ? 1200 : window.innerWidth }))
   useEffect(() => {
     const read = () => setViewport({ h: window.innerHeight, w: window.innerWidth })

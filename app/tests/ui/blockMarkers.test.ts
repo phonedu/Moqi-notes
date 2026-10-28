@@ -167,7 +167,7 @@ test('R09-BLOCK-30 编号序号：同级相邻同类型的连续段各自从 1 �
   const run = ['numbered', 'numbered', 'numbered'] as const
   assert.equal(listOrdinal([...run], 0, 'numbered'), 1)
   assert.equal(listOrdinal([...run], 2, 'numbered'), 3)
-  // 普通文字 / 其它块类型打断：后一段重新从 1 开始（用户 2026-09-30 问的就是这条）
+ // 普通文字 / 其它块类型打断：后一段重新从 1 开始（用户 问的就是这条）
   assert.equal(listOrdinal(['numbered', 'numbered', 'text', 'numbered'], 3, 'numbered'), 1)
   assert.equal(listOrdinal(['numbered', 'bullet', 'numbered', 'numbered'], 3, 'numbered'), 2)
   // 缩进层级各算各的：子项的兄弟列表里只有子项，所以子层从 1 开始（不与父级共用序号）

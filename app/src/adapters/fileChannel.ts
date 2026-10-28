@@ -6,7 +6,7 @@
  *   `content://…` 内容 URI：**不能直接 `std::fs` 读**，调用方按 §12.4 的固定走法先复制进应用缓存目录。
  * - `BrowserFileChannelPort`：浏览器预览**三能力全 false**（界面据此禁用并把原因写在界面上）。
  *
- * **2026-10-16 真机修复（台账 `D-088`）：搬缓存 / 拷落点这两步改由 Rust 命令执行**
+ * ** 真机修复（台账 `D-088`）：搬缓存 / 拷落点这两步改由 Rust 命令执行**
  * （`src-tauri/src/saf.rs` 的 `stage_saf_document` / `write_saf_document`）。原因：`fs` 插件的
  * **所有 JS 命令**（`readFile` / `writeFile` / `copyFile` / `stat`）在 Rust 侧都先过
  * `SafeFilePath::into_path()` —— `content://` 转不成路径，一律 `InvalidPathUrl`（真机上导入与导出
@@ -76,7 +76,7 @@ export class TauriFileChannelPort implements FileChannelPort {
   async copyOut(fromPath: string, toRef: string): Promise<void> {
     // 参数名要对上 Rust 侧（`saf.rs` 的 `write_saf_document(from_path, uri)`）：Tauri v2 把
     // `from_path` 映射成 JS 的 `fromPath`，`uri` 原样——**这里写成 `toRef` 会以「missing required
-    // key `uri`」当场被拒**（2026-10-16 真机实测，见台账 `D-088`）。
+  // key `uri`」当场被拒**（ 真机实测，见台账 `D-088`）。
     await invoke('write_saf_document', { fromPath, uri: toRef })
   }
 }

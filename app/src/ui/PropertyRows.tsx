@@ -12,7 +12,7 @@ function isoDateOf(timestamp: number): string {
 }
 
 /**
- * 属性面的**行构件箱**（2026-10-10 从 `Property.tsx` 拆出——体量门「按主题拆模块」）：
+ * 属性面的**行构件箱**（ 从 `Property.tsx` 拆出——体量门「按主题拆模块」）：
  * 类型元数据（`PROPERTY_TYPE_META`）、编辑回调契约（`PropertyEditorCallbacks`）、
  * 行解剖与三型行（`PropertyRows` / `CustomRow` / 默认字段行 / 标签行）、行内 ⋯（`RowMenu` / `FieldMenu`）、
  * 类型图标（`TypeGlyph`）、属性名失败文案（`propertyNameToast`）。
@@ -22,7 +22,7 @@ function isoDateOf(timestamp: number): string {
 /**
  * 五个属性类型的展示元数据（中文名 + 图标）。**单一所有者**：新建弹窗的类型分段（`R09-PADD-2`）、
  * 弹窗列表态的「＋ 添加 · …」、设置页「全局属性管理」的类型列都从这里取；
- * 图标名登记在 `docs/08` §8（属性类型批，2026-10-08 T3）。
+ * 图标名登记在 `docs/08` §8（属性类型批， T3）。
  * 键的书写顺序 = 类型分段的展示顺序（单选 / 文本 / 数字 / 日期 / 勾选）——加类型只改这一处。
  */
 export const PROPERTY_TYPE_META: Record<PropertyDef['type'], { label: string; icon: IconName }> = {
@@ -35,7 +35,7 @@ export const PROPERTY_TYPE_META: Record<PropertyDef['type'], { label: string; ic
 
 /**
  * 建属性 / 改名共用的失败提示：说清是哪一种问题（空 / 保留键 / 重名），别只丢「失败了」。
- * 从外壳搬来（2026-10-09；它讲的是属性名这件小事，住在属性面上）。
+ * 从外壳搬来（；它讲的是属性名这件小事，住在属性面上）。
  */
 export function propertyNameToast(name: string, current: MetadataRegistry, excludeId?: string): string | null {
   const problem = propertyNameProblem(name, current, excludeId)
@@ -83,7 +83,7 @@ const FIELD_ID = { tags: 'sys:tags', created: 'sys:created', edited: 'sys:edited
 /**
  * 属性行组件（docs/09 §4.4）：桌面属性编辑只有一处形态——**摘要条原位展开**；与移动端展开面板**两处同构**，
  * 结构、分区与「卡片显隐」语义完全一致。
- * 2026-10-09（用户裁决，按新原型）：行解剖 = [类型图标][标签窄栏][值区弹性右置]，零分隔线；
+ * （用户裁决，按新原型）：行解剖 = [类型图标][标签窄栏][值区弹性右置]，零分隔线；
  * **眼睛开关不再常驻**——管理收进行内 **⋯**（重命名 / 卡片显隐 / 移除），悬停或聚焦才浮出（触屏常显）；
  * 「＋ 添加属性」从头部挪到**列表末尾一行**。
  */
@@ -201,7 +201,7 @@ export function TypeGlyph({ type, label, icon }: { type?: PropertyDef['type']; l
 
 type MenuItem = { key: string; icon: IconName; text: string; meta?: string; title?: string; danger?: boolean; onPick: () => void }
 
-/** 行内 ⋯：管理入口不再占常驻按钮位（2026-10-09 新设计）。悬停 / 聚焦浮出，触屏常显（`pointer:coarse`）。 */
+/** 行内 ⋯：管理入口不再占常驻按钮位（ 新设计）。悬停 / 聚焦浮出，触屏常显（`pointer:coarse`）。 */
 function RowMenu({ label, items }: { label: string; items: MenuItem[] }) {
   const [anchor, setAnchor] = useState<AnchorRect | null>(null)
   return (
@@ -263,7 +263,7 @@ function FieldMenu({ label, visible, onToggle, onRemove }: { label: string; visi
 }
 
 /**
- * 标签取用选择器（`13-属性区重规划` §5-12，2026-10-10 已裁）：搜索 / 创建 + **全量**标签
+ * 标签取用选择器（`13-属性区重规划` §5-12， 已裁）：搜索 / 创建 + **全量**标签
  * （各自「用在 N 页」）；点一条 = 本页加上、已在本页的再点 = 去掉，**多选不关窗**；
  * 输入即建走 `ensureTagDef`（按名复用同一定义，不产生同名两份）。
  */

@@ -1,5 +1,5 @@
 /**
- * UI 字阶引用层门禁（2026-10-24，Cupertino 字阶批）。
+ * UI 字阶引用层门禁（，Cupertino 字阶批）。
  *
  * 为什么：`check-theme-usage.mjs` 看颜色令牌，`check-css-order.mjs` 看覆盖顺序，`check-breakpoints` 看断点；
  * 但字号一直是一层没人看住的裸值——全站曾有 9 / 9.5 / 10 / 10.5 / 11.5 / 12.5 / 13.5 七个半像素档，

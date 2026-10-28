@@ -1,7 +1,7 @@
 /**
  * 编辑器稳定性验收（`docs/04` §6 七项 + §10 回归矩阵 + 文档里写着的**正确用法**）。
  *
- * 为什么它在仓库里（用户口径 2026-09-28）：「本来就是一个非常正确的用法，就因为我们修改完以后没跑过，
+ * 为什么它在仓库里（用户口径 ）：「本来就是一个非常正确的用法，就因为我们修改完以后没跑过，
  * 导致了二次的重跑，非常的消耗时间」——所以正确用法必须**可执行**，而不是只写在文档里。
  *
  * 用法：
@@ -23,7 +23,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
 const URL = process.env.MOQI_URL ?? 'http://localhost:5173/'
-/** 子集模式（@0 2026-10-12 批准）：`MOQI_ONLY=<id 前缀>` 只跑匹配的 check；未设置 = 现有行为逐字不变。
+/** 子集模式（@0 批准）：`MOQI_ONLY=<id 前缀>` 只跑匹配的 check；未设置 = 现有行为逐字不变。
  *  子集跑**不覆盖全量产物**（写 `editor-acceptance-only.json`、不写 `history/`）——否则会污染取证 diff 与历史清单。
  *  注意：子集模式**只隔离「判定与产物」**，各段刺激仍照跑 ⇒ 墙钟与全量相同（不是提速开关）。 */
 const ONLY = process.env.MOQI_ONLY ?? ''
@@ -50,14 +50,14 @@ const check = (name, ok, evidence) => {
   if (!ok) failed += 1
   results.push({ name, ok, evidence, sincePrevMs: Date.now() - lastCheckAt })
   lastCheckAt = Date.now()
-  // 前缀 = 从开跑到这一条的花费（秒）：负载下哪些段落被拖住了，看日志一眼能对账（2026-10-08 补）。
+ // 前缀 = 从开跑到这一条的花费（秒）：负载下哪些段落被拖住了，看日志一眼能对账（ 补）。
   const at = `${((Date.now() - t0) / 1000).toFixed(0)}s`
   console.log(`${ok ? 'PASS' : 'FAIL'} [${at}] ${name}${ok ? '' : '  → ' + JSON.stringify(evidence).slice(0, 400)}`)
 }
 
 /**
  * 报告：最新一份固定写 `editor-acceptance.json`，同时按时间戳留一份历史（最近 40 份）。
- * 为什么要历史：只留最新会把「哪一轮挂的什么」冲掉；2026-10-07 还栽过「没看时间戳，
+ * 为什么要历史：只留最新会把「哪一轮挂的什么」冲掉； 还栽过「没看时间戳，
  * 把旧报告读成 149/149」。**看报告先看 at。**
  */
 const writeReport = (extra = {}) => {
@@ -77,8 +77,8 @@ const writeReport = (extra = {}) => {
   return { report, reportPath }
 }
 
-/** 半路崩也要留证据（套件稳定性立项，2026-10-08）：以前脚本崩掉什么都不写，报告目录还是上一轮的。
-    ESM 顶层 await 抛错走的是 uncaughtException（2026-10-08 实测：只挂 unhandledRejection 接不住）、
+/** 半路崩也要留证据（套件稳定性立项，）：以前脚本崩掉什么都不写，报告目录还是上一轮的。
+    ESM 顶层 await 抛错走的是 uncaughtException（ 实测：只挂 unhandledRejection 接不住）、
     裸 Promise 走 unhandledRejection——两个都接。 */
 const writeCrashReport = (reason) => {
   const message = reason instanceof Error ? reason.message : String(reason)
@@ -94,11 +94,11 @@ process.on('uncaughtException', writeCrashReport)
 
 const browser = await chromium.launch({ channel: 'msedge', headless: true })
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-// 稳定性（2026-10-08）：默认 30s 在冷启动 / 负载下会假红——本轮实测连着四轮挂了四个**不同**的项目
+// 稳定性（）：默认 30s 在冷启动 / 负载下会假红——本轮实测连着四轮挂了四个**不同**的项目
 // （PAGENAME-* / D-003 / BLOCK-19/20 / REF-DANGLE），都不是功能坏。先把**动作**超时抬到 60s（导航那条原本就是 60s），
 // 再让首次导航吃一次「等 dev server 编译完」的余量。
 page.setDefaultTimeout(60000)
-// 导航层加固（套件稳定性立项，2026-10-08）：Playwright 默认导航超时 30s——机器忙时一次
+// 导航层加固（套件稳定性立项，）：Playwright 默认导航超时 30s——机器忙时一次
 // reload / 首载就可能超，症状是**整轮崩在半路、没有报告**（口径里的「负载下首次页面加载
 // 30 秒超时」）。放宽到 60s；超时重试在下面的 reload() / gotoApp() 里。
 page.setDefaultNavigationTimeout(60_000)
@@ -174,7 +174,7 @@ const graphIssues = (blocks) => {
 const NAV_READY_MS = 30_000
 
 /**
- * 读点加固（套件稳定性立项，2026-10-08）：**固定等待窗在机器忙时会飘**——落盘有 220ms 防抖
+ * 读点加固（套件稳定性立项，）：**固定等待窗在机器忙时会飘**——落盘有 220ms 防抖
  * ＋600ms 节拍，负载下都会往后拖，固定 sleep 之后读到旧态，单项就红了（连续四轮挂在四个
  * 不同项目：PAGENAME-* → D-003 → BLOCK-19/20 → REF-DANGLE，都是这一类）。
  * 规则：**读存档的读点要轮询到「应有的事实」为止**（有界超时；超时返回最后一次读到的值，
@@ -233,7 +233,7 @@ const gotoApp = async () => {
 
 // ---------- 准备：干净页面 + 一段文字 ----------
 // 打完**自检**：清空 localStorage 后 reload 到编辑器可交互之间有一个窗口，抢在它之前点击会丢字
-// （2026-09-29 两次偶发：`reset()` 之后第一段没打进去，后面的 `clickBlock('第一段')` 直接抛错）。
+// （ 两次偶发：`reset()` 之后第一段没打进去，后面的 `clickBlock('第一段')` 直接抛错）。
 // 这里等首帧稳一下、打完确认，不成就重来一次——种子不牢，后面每条检查都是假的。
 const reset = async () => {
   await gotoApp()
@@ -452,7 +452,7 @@ await sleep(1500)
 check('LIFECYCLE-LOAD-2 重载后块图自洽（没有留在数据里却不在界面上的块）', graphIssues(await live()).length === 0, graphIssues(await live()))
 check('全程无未捕获异常', errors.length === 0, errors)
 
-// ---------- 正确用法：输入文字的撤销 / 重做（04 §5；2026-09-28 用户实测的缺陷点） ----------
+// ---------- 正确用法：输入文字的撤销 / 重做（04 §5； 用户实测的缺陷点） ----------
 // 曾经的写法问 `CAN_UNDO_COMMAND` 决定归属，而 Lexical 0.51 的旧版 HistoryPlugin 不应答这个查询命令，
 // 于是 ⌘Z 永远走领域：字撤不掉、反倒撤掉更早的结构动作。这条检查专门看住它。
 await clickBlock('新写的')
@@ -471,7 +471,7 @@ check('UNDO-TYPE-1 输入文字后 ⌘Z 撤掉刚敲的字、⇧⌘Z 再重做',
   typedText.includes('甲乙') && !afterUndoOnce.includes('甲乙') && afterRedo.includes('甲乙'),
   { typedText, afterUndoOnce, afterRedo })
 
-// ---------- 正确用法：菜单浮层压过抽屉（09 §八；2026-09-28「卡片 ⋯ 点了没反应」的回归点） ----------
+// ---------- 正确用法：菜单浮层压过抽屉（09 §八；「卡片 ⋯ 点了没反应」的回归点） ----------
 // 窄屏下页面列是抽屉（--z-drawer），卡片 ⋯ 的菜单生在抽屉内部，必须画在抽屉之上（--z-popover）。
 // 断错层级时菜单照常出现在 DOM 里，但被抽屉盖住 —— 用户看到的就是「点了没反应」。
 await page.setViewportSize({ width: 1100, height: 900 })
@@ -526,7 +526,7 @@ check("PANEL-OVERLAY-1 滚动后装饰层跟着块走（相对位置不变；AI 
   !scroller || (deltaBefore !== null && deltaAfter !== null && deltaBefore === deltaAfter),
   { scroller, deltaBefore, deltaAfter })
 
-// ---------- 正确用法：编辑器里多出来的块会被同步收敛回领域（04 §2，2026-09-28 回归点） ----------
+// ---------- 正确用法：编辑器里多出来的块会被同步收敛回领域（04 §2， 回归点） ----------
 // 用户实际踩到的链路：编辑器里删块（镜像成领域删除）→ Lexical 撤销把块带回编辑器 → 领域侧没有它。
 // 以前适配器在这里抛异常，把唯一的收敛通路堵死（表现：回车没反应）。这条检查专门看住「能自愈」。
 await clickBlock("新写的");
@@ -552,7 +552,7 @@ check("BLOCK-SYNC-1 领域里缺的块由同步补回（编辑器里有的块永
   healed.some((b) => b.id === (healTargetId ?? "").slice(0, 6)) || healed.some((b) => b.text.includes("新写的")),
   { healTargetId, blocks: healed.map((b) => b.text) })
 
-// ---------- W2：折叠入口对**所有有子块的块**开放（`R09-BLOCK-7` 2026-10-10 裁决；`BLOCK-COLLAPSE-1/2/3`）----------
+// ---------- W2：折叠入口对**所有有子块的块**开放（`R09-BLOCK-7` 裁决；`BLOCK-COLLAPSE-1/2/3`）----------
 // 旧口径只给 H1–H3：项目符号 / 待办这些带孩子的内容块**没法折叠**。这里播一个「非标题 + 有子块」，
 // 验三件：① hover 出箭头（无子块的块不出）；② 收起后子块隐藏、箭头**常显**（不靠 hover）、点得回；
 // ③ 块菜单里「折叠 / 展开」项同样放宽（没子块的块不给这一项）。
@@ -684,7 +684,7 @@ check('PANEL-HIT-1 触达尺寸：桌面点击目标 ≥32×32（块标记族 32
   { hitCollapse, hitHandle, hitPlus, hitTopBtn, hitCardMore, hitRowMore })
 
 // ---------- W6 · 软换行口径（`R04-ENTER-5`；`ENTER-NOLINEBREAK-1/2/3`）----------
-// 软换行从根上取消（用户裁决 2026-10-10）：**块内换行只允许出现在代码块**。四条：
+// 软换行从根上取消（用户裁决 ）：**块内换行只允许出现在代码块**。四条：
 // ① Shift+Enter 与 Enter 同义（拆块，不留换行符）；② Ctrl+O 同义（macOS 上那是 Lexical 的
 // 「插入换行」默认键，输入侧先手拦）；③ 多行无记号纯文本粘贴按行建块、⌘Z 一次退整批；
 // ④ 边界：多行**贴进代码块**不拆块——字面 `\n` 进正文（落库），`\r\n` 归一成 `\n`。
@@ -1053,7 +1053,7 @@ check("PAGENAME-NEW-1 新建页面：光标就在页面名那一行，直接打�
   { newPageState, namedState })
 
 // ---------- 名字行必须是一个「能落光标」的位置（04 §3.1 R04-NAME-11） ----------
-// 用户实测（2026-09-29）：名字行为空时（空页面 / 名字被删光 / 首行文字被拆走），容器自己那一行
+// 用户实测（）：名字行为空时（空页面 / 名字被删光 / 首行文字被拆走），容器自己那一行
 // 没有落脚点，Lexical 的归一化把光标下压进第一个子块 —— 点占位没反应、打字写进下面的块、
 // 删光名字光标掉到下一个块开头。修法是名字行锚点（见 src/editor/blockNode.ts）。
 const clickNameRow = async () => {
@@ -1247,7 +1247,7 @@ const titleType = await page.evaluate(() => {
   const pick = (el) => { const cs = getComputedStyle(el); return { size: cs.fontSize, weight: cs.fontWeight, line: cs.lineHeight } }
   return { container: pick(container), child: child ? pick(child) : null }
 })
-// 2026-10-24 字阶批：页面标题 2× / 行高 1.2（标准档 17 × 2 = 34px / 40.8px）；子块仍是正文 17px（行高 1.7 = 28.9px）
+// 字阶批：页面标题 2× / 行高 1.2（标准档 17 × 2 = 34px / 40.8px）；子块仍是正文 17px（行高 1.7 = 28.9px）
 const near = (value, target, tol = 0.15) => Math.abs(parseFloat(value ?? "NaN") - target) <= tol
 check("PAGENAME-NEW-6 名字行排版 = 页面标题（2× / 700 / 行高 1.2，标准档 = 34px），且子块排版不被继承",
   near(titleType.container.size, 17 * 2) && titleType.container.weight === "700" && near(titleType.container.line, 17 * 2 * 1.2)
@@ -1324,7 +1324,7 @@ check('THEME-1…4 / R09-SET-15 主题两轴与排版三轴：设置里切主题
 //   值层/引用层也抓不到「颜色不随主题变」这类错，三层的分工就是 文本对 / 值对 / 渲染对。
 // 怎么拨：直接改 `<html>` 的 data-theme / data-mode 逐格读（不重开、不碰 preferences——`THEME-1…4` 已管那条通路）。
 //   每一格都比「元素 computed 值」与「同一条令牌现算的值」（探针 span 解析 `var(--x)`），共 20 套 × 浅深 = 40 格。
-//   **拨之前先关掉过渡**：同步循环里没有帧，带 `transition: background` 的元素会一直停在旧主题的值上（2026-10-09
+//  **拨之前先关掉过渡**：同步循环里没有帧，带 `transition: background` 的元素会一直停在旧主题的值上（
 //   首跑就是这么假红的：`.lcard` 40 格全报同一个旧色）。关过渡只影响"读值的时机"，不改颜色语义。
 // 防呆：① 选择器缺席点名（`missing`）——元素改名会让这一项变红而不是静默缩水；② `cells` 下限按对数 × 40 卡死，
 //   防「只剩两对在跑也算绿」；③ 主题清单从 `uiPrefs` 的 `THEMES` 现读（加主题不用改这里）。
@@ -1452,7 +1452,7 @@ await reset()
 
 // ---------- 正确用法：面板开关只住在原生栏（09 §十四 图标归属） ----------
 // 归属域分层：顶栏（原生栏）只放面板开关，面板与视图内部只放内容。
-// 设置 / 回收站 这些视图的头部曾经各复制了一份侧栏开关（用户实测 2026-09-28：返回按钮旁边多一个图标）。
+// 设置 / 回收站 这些视图的头部曾经各复制了一份侧栏开关（用户实测 ：返回按钮旁边多一个图标）。
 const chromeCounts = async () => page.evaluate(() => {
   const inWbar = [...document.querySelectorAll(".wbar button")].filter((b) => (b.getAttribute("aria-label") ?? "").includes("侧栏")).length
   const on = document.querySelector(".view.is-on")
@@ -1513,7 +1513,7 @@ check('LIB-MENU-2 页面库卡片确认移入回收站：按钮可点击、弹�
   dialogReady && await page.getByRole('dialog').count() === 0 && deleteToast === null,
   { dialogReady, dialogCount: await page.getByRole('dialog').count(), toast: deleteToast })
 
-// ---------- 列表卡的摘要与标签行不许重叠（用户实测 2026-09-29；09 §五 列表卡） ----------
+// ---------- 列表卡的摘要与标签行不许重叠（用户实测 ；09 §五 列表卡） ----------
 // 卡片是固定高的 flex 列：摘要要按剩余空间截断，标签行永远在摘要下方。造一页「标题 + 多行正文 + 两个标签」最苛刻。
 await page.evaluate(() => {
   const now = Date.now()
@@ -1538,12 +1538,12 @@ const cardBox = await page.evaluate(() => {
     summary: rect('.cnt'), cwrap: rect('.cwrap'), tags: rect('.atrow'), expb: rect('.expb'),
     expandRow: Boolean(card.querySelector('.expand-row')),
     expandText: card.querySelector('.expb')?.textContent ?? null,
-    // 2026-10-09：截断改**直接截断**（`-webkit-line-clamp` 截在行边界），**不再有渐隐遮罩**——
+  // ：截断改**直接截断**（`-webkit-line-clamp` 截在行边界），**不再有渐隐遮罩**——
     // 所以这里同时读 class 与 `::after` 的 background-image（渐隐层必须不存在）。
     clampClass: card.querySelector('.cnt')?.className ?? '',
     clampLines: card.querySelector('.cnt') ? getComputedStyle(card.querySelector('.cnt')).webkitLineClamp : null,
     fadeLayer: card.querySelector('.cnt') ? getComputedStyle(card.querySelector('.cnt'), '::after').backgroundImage : null,
-    // 盒子高度必须**恰好三行**（2026-10-10 视觉批 ⓓ）：`-webkit-box` 在 flex 子项里会被浏览器降级成
+  // 盒子高度必须**恰好三行**（ 视觉批 ⓓ）：`-webkit-box` 在 flex 子项里会被浏览器降级成
     // `flow-root`，`line-clamp` 随之静默失效，只剩 `overflow: hidden` 按盒子高度硬切——盒子比三行高就是
     // 「半行残字」。旧断言只查 `clamp=3`（computed 值照样是 3）与 `h >= 68`（3.4 行也满足），抓不到。
     lineHeight: card.querySelector('.cnt') ? getComputedStyle(card.querySelector('.cnt')).lineHeight : null,
@@ -1577,7 +1577,7 @@ const bands = await page.evaluate(() => {
   return {
     sidebar: box('.sidebar'), pagecol: box('.pagecol'), panel: box('.ed-col'), wbar: box('.wbar'),
     // 标题栏**不得住在任何视图子树里**——它要覆盖全部视图（回收站 / 设置下窗口三键必须照样可点，
-    // 2026-10-07 实测过一次「挂在编辑视图里 ⇒ 另外两个视图整条标题栏消失」）。
+  // 实测过一次「挂在编辑视图里 ⇒ 另外两个视图整条标题栏消失」）。
     wbarOutsideViews: wbar ? ![...document.querySelectorAll('section.view')].some((v) => v.contains(wbar)) : false,
     wbarLeftVsPanel: wbar && edCol ? Math.round(wbar.getBoundingClientRect().left - edCol.getBoundingClientRect().left) : null,
     wctl: document.querySelectorAll('.wctl').length,
@@ -1595,7 +1595,7 @@ check('三色分块体系：三带从 y=0 贯通（顶部无横向断带）、�
 
 // ---------- 行内引用不吃相邻输入：链接文字首尾不留空白（04 §1 R04-CARET-5） ----------
 await reset()
-// D-014（2026-10-04）之后「本篇」不再是合法目标，而种子库只有一页 ⇒ 先补一页当目标。
+// D-014（）之后「本篇」不再是合法目标，而种子库只有一页 ⇒ 先补一页当目标。
 // 这一步不测引用本身，只保证这条用例测的是**引用边上打字**，而不是「候选为空」。
 await page.evaluate(() => {
   const now = Date.now()
@@ -1637,7 +1637,7 @@ check('REF-TYPE-1 行内引用：边上打字不进链接（下划线 / 背景�
   { refLabel, ...refAfterType })
 await reset()
 
-// ---------- AI 块「采用」之后的样子（docs/09 §6.11 R09-AIB-5，用户 2026-09-29 裁决方案 A） ----------
+// ---------- AI 块「采用」之后的样子（docs/09 §6.11 R09-AIB-5，用户 裁决方案 A） ----------
 // 采用后块**没有任何 AI 外观**：虚线框、标签行、操作条、行容器、悬停提示全没有（与普通块一模一样），
 // 而 `aiMeta` 留在数据里（来源与操作类型「保留至采用或丢弃」）；撤销一次回到「待采用」。
 await page.evaluate(() => {
@@ -1680,7 +1680,7 @@ check('R09-AIB-5 采用 → 界面与普通块一模一样：没有虚线框 / �
   && acceptedState.status === 'accepted' && acceptedState.scope === 'page' && acceptedState.sources === 1 && acceptedState.action === 'summary',
   { beforeAccept, ...acceptedState })
 
-// 读点加固（2026-10-09，AIB-5 在属性面板批的同轮全量里红过一次；隔离复现 3/3 绿 ⇒ 读点 flake）：
+// 读点加固（，AIB-5 在属性面板批的同轮全量里红过一次；隔离复现 3/3 绿 ⇒ 读点 flake）：
 // ⌘Z 之后**轮询到「应有的事实」**（虚线框回来 + 数据回到 complete），不是固定 sleep 后读；
 // 一次没生效（键被吞 / 时序）再按一次——两次读的是**同一目标状态**，所以不会叠撤。
 const readAcceptUndo = () => page.evaluate(() => {
@@ -1702,14 +1702,14 @@ check('R09-AIB-5 采用可撤销：⌘Z 一次回到「待采用」（虚线框�
   acceptedUndoState)
 
 // ---------- AI 结果落点（docs/09 §6.11 R09-AIB-6、§6.10 R09-TXBAR-2）----------
-// 用户实测 2026-09-29：「选文本后 AI 生成的块不是在选中文字的块后面，直接生成到文档后面；
+// 用户实测 ：「选文本后 AI 生成的块不是在选中文字的块后面，直接生成到文档后面；
 // 三种范围全显示基于本段」。根因：入口只传一个 string[]，由「数组非空」反推口径与落点档位，
 // 于是「整篇」被当成「选中了页面容器」。
 // **AI 结果块在调用模型之前就落地**（先落生成中占位块，再流式写入），所以配置一个够不到的
 // 端点也能真实观察落点与标签——不需要真模型，也不花额度。
 const seedAiPage = async (baseUrl = 'http://127.0.0.1:9/v1') => {
   // 种完**验一次**、不成就重来（最多 3 次）：落盘队列的防抖写会在导航前一刻把旧状态刷回 localStorage，
-  // 新种子被旧块列表盖掉、reload 后上一段用例留下的 AI 块还活着（2026-10-08 浸泡第 1 遍实测：
+ // 新种子被旧块列表盖掉、reload 后上一段用例留下的 AI 块还活着（ 浸泡第 1 遍实测：
   // AI-STOP-1 ④ 的 `aiBlockState` 读到旧块（完成态、无停止钮）→ 误报；同轮第 2 遍绿）。
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     await page.evaluate((url) => {
@@ -1779,7 +1779,7 @@ for (let i = 0; i < 3 && !aiMenuOpen; i += 1) {
 const selectionText = await page.evaluate(() => window.getSelection()?.toString() ?? null)
 
 // ---------- 未实现的 AI 指令必须**看得见地**标注版本（docs/09 §十二 R09-SCOPE-17）----------
-// 用户实测 2026-10-01：「界面都做出来了，功能还没有出来」。此前两处只靠 tooltip 说明，
+// 用户实测 ：「界面都做出来了，功能还没有出来」。此前两处只靠 tooltip 说明，
 // 而六宫格的禁用态只把 12.5px 的文字调灰、29px 的主题色图标块原样不动 —— 看上去整排都能点。
 // 这一条就是那条规则的执行者：**未实现项必须禁用 + 带可见的「后续版本」标注**。
 // V2c：六项指令全部实现 ⇒ 未实现清单为空。规则 R09-SCOPE-17 仍然在，只是它的数据变了：
@@ -1857,7 +1857,7 @@ check('R09-AIB-6 面板六宫格（基于本篇，产出型）：读整篇（来
   && Array.isArray(panelLanding.sources) && panelLanding.sources.length >= 4,
   { panelOpened, quickClicked, ...panelLanding })
 
-// R09-AIPANEL-3c（2026-10-05 用户裁决「③+②」）：改写型只作用于**一段**——重载后既没有光标也没有选区，
+// R09-AIPANEL-3c（ 用户裁决「③+②」）：改写型只作用于**一段**——重载后既没有光标也没有选区，
 // 「润色 / 扩写 / 换角度」必须**禁用并写明原因**（宫格下方的范围说明行），产出型三项照旧可用。
 await seedAiPage()
 await page.evaluate(() => {
@@ -1881,7 +1881,7 @@ check('R09-AIPANEL-3c 改写型（润色 / 扩写 / 换角度）没有目标时�
 // 三种模式：stream = 分片流完（80ms/片）；slow = 慢速流完（300ms/片，给「生成中」留出可观察窗口）；
 // hold = 发一片后挂起（供「收到一半再停」）；silent = 一个字都不发（供「空内容停止」）；fail = 直接 500。
 //
-// 台词里固定带三条「解析不能吃」的行（D-019，2026-10-05）：行首 `**加粗**`、小数 `1.5 倍速`、日期
+// 台词里固定带三条「解析不能吃」的行（D-019，）：行首 `**加粗**`、小数 `1.5 倍速`、日期
 // `2026.10.05 记`——它们经 `parseItems` 逐行剥离后必须原样保留；真吃字时 `savedText === AI_TEXT`
 // 会立刻红（旧正则把三行分别吃成 `*加粗**开头` / `5 倍速` / `10.05 记`）。首片不带换行，
 // 供 hold 模式「收到一半」的断言逐字比对。
@@ -1932,7 +1932,7 @@ const runPanelSummary = async () => {
 }
 /**
  * AI 块此刻的真实样子。**中间态以 DOM 为准**：流式阶段的写回走镜像、落盘由队列合并，
- * 存档（localStorage）通常要等这次生成结束才更新——只读存档会看不到「生成中」（2026-10-04 实测）。
+ * 存档（localStorage）通常要等这次生成结束才更新——只读存档会看不到「生成中」（ 实测）。
  * 所以：状态 / 正文 / 块数取 DOM（`data-ai-status` 由 decorateAi 写），存档值只当「最终是否落盘」的佐证。
  */
 const aiBlockState = () => page.evaluate(() => {
@@ -2017,7 +2017,7 @@ check('AI-STOP-1 生成中一个字都还没收到就停止：块进「已取消
   && stoppedEmpty.domText.includes('已停止，未生成内容'),
   { silentGenerating, stoppedEmpty })
 
-// ④a-bis D-003（2026-10-05 用户裁决）：**丢弃 AI 块不进回收站**——回收站是「用户内容」的保险，
+// ④a-bis D-003（ 用户裁决）：**丢弃 AI 块不进回收站**——回收站是「用户内容」的保险，
 // AI 草稿不是用户写的。判据：点丢弃后正文里没了、回收站计数**没变**、存档里那行也真没了。
 aiStub.mode = 'stream'
 await seedAiPage(aiStubUrl)
@@ -2031,10 +2031,10 @@ const discardSpot = await page.evaluate(() => {
   button.click()
   return true
 })
-// 丢弃不可逆：动作前先过确认弹窗（2026-10-24 零提示批）
+// 丢弃不可逆：动作前先过确认弹窗（ 零提示批）
 await page.locator('.dlg-f button', { hasText: '丢弃' }).click()
-// 读点改轮询（套件稳定性立项，2026-10-08）：丢弃是「真删」，落盘在 220+600ms 节拍之后，
-// 原来的固定 900ms 窗口在机器忙时会先读到旧态（这项 2026-10-08 挂过一轮）。
+// 读点改轮询（套件稳定性立项，）：丢弃是「真删」，落盘在 220+600ms 节拍之后，
+// 原来的固定 900ms 窗口在机器忙时会先读到旧态（这项 挂过一轮）。
 const afterDiscard = await poll(
   () => page.evaluate(() => {
     const rows = JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]')
@@ -2054,7 +2054,7 @@ check('D-003 丢弃 AI 块：先过确认弹窗；正文里没了、**回收站�
 
 // ④b V2c：四项新指令（润色 / 扩写 / 反问我 / 换角度）与「总结」走同一条链路——
 // 用面板六宫格的「润色」真跑一次：生成中的块 → 流完 → 块上写的是模型返回的正文，操作标签是「润色」。
-// R09-AIPANEL-3c（2026-10-05）：改写型只作用于**一段** ⇒ 先把光标放进第二块再开面板——
+// R09-AIPANEL-3c（）：改写型只作用于**一段** ⇒ 先把光标放进第二块再开面板——
 // 没有目标时「润色」是禁用的（禁用态本身由上面那条用例验）。
 aiStub.mode = 'stream'
 await seedAiPage(aiStubUrl)
@@ -2088,7 +2088,7 @@ const polished = await (async () => {
     await sleep(250)
   }
 })()
-// R09-AIPANEL-3c（2026-10-05）：改写型**只读一段**——来源是光标所在的那一块，面板不再整篇送进去；
+// R09-AIPANEL-3c（）：改写型**只读一段**——来源是光标所在的那一块，面板不再整篇送进去；
 // 「整篇 = 整棵子树」的回归断言在上面「面板六宫格（基于本篇）」的**总结**项里（D-018）。
 const polishedSources = await page.evaluate(() => {
   const rows = JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]')
@@ -2123,11 +2123,11 @@ check('AI-REGEN-1 重新生成就地重跑：块 id 不变、从失败态流到�
 
 
 // ---------- 浮层跟随与可见性（docs/09 §6.9 R09-BEDIT-9）----------
-// 用户实测 2026-09-29：「[[ 和 (( 出来的菜单遇到了前面斜杠菜单同样的问题：移动页面，双链面板不随页面滚动」，
+// 用户实测 ：「[[ 和 (( 出来的菜单遇到了前面斜杠菜单同样的问题：移动页面，双链面板不随页面滚动」，
 // 并特意提醒「别又生成让页面浮到格式栏和窗口上面的代码」。两条要一起看：
 // ① 位置每帧由块算出（缓存在打开那一刻 → 滚动后停在原地）；② 锚点块滚进头部底下就**不画**
 // （浮层是 --z-popover，高于 --z-sticky，跟上去就会浮在格式栏之上）。
-// 浮层段自检（2026-10-11）：上一段（AI 运行时）的收官写入可能压过刚种下的 localStorage——
+// 浮层段自检（）：上一段（AI 运行时）的收官写入可能压过刚种下的 localStorage——
 // 本段只种一次时三连复跑在同一处超时（菜单页没进来、叶子数不够）。改成种完自检、不成重种重载
 // （同 `reset()` 的自检口径；换来的现象记录见本行背景：同一处 15s 超时三连）。
 const seedMenuBlocks = () => page.evaluate(() => {
@@ -2151,7 +2151,7 @@ for (let attempt = 1; ; attempt += 1) {
 
 /** 光标进第 index 个叶子块行尾（斜杠触发词要求块首或空格后，块首要另外按 Home）。 */
 const caretIntoLeaf = async (index, home = false) => {
-  // 套件稳定性（2026-10-10）：块还没渲染够时读 `leaves[index]` 会拿 undefined、抛
+ // 套件稳定性（）：块还没渲染够时读 `leaves[index]` 会拿 undefined、抛
   // 「Cannot read properties of undefined (reading 'scrollIntoView')」——这是负载下的**竞态**，
   // 不是功能坏（07-V3-验收记录里登记过一次）。改成先等到第 index 个叶子块出现再点。
   await page.waitForFunction((i) => {
@@ -2237,7 +2237,7 @@ check('R09-BEDIT-9 斜杠菜单同一条通路：跟随滚动，滚出正文带�
 await page.keyboard.press('Escape')
 await sleep(300)
 
-// ---------- 宿主默认右键菜单必须被关掉（docs/09 §三 R09-SHELL-2，用户实测 2026-09-30）----------
+// ---------- 宿主默认右键菜单必须被关掉（docs/09 §三 R09-SHELL-2，用户实测 ）----------
 // 桌面外壳里右键弹出「刷新 / 检查 / 另存为」是漏出来的 WebView2 行为。这里用真实右键事件量
 // `defaultPrevented`：真机上的系统菜单不在 DOM 里，量它是否被拦是唯一可直接观测的判据。
 const rightClickPrevented = async (spot) => {
@@ -2263,7 +2263,7 @@ check('R09-SHELL-2 宿主默认右键菜单被关掉：正文与侧栏右键都�
   { ctxOnBlock, ctxOnSidebar })
 
 // ---------- 侧栏标签行与它的 ⋯（docs/09 §6.8 R09-TAG-1 / R09-TAG-5）----------
-// 用户实测 2026-09-30 报「⋯ 神秘消失」：查下来是**没有页面在用标签**，按 R09-TAG-5
+// 用户实测 报「⋯ 神秘消失」：查下来是**没有页面在用标签**，按 R09-TAG-5
 // 「无任何页面引用时自动从标签列表消失」整块只剩占位——不是按钮坏了。
 // 这条检查把两件事一起看住：有引用 ⇒ 行在、hover 出 ⋯、点开有三项操作；无引用 ⇒ 只有占位。
 await page.evaluate(() => {
@@ -2333,7 +2333,7 @@ check('R09-TAG-1 侧栏标签行：有页面在用才出行，行里带 ⋯，�
   { tagRowState, tagMore })
 
 // ---------- 列表：回车续项、空项退出、项首 Backspace 退出、序号与标记（docs/09 §五 R09-BLOCK-30/31）----------
-// 用户实测 2026-09-30：「有序和无序列表，回车不能继续列表，只能是新建块」＋「有序列表的数字…有问题」
+// 用户实测 ：「有序和无序列表，回车不能继续列表，只能是新建块」＋「有序列表的数字…有问题」
 // （数字的真问题是标记画在 ::after 上、而 ::after 排在块子树之后，带子编号的项读到被子项加过的计数器）。
 await page.evaluate(() => {
   const now = Date.now()
@@ -2397,7 +2397,7 @@ const typeList = () => page.evaluate(() => {
   return page1.children.map((id) => { const b = blocks.find((x) => x.entityId === id); return b.type + ':' + (b.content ?? []).map((f) => f.v).join('').slice(0, 6) })
 })
 const clickLeaf = async (needle) => {
-  // 找不到块不再抛（2026-10-08：负载下一次 `.getBoundingClientRect` of undefined 把整轮崩了）——
+ // 找不到块不再抛（：负载下一次 `.getBoundingClientRect` of undefined 把整轮崩了）——
   // 轮询等它出现，等不到就返回 false，让当条断言红、后面的条目继续跑。
   const box = await poll(
     () => page.evaluate((t) => {
@@ -2415,7 +2415,7 @@ const clickLeaf = async (needle) => {
   return true
 }
 // 光标必须落在**行尾**才谈得上「回车续出下一项」。这一步原来靠「点块内 60px 处 + 按 End」，
-// 2026-10-05 实测会闪（End 偶尔赶不上 → 回车从行中拆开，`numbered:第一` / `numbered:条`，
+// 实测会闪（End 偶尔赶不上 → 回车从行中拆开，`numbered:第一` / `numbered:条`，
 // 一天里闪了两次）。改成点**行尾那一段空白**（那里没有字，Lexical 会把光标放到行末）再按一次 End 双保险。
 const listEndBox = await page.evaluate(() => {
   const el = [...document.querySelectorAll('.editor-content .moqi-block')].find((b) => (b.textContent ?? '').trim().startsWith('第一条'))
@@ -2656,7 +2656,7 @@ check('SYNC-QUEUE-1 真实编辑之后变更日志里有事务：带逆操作、
   })
 
 // ── V2b: 远端改动要刷新「当前打开着的」编辑器（`SYNC-REFRESH-1`，docs/11 §3.15）──────
-// 2026-10-03 清单 C 在真实窗口逮到：远端改动进了领域与库、页名也重算了，**正文一动不动**——
+// 清单 C 在真实窗口逮到：远端改动进了领域与库、页名也重算了，**正文一动不动**——
 // 因为同步的 apply 只做 store.apply + persist，没走 reloadFromStore（所有本地动作都会走）。
 // 浏览器通道把共享目录映射到 localStorage：`moqi-sync-dir:<目录>:<设备>` = 该设备那份 jsonl。
 await page.evaluate(() => localStorage.clear())
@@ -2707,7 +2707,7 @@ check('SYNC-REFRESH-1 远端改动要刷新当前打开着的编辑器（不是�
   injected !== null && editorTextAfterRemote.includes(remoteText),
   { injected, editorText: editorTextAfterRemote.replace(/\n+/g, ' | ').slice(0, 120) })
 
-// ── V2b 收口期用户实测的四个界面问题（2026-10-03）──────────────────────────────
+// ── V2b 收口期用户实测的四个界面问题（）──────────────────────────────
 // ① 卡片 ⋯ 菜单在页面库滚动时不跟也不收（位置被缓存在打开那一刻）；
 // ② 页面列折叠再展开时列表回到开头（滚动位置没有跨卸载保留）；
 // ③ 有序 / 无序列表的标记比首行文字高（编号 −5px、圆点 −2px）；
@@ -2769,7 +2769,7 @@ check('R09-LIB-9 页面列折叠再展开，列表停在上次的位置（滚动
   scrolledTo !== null && restored !== null && Math.abs(restored - scrolledTo) <= 4,
   { scrolledTo, restored })
 
-// ① 卡片 ⋯ 菜单的三条关闭路径（用户实测 2026-10-03：滚动既不收也不跟、点按钮也关不掉）
+// ① 卡片 ⋯ 菜单的三条关闭路径（用户实测 ：滚动既不收也不跟、点按钮也关不掉）
 await page.evaluate(() => { const s = document.querySelector('.lib-stack'); if (s) s.scrollTop = 300 })
 await sleep(300)
 const menuCardIndex = await page.evaluate(() => {
@@ -2830,7 +2830,7 @@ check('R09-BEDIT-9 块标记按内容坐标画（`position: absolute`，滚动�
   decorationFollow ?? { reason: 'no rail (hover 没出标记)' })
 
 // ④b 块标记的**水平**落点：把手在最左（−22）、＋ 在最右（−30，落在块内沿）
-// —— 2026-10-03 实测：坐标转换只换了 top/left，靠右锚定的 ＋ 跑到块右边缘外 522px。
+// —— 实测：坐标转换只换了 top/left，靠右锚定的 ＋ 跑到块右边缘外 522px。
 const markerHorizontals = await page.evaluate(() => {
   const scroller = document.querySelector('.doc-col')
   const grab = (kind) => {
@@ -2860,7 +2860,7 @@ check('R09-BEDIT-9 块标记的水平落点：把手贴块左（−22），＋ �
     && markerHorizontals.plusFromRight !== null && Math.abs(markerHorizontals.plusFromRight + 30) <= 2,
   markerHorizontals)
 
-// ②b 编辑器浮层不许跨视图残留（用户实测 2026-10-03：开着块菜单切到设置，菜单还悬浮在设置页上）
+// ②b 编辑器浮层不许跨视图残留（用户实测 ：开着块菜单切到设置，菜单还悬浮在设置页上）
 await page.locator('.editor-content .moqi-block').first().click()
 await sleep(250)
 await page.locator('button[aria-label="更多"]').click() // 编辑器 … 菜单（挂在所有视图之外，视口坐标）
@@ -2880,7 +2880,7 @@ check('R09-BEDIT-9 / FLOAT-VIEW-1 编辑器浮层按视图门住：打开设置�
   floatOpened === 1 && floatOnSettings.modal === true && floatOnSettings.pops === 0 && floatBackInEditor === 0,
   { floatOpened, floatOnSettings, floatBackInEditor })
 
-// ── 分隔线（2026-10-03 用户实测：线该在块的中线、分割线该是一整个块；有字的块转过去正文不能留/丢）──
+// ── 分隔线（ 用户实测：线该在块的中线、分割线该是一整个块；有字的块转过去正文不能留/丢）──
 await page.evaluate(() => {
   const now = Date.now()
   const mk = (id, uid, type, text, parent, position, children = []) => ({ entityId: id, blockUid: uid, type, content: text ? [{ t: 'text', v: text }] : [], parent, children, position, collapsed: false, checked: false, deleted: false, deletedAt: null, prevParent: null, prevIndex: null, isObject: false, objectName: null, properties: [], tags: [], blockRefs: [], blockBackRefs: [], objectRefs: [], objectBackRefs: [], aiMeta: null, created: now, modified: now })
@@ -2965,7 +2965,7 @@ check('TYPE-DIVIDER-1 有字的块转分隔线：正文挪到紧随其后的新�
     && afterConvert.dom.some((row) => row.text === '这一块有字要转分隔线' && row.id !== 'dv-b'),
   { dividerNow, converted, dom: afterConvert.dom })
 
-// ---------- 块类型菜单：标题 1 **补回**（2026-10-10 用户裁决，`W4` G-E03）----------
+// ---------- 块类型菜单：标题 1 **补回**（ 用户裁决，`W4` G-E03）----------
 // `R09-FMT-2` / `R09-EDIT-3`：页面标题 = 容器名字行、**不参与正文级别**——正文 H1–H6 完整可用；
 // 菜单（`Aa ▾` / 块菜单「转换为▸」/ 斜杠菜单同源）含「标题 1」。
 await page.locator('button[aria-label^="块类型"]').click()
@@ -2998,7 +2998,7 @@ check('STORE-HEAL-3 载入自愈：分隔线上的正文挪到紧随其后的新
     && healedBlocks.some((row) => row.text === '老数据留在线上的正文' && row.id !== 'dv-c'),
   { legacyDivider, healed: healedBlocks.slice(-4) })
 
-// ── 体检 · 表征测试（2026-10-04，治理第 2~3 周）──────────────────────────────
+// ── 体检 · 表征测试（，治理第 2~3 周）──────────────────────────────
 // 热点 `ui/EditorShell.tsx`（3750 行 / churn 第一）的**对外行为**里，这几处此前没有任何自动化锁住：
 // `pnpm accept` 85 项与 269 个单测把"数据面"罩得很密，缺口都在**外壳交互**上。表征测试**只锁现状**
 // ——不判对错，只保证"改坏了要红"（治理手册 §3.3：热点模块补齐行为快照，才允许进入还债 / 重构）。
@@ -3070,7 +3070,7 @@ check('SHELL-FOCUS-1 专注模式：⌘⇧F 进入（侧栏收起、退出键在
   focusOn.flag === true && focusOn.sidebar === 'hidden' && focusOn.exitButton === true && focusOff.flag === false,
   { focusOn, focusOff })
 
-// ---------- 常驻格式栏已退役（2026-10-24 减法批）----------
+// ---------- 常驻格式栏已退役（ 减法批）----------
 const noFmtbar = await page.evaluate(() => document.querySelector('.fmtbar') === null)
 check('R09-FMT-4/7/21 常驻格式栏已退役：界面没有常驻格式栏，行内格式走选中浮条 / 快捷键（此前无网）',
   noFmtbar === true, { noFmtbar })
@@ -3110,7 +3110,7 @@ await page.waitForSelector('.editor-content .moqi-block', { timeout: NAV_READY_M
 await sleep(800)
 // 把第 index 个正文块 hover 出来，再点它的把手（可带修饰键）。
 // 把手按 `data-marker-for` 认领目标块：选中态下别的块的标记仍在 DOM 里，
-// 取「文档里第一个 handle」会点到上一次选中的那块（2026-10-04 实测：第二次点成了取消选中）。
+// 取「文档里第一个 handle」会点到上一次选中的那块（ 实测：第二次点成了取消选中）。
 const clickHandle = async (index, modifiers = []) => {
   const box = await page.evaluate((i) => {
     const blocks = [...document.querySelectorAll('.editor-content .moqi-block')].filter((el) => !el.querySelector(':scope > .moqi-block'))
@@ -3122,7 +3122,7 @@ const clickHandle = async (index, modifiers = []) => {
   if (!box?.id) return false
   await page.mouse.move(box.at[0], box.at[1])
   // 把手是 hover 后才渲染的装饰层：原来等固定 350ms 再读一次，负载下没出来就当没点到
-  // （读点加固，2026-10-08）——改成等它出现，出现不了再返回 false。
+ // （读点加固，）——改成等它出现，出现不了再返回 false。
   const handle = await poll(
     () => page.evaluate((id) => {
       const el = document.querySelector(`.block-rail[data-marker-kind="handle"][data-marker-for="${id}"]`)
@@ -3153,9 +3153,9 @@ const selectedClass = await page.evaluate(() => document.querySelectorAll('.moqi
 const liveIds = () => page.evaluate(() => JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]').filter((b) => !b.deleted).map((b) => b.entityId).sort())
 const hasAll = (list, ids) => ids.every((id) => list.includes(id))
 await page.locator('.flybar button[aria-label="删除"]').click()
-// 多块删除先过确认（2026-10-24 安全确认批）
+// 多块删除先过确认（ 安全确认批）
 await page.locator('.dlg-f button', { hasText: '删除块' }).click()
-// 读点轮询（2026-10-08）：删与撤都是异步链，负载下固定窗会读到旧态。
+// 读点轮询（）：删与撤都是异步链，负载下固定窗会读到旧态。
 const afterDelete = await poll(liveIds, (ids) => !ids.includes('ms-a') && !ids.includes('ms-c') && ids.includes('ms-b'), { label: '批量删除落库' })
 await page.keyboard.press('Control+z')
 const afterUndo = await poll(liveIds, (ids) => hasAll(ids, ['ms-a', 'ms-c', 'ms-page']), { label: '⌘Z 一步撤回批量删除' })
@@ -3244,7 +3244,7 @@ const domOrder = () => page.evaluate(() => [...document.querySelectorAll('.edito
   .filter((el) => !el.querySelector(':scope > .moqi-block'))
   .map((el) => (el.textContent ?? '').trim().slice(0, 4)))
 /** 轮询到期望顺序（领域事务 → 镜像 → 重排是异步链，固定 sleep 会读到中间态）。
-    超时 5s→10s（2026-10-08）：负载下一次撤回/重排被拖到 5s 之外就误判成「没生效」。 */
+    超时 5s→10s（）：负载下一次撤回/重排被拖到 5s 之外就误判成「没生效」。 */
 const waitOrder = async (expected, timeout = 10_000) => {
   const start = Date.now()
   for (;;) {
@@ -3280,7 +3280,7 @@ check('R09-BEDIT-12 到边界 no-op：第一块按 ⌘⇧↑ 原地不动（跨�
 await clickHandle(0)
 await clickHandle(1, ['Shift'])
 await page.keyboard.press('Backspace')
-// 多块删除先过确认（2026-10-24 安全确认批）
+// 多块删除先过确认（ 安全确认批）
 await page.locator('.dlg-f button', { hasText: '删除块' }).click()
 const orderAfterDelete = await waitOrder([orderBefore[2]])
 await page.keyboard.press('Control+z')
@@ -3300,7 +3300,7 @@ const readClipboard = () => page.evaluate(async () => {
 
 await clickHandle(1)
 await page.evaluate(() => { document.querySelector('.flybar button[aria-label="更多块操作"]')?.click() })
-// 菜单/剪贴板都是异步链（菜单要先画出来、剪贴板在命令 handler 里写）——读点轮询（2026-10-08）。
+// 菜单/剪贴板都是异步链（菜单要先画出来、剪贴板在命令 handler 里写）——读点轮询（）。
 const openedRef = await poll(
   () => page.evaluate((text) => {
     const button = [...document.querySelectorAll('.pop button')].find((b) => (b.textContent ?? '').includes(text))
@@ -3361,7 +3361,7 @@ await clickLeaf('第二段')
 await convertToType('待办')
 const todoId = idsBeforeTodo[1]
 /** 轮询 store 字段到期望值（同 `waitOrder` 的既有做法）：负载下「镜像 → 落库」会被拖过固定等待窗
- *  （2026-10-08 实测：591s 的加载轮里这条在 1300ms 窗内读到转换前的值 → 误报一次）。
+ * （ 实测：591s 的加载轮里这条在 1300ms 窗内读到转换前的值 → 误报一次）。
  *  超时返回最后一次读数——断言照旧，真没收敛还是红，只是不把「慢」误判成「没生效」。 */
 const waitField = async (id, field, expected, timeout = 8000) => {
   const start = Date.now()
@@ -3501,8 +3501,8 @@ await page.waitForSelector('.editor-content .moqi-block', { timeout: NAV_READY_M
 await sleep(900)
 const dangleHandleClicked = await clickHandle(0)
 await page.keyboard.press('Backspace')
-// 读点全走轮询（套件稳定性立项，2026-10-08）：删除事务与 toast 都在 220+600ms 节拍之后，
-// 负载下固定窗（原 1000ms / 1200ms）会先读到旧态——这项 2026-10-08 挂过 148/149 的那一条。
+// 读点全走轮询（套件稳定性立项，）：删除事务与 toast 都在 220+600ms 节拍之后，
+// 负载下固定窗（原 1000ms / 1200ms）会先读到旧态——这项 挂过 148/149 的那一条。
 const afterDangleDelete = await poll(
   () => page.evaluate(() => ({
     toast: document.querySelector('.notice')?.textContent ?? null,
@@ -3737,7 +3737,7 @@ const elinkClean = await page.evaluate(() => ({
 check('REF-ELINK 收尾清场：跑完这条检查不留对话框 / 斜杠菜单（浮层遮罩会挡掉后面的真实点击）',
   elinkClean.dialog === 0 && elinkClean.slash === 0, elinkClean)
 
-// ---------- 一次性提示已退役（2026-10-24 零提示批）----------
+// ---------- 一次性提示已退役（ 零提示批）----------
 const toastText = () => page.evaluate(() => document.querySelector('.notice')?.textContent ?? null)
 await reload()
 await page.waitForSelector('.editor-content .moqi-block', { timeout: NAV_READY_MS })
@@ -3805,7 +3805,7 @@ check('R09-KEY-13 专注模式下的顺序：Esc 先清选区（专注还在）�
 
 // 弹窗是模态的：它不会跨视图残留，判据是**遮罩接管了外边那一下**——
 // 打开 ⌘/ 速查后点侧栏「设置」：第一下只关弹窗（点击落在遮罩上）、视图不动，第二下才切过去。
-// （2026-10-04 实测确认；同族的菜单残留是另一回事：菜单不挡别处，必须由「离开编辑器就清掉」收拾。）
+// （ 实测确认；同族的菜单残留是另一回事：菜单不挡别处，必须由「离开编辑器就清掉」收拾。）
 await seedAiPage()
 await page.keyboard.press('Control+/')
 await sleep(600)
@@ -3889,7 +3889,7 @@ const qaAnswer = await (async () => {
       }
     })
     // 等**正文写完**再取值：chips 在回答一开始就在（回答对象带着 sourceIds 先创建），拿它当完成判据
-    // 会取到半截文本（2026-10-04 实测：等到「这是一段」就往下跑了——时序不稳，不是功能坏）。
+  // 会取到半截文本（ 实测：等到「这是一段」就往下跑了——时序不稳，不是功能坏）。
     if (state && state.text === AI_CHUNKS.join('') && state.chips.length > 0) return state
     if (Date.now() > until) return state
     await sleep(300)
@@ -3958,7 +3958,7 @@ const saveStateNow = () => page.evaluate(() => ({
 // ① 保存态：打字之后**真的落盘了**，顶栏稳定在「已保存 · 刚刚」
 // 注意中转态：浏览器通道的写是同步 localStorage（微任务就回），`saving` 与 `saved` 会被 React
 // 合并进同一次提交——界面上**看不到**「保存中…」。真机通道写库要过 IPC，那个值才看得见
-// （2026-10-04 实测：rAF 逐帧采样 + 子树 MutationObserver 都只录到 `saved`）。
+// （ 实测：rAF 逐帧采样 + 子树 MutationObserver 都只录到 `saved`）。
 // 所以这一条锁的是**终态与「内容确实进了存档」**；中转值由 `STATE-SAVE-2` 的失败路径侧证（它先过 saving）。
 await seedAiPage()
 await page.evaluate(() => {
@@ -4304,7 +4304,7 @@ check('SEARCH-PINYIN-1 拼音检索（路线 B）：⌘K 里打全拼 yinhang / 
 // 导出）要**如实禁用并说明原因**，不许装作能用。
 //
 // **先清掉「今天已有的快照」**：前序用例早就启动过 app ⇒ 当天的快照那时就建好了（存的是那些用例的库），
-// 而「每天一份」的规矩意味着我这条再 seed 也不会重建 ⇒ 恢复回来的是别人的库（2026-10-05 实测：恢复后
+// 而「每天一份」的规矩意味着我这条再 seed 也不会重建 ⇒ 恢复回来的是别人的库（ 实测：恢复后
 // 只剩 1 块、既不是「备份测试页」也不是「第一块」——**测试前提问题，不是功能问题**；真实使用里
 // 「今天的第一份快照」本来就该是当天最早的库）。
 await page.evaluate(() => {
@@ -4343,7 +4343,7 @@ const backupCard = () => page.evaluate(() => {
   if (!card) return null
   return {
     // 注记留 200 字而不是 50：整库导出那条有「zip 包 + 恢复说明 + 浏览器通道如实说明」三截，
-    // 截短会让下面这行的 includes 变成假红（2026-10-06 把导出改成 zip 文案时真踩了一次）。
+  // 截短会让下面这行的 includes 变成假红（ 把导出改成 zip 文案时真踩了一次）。
     rows: [...card.querySelectorAll('.frow')].map((row) => ({ label: row.querySelector('label')?.textContent ?? '', note: (row.querySelector('.note')?.textContent ?? '').replace(/\s+/g, ' ').trim().slice(0, 200) })),
     rows$: card.querySelectorAll('.bk-row').length,
     exportDisabled: [...card.querySelectorAll('button')].find((b) => (b.textContent ?? '').includes('导出…'))?.disabled ?? null,
@@ -4375,7 +4375,7 @@ const restoreConfirmed = await page.evaluate(() => {
   return true
 })
 // 恢复会**整页重载**：等它把数据加载回来再读（固定 sleep 会读到「正在启动」的中间态——
-// 2026-10-05 就因此误判过一次「恢复没生效」；对账脚本按 3.5 s 读同一路径是好的）⇒ 轮询最稳。
+// 就因此误判过一次「恢复没生效」；对账脚本按 3.5 s 读同一路径是好的）⇒ 轮询最稳。
 const afterRestore = await (async () => {
   const read = () => page.evaluate(() => {
     const rows = JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]').filter((b) => !b.deleted)
@@ -4384,7 +4384,7 @@ const afterRestore = await (async () => {
   }).catch((err) => {
     // 整页重载恰好落在 evaluate 执行中时，执行上下文被销毁并抛
     // 「Execution context was destroyed」——它的含义是「还没准备好」，不是失败：
-    // 继续轮询，读到超时仍不对再由断言兜底（2026-10-05 实测：全绿的一轮偶发崩在这里）。
+  // 继续轮询，读到超时仍不对再由断言兜底（ 实测：全绿的一轮偶发崩在这里）。
     if (String(err?.message ?? err).includes('Execution context was destroyed')) return null
     throw err
   })
@@ -4401,7 +4401,7 @@ await page.keyboard.press('Escape')
 await sleep(500)
 // 这一条验：卡片的四行 + 启动自动留当天快照（日 / 周两份）+「立即快照」同一天的 no-op 提示：卡片四行 + 启动自动留当天快照（日 / 周两份，内容与库一致，做过诊断）
 // + 恢复走两步确认并**真的回滚**（打的那一行消失、快照里的块回来）+ 浏览器通道的导出如实禁用。
-// 恢复的端到端数据结果 2026-10-05 已对账验证（对账脚本：启动 2 块 → 打一行 3 块 → 恢复后回到 2 块、
+// 恢复的端到端数据结果 已对账验证（对账脚本：启动 2 块 → 打一行 3 块 → 恢复后回到 2 块、
 // 打的那行消失，restore-backup-now 里留着恢复前的 3 块）。
 check('BACKUP-1 数据与备份：启动自动留当天快照（日 + 周）、「立即快照」同一天是 no-op 且不弹提示、恢复走**模态确认**、浏览器通道的导出与「从备份包恢复」如实降级并说明原因（此前无网）',
   backupCard !== null
@@ -4420,7 +4420,7 @@ check('BACKUP-1 数据与备份：启动自动留当天快照（日 + 周）、�
 
 
 // ---------- V2c：窄屏档的检索入口（docs/09 §6.3 落地注）----------
-// 2026-10-08 用户裁决（强调过多次）：**侧栏不再保留「搜索」行**——桌面的侧栏搜索早已被页面库头部的
+// 用户裁决（强调过多次）：**侧栏不再保留「搜索」行**——桌面的侧栏搜索早已被页面库头部的
 // 🔍 取代，手机上页面库（列表页）自己也有一颗 🔍、看得见点得着 ⇒ 侧栏那行是重复的。这一条因此
 // **反过来**验：窄屏档下侧栏没有搜索入口，手机用的入口就是与桌面同一处（顶栏 / 页面库的 🔍）。
 await page.setViewportSize({ width: 360, height: 800 })
@@ -4456,7 +4456,7 @@ check('R09-SEARCH-1 窄屏档的检索入口：**侧栏没有搜索入口**（20
   { narrowEntry, narrowPanel, narrowHits, narrowJump })
 
 // ---------- D-017：覆盖层互斥（窄屏下从页面库抽屉问 AI，面板必须真的能用）----------
-// 用户 2026-10-05 实测的那个场面：页面库抽屉开着 → 它头部的 🔍 → ⌘K → 「就这些问 AI」，
+// 用户 实测的那个场面：页面库抽屉开着 → 它头部的 🔍 → ⌘K → 「就这些问 AI」，
 // 面板确实开出来了，但开在遮罩底下（z 40 vs 遮罩 300）——点面板的任何位置命中的都是遮罩
 // （效果是「把页面库关了」），于是看起来像「必须先收起页面库，AI 面板才能用」。
 // 判据不是「面板开了」，而是**面板顶上的那一点属于面板自己**、并且点得动（点 ✕ 真的关得掉）。
@@ -4609,7 +4609,7 @@ check('SEARCH-GLOBAL-1 ⌘K 再按收起、Esc 关闭；命中标签名时出「
   && escClosed === null,
   { toggleOpened: toggleOpened !== null, toggleClosed: toggleClosed === null, tagRow, chipApplied, escClosed })
 
-// ---------- 圆角体系 v2（2026-10-06 用户规范；docs/08 §5.2、R09-RADIUS-1）----------
+// ---------- 圆角体系 v2（ 用户规范；docs/08 §5.2、R09-RADIUS-1）----------
 // 用户点名的缺陷：设置页以外的输入框「没有做圆角处理，就纯是一个黑线」——`.inp` 的外观原先只写在
 // `.frow .ctl` 下，链接弹窗 / ⌘K / 属性面板 / 页面库筛选都落到浏览器默认外观（radius 0 + 系统 inset 边）。
 // 样本取两处**此前必然为默认外观**的位置：外部链接弹窗的输入框、⌘K 的搜索框；
@@ -4654,8 +4654,8 @@ check('RADIUS-1 输入框一律控件档外观（8px 圆角 + 实线令牌描边
   && radiusSearch.allCount > 0 && radiusSearch.all.every((r) => r === '8px'),
   { radiusDialog, radiusFocus, radiusSearch })
 
-// ---------- 正文列上边距（2026-10-06 用户裁决；`R09-EDIT-4`、台账 `D-022`）----------
-// **2026-10-10 按新形态重定**（`13-属性区重规划` §0-1/§6 连锁②：摘要条不再常驻）：
+// ---------- 正文列上边距（ 用户裁决；`R09-EDIT-4`、台账 `D-022`）----------
+// ** 按新形态重定**（`13-属性区重规划` §0-1/§6 连锁②：摘要条不再常驻）：
 // **没有属性面 → 40px**（原型口径，正文顶在窗口栏下，没有钉住条要避）；**有属性面 → 16px**
 // （D-022 的收窄推导的前提回来了：16px + 容器块外边距 ≈ 27px < 40）。判据两个数字一起看：
 // ① 计算上内边距；② 实测量到的空白 < 40px——只断言 ① 会漏掉「块自身外边距被调大」这类回归。
@@ -4706,11 +4706,11 @@ check('R09-EDIT-4 / PROPS-ENTRY-1 正文列上边距（D-095：常规态统一 1
   && padFocus.focus && padFocus.padTop === '40px',
   { padNoBrief, entryState, padCol, padFocus })
 
-// ---------- 属性行解剖 + 行内 ⋯ + 添加属性轻结构（2026-10-09 用户裁决，按当日新原型）----------
+// ---------- 属性行解剖 + 行内 ⋯ + 添加属性轻结构（ 用户裁决，按当日新原型）----------
 // 旧形态已废：每行左侧 👁 眼睛开关、常驻「移除」、两段式弹窗（列表态 + 新建态）。
 // 新形态：行解剖 = [类型图标][标签窄栏][值区右置]；管理收进行内 ⋯（重命名 / 卡片显隐 / **从本页删除**）；
 // 添加属性 = 搜索 →「最近使用」→「全部」（点了即加即关，**已添加只作提示**）→ 底部一行式新建 → ⚙ 角落。
-// 2026-10-10 起：摘要条不再常驻（§0-1），进面板的路是 **⋯「属性」入口**（标签直落 + 同时开弹层）。
+// 起：摘要条不再常驻（§0-1），进面板的路是 **⋯「属性」入口**（标签直落 + 同时开弹层）。
 await reset()
 await page.evaluate(() => document.querySelector('.tb-btn[aria-label="更多"]')?.click())
 await sleep(450)
@@ -4841,7 +4841,7 @@ check('R09-PROP-5 / R09-PADD-1…3 属性行新形态：解剖 = 类型图标 + 
   && dupHint.problem === '已有同名属性' && dupHint.goDisabled === true && dupCleared.problem === null,
   { anatomyClosed, dialogShell, typeMenu, created, hovered, rowMenu, cardToggle, hiddenMeta, propertyRowNames, dialogAgain, dupHint, dupCleared })
 
-// ---------- 「从本页删除」＝本页不显示、值保留（`13-属性区重规划` §0-10，2026-10-10 裁决）----------
+// ---------- 「从本页删除」＝本页不显示、值保留（`13-属性区重规划` §0-10， 裁决）----------
 // 承接上一段的现场（「验收属性二」在、面板展开、弹层已关）：删 → 行消失 + 值还在 → 加回来即恢复。
 const keepBefore = await page.evaluate(() => {
   const b = JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]')
@@ -4879,7 +4879,7 @@ check('PROPS-KEEP-1 「从本页删除」＝本页不再显示、**值保留**�
   && keepBack.row === true && !keepBack.hidden.includes(keepBefore.defId) && keepBack.props.includes(keepBefore.defId),
   { keepBefore, keepAfter, keepBack })
 
-// ---------- 标签取用选择器（`13-属性区重规划` §5-12，2026-10-10 已裁）----------
+// ---------- 标签取用选择器（`13-属性区重规划` §5-12， 已裁）----------
 // 场景承接：面板展开、标签行在（⋯「属性」入口直落）。入口 = 「＋ 添加标签」胶囊（旧输入框不在）；
 // 点开 = 搜索 / 创建 + 全量 + 「用在 N 页」；输入即建 → 本页上标签；再点同一条 = 去掉（切换）、多选不关窗。
 const tagPill = await page.evaluate(() => {
@@ -4975,7 +4975,7 @@ check('R09-PROP-5 几何补层（`R04-ACCEPT-7`）：长名**换行不截断**�
   && propWrap.leftShort !== null && propWrap.leftShort === propWrap.leftLong,
   propWrap)
 
-// ---------- 属性定义查重（2026-10-06：名字是标签、键必须唯一——导出 front-matter 用它当键）----------
+// ---------- 属性定义查重（：名字是标签、键必须唯一——导出 front-matter 用它当键）----------
 await reset()
 await page.evaluate(() => { [...document.querySelectorAll('button')].find((b) => (b.textContent ?? '').includes('设置'))?.click() })
 await sleep(900)
@@ -5049,7 +5049,7 @@ const escScope = await page.evaluate(() => ({ dialog: Boolean(document.querySele
 check('R09-SET-5b 属性库（θ4）：Esc 先收**就地面板**、不关设置弹窗（`R09-KEY-13` 一层一个返回；对话框让位靠面板的 `data-esc-claim`）',
   escScope.dialog === true && escScope.panel === false, { escScope })
 
-// ①b 行尾交互（用户 2026-10-14 修正）：收起态 = `✏` 在 `🗑` 前（行体不可点）；编辑态 = 行尾只剩 `✓`、
+// ①b 行尾交互（用户 修正）：收起态 = `✏` 在 `🗑` 前（行体不可点）；编辑态 = 行尾只剩 `✓`、
 //     面板里**没有**删除按钮（删除只有行尾一处——同一种事不做两种样式）。
 const rowOpsClosed = await page.evaluate(() => {
   const row = document.querySelector('.pmr')
@@ -5207,7 +5207,7 @@ check('PROPS-DEL-1 属性库删除（§3.2 两步）：确认框先给影响清�
 // 上一段停在「属性」页：本段要看「备份与恢复」页，先切过去。
 await page.evaluate(() => { [...document.querySelectorAll('.set-nav button')].find((b) => (b.textContent ?? '').includes('备份与恢复'))?.click() })
 await sleep(400)
-// ---------- 设置页：导出落点常显（2026-10-08 用户走查 #1，T6）----------
+// ---------- 设置页：导出落点常显（ 用户走查 #1，T6）----------
 // `R09-SET-14`：导出完只弹一次 toast，路径「记都记不住」——落点目录改成常显 + 可复制。
 // 浏览器通道拿不到数据目录：如实降级（文案点明 + 复制按钮禁用，同 `canExport` 的口径）。
 const exportsRow = await page.evaluate(() => {
@@ -5273,7 +5273,7 @@ check('R09-SET-14 设置页「数据与备份」常显导出落点目录、可�
   && exportsRow.text.includes('浏览器预览不提供'),
   { exportsRow })
 
-// ---------- 设置页：栏头固定 + 能开页面库（2026-10-08 用户走查 #4，T7 / T7b）----------
+// ---------- 设置页：栏头固定 + 能开页面库（ 用户走查 #4，T7 / T7b）----------
 // `R09-SET-1`：栏头（← + 标题）在滚动口里 sticky——**滚动之后标题与返回仍可见、且不被标题栏盖住**
 // （量的是标题/返回的矩形，不是 CSS 声明本身）。「返回页面库」与侧栏「页面库」两条路都真能开。
 const setHeadState = async (wrapSel, headSel) => page.evaluate(async ([wSel, hSel]) => {
@@ -5466,7 +5466,7 @@ check('R09-MD-3 粘贴即转换（编辑器）：Markdown 大纲粘进来 → �
   { mdPasted, mdUndone })
 
 // ---------- 粘贴认行内引用语法（`[[页名]]` / `((块名))`；T1 / `R09-MD-7` 的引用半边）----------
-// 用户 2026-10-08 报的 #6：块菜单「复制为块引用」写出的就是这两样语法（`refToken`），粘回来要认。
+// 用户 报的 #6：块菜单「复制为块引用」写出的就是这两样语法（`refToken`），粘回来要认。
 // 三条判据：认得出的变行内引用（片段 + 引用点两头上账）· 认不出的保持字面（不凭空造页）· ⌘Z 一次整批退。
 // 两条语法各走一条解析支：无记号纯文字（「文档」解析）与带 `- ` 记号同一行（「大纲」解析）。
 await reset()
@@ -5602,7 +5602,7 @@ await page.evaluate(async () => {
   const target = document.querySelector('.editor-content [contenteditable="true"], .editor-content .moqi-block')
   target.dispatchEvent(new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true }))
 })
-// （2026-10-08）固定 1600ms 的等待窗在机器忙时不够——两遍假红（148/149），而独立探针复刻同一动作
+// （）固定 1600ms 的等待窗在机器忙时不够——两遍假红（148/149），而独立探针复刻同一动作
 // 0.8s 内图片块就带着完整资产落库（App 无回归）⇒ 改轮询：最多 ~6s、每 400ms 读一次，命中即停。
 const readPasted = () => page.evaluate(() => {
   const el = document.querySelector('.editor-content .moqi-block-image')
@@ -5654,7 +5654,7 @@ if (lbSpot) await page.mouse.click(lbSpot.image.x, lbSpot.image.y)
 await sleep(700)
 const lightbox = await page.evaluate(() => {
   const mask = document.querySelector('.lb-mask')
-  // θ17（2026-10-13 用户裁定）：工具条**图标化**（中文名进 aria-label）、文件名 / 大小不上条——判据读 aria。
+ // θ17（ 用户裁定）：工具条**图标化**（中文名进 aria-label）、文件名 / 大小不上条——判据读 aria。
   return mask ? { buttons: [...mask.querySelectorAll('.lb-bar button')].map((b) => b.getAttribute('aria-label') ?? (b.textContent ?? '').trim()) } : null
 })
 const lightboxZoom = await (async () => {
@@ -5673,7 +5673,7 @@ check('R09-BLOCK-19 图片预览（θ17 两态：桌面 / 编辑态 = 工具条�
   && lightboxZoom.transform === 'scale(1)' && lightboxZoom.loaded && lightboxZoom.width > 0 && lightboxClosed,
   { lbSpot, lightbox, lightboxZoom, lightboxClosed })
 
-// D-071（2026-10-13 · 图片块真比例）：块内 `::before` 高 ≈ 内容宽 ÷ `--asset-ratio`。
+// D-071（ · 图片块真比例）：块内 `::before` 高 ≈ 内容宽 ÷ `--asset-ratio`。
 // 关键态 = `data-own-line='missing'`（图片块带子块、无图注）——修前该态被「补行规则」整条劫持：
 // `::before` 被换成 1lh 空行（真机读数 21.67px，竖屏图压成一根细条）。
 // 两半：① 直置 missing 回到 D-071 现场；② 自然路径——图片块下一个兄弟 Tab 缩进成它的子块
@@ -5750,7 +5750,7 @@ await page.waitForSelector('.editor-content .moqi-block', { timeout: NAV_READY_M
 await sleep(1400)
 
 // 卡头占位必须是**真的**：`content:none` 的伪元素根本不生成，`minHeight` 照样读出 34px
-// （2026-10-06 实测：占位是死的，正文分隔线切进副行）——所以用「藏掉 ::before 前后的卡高差」当证据。
+// （ 实测：占位是死的，正文分隔线切进副行）——所以用「藏掉 ::before 前后的卡高差」当证据。
 const headReserve = (page) => page.evaluate(() => {
   const card = document.querySelector('.moqi-block-embed')
   if (!card) return null
@@ -5784,7 +5784,7 @@ const embedEmpty = await page.evaluate(() => {
     padding: `${style.paddingTop} ${style.paddingRight}`,
     // 卡头高度与 `EMBED_CARD_GEOMETRY.head` 是同一组数字（CSS 与规则不许漂移）。
     headHeight: head.minHeight,
-    // 卡头保真（2026-10-06，按原型 `.eb-t` / `.eb-s` / `.eb-go`）：标题 13/600、副行常量、胶囊实底无边框。
+  // 卡头保真（，按原型 `.eb-t` / `.eb-s` / `.eb-go`）：标题 13/600、副行常量、胶囊实底无边框。
     title: title?.textContent ?? null,
     titleFont: title ? `${getComputedStyle(title).fontSize}/${getComputedStyle(title).fontWeight}` : null,
     sub: document.querySelector('.eb-s')?.textContent ?? null,
@@ -5842,7 +5842,7 @@ check('R09-BLOCK-24 嵌入卡（空态 → 选来源 → 只读快照）：卡�
 
 // 「来源 ↗」跳到源——跨页时先切页（胶囊点了要落到素材页，且目标块闪烁）。
 await page.click('.eb-pill')
-// 读点加固（2026-10-09，第六刀那轮红过一次）：闪烁实测只持续 ~1.6s，**固定 sleep(1500) 正好卡在它结束附近**
+// 读点加固（，第六刀那轮红过一次）：闪烁实测只持续 ~1.6s，**固定 sleep(1500) 正好卡在它结束附近**
 // ——改成轮询到「已切页 + 目标块在闪」为止（有界 4s），把这条竞态读出来。
 const embedJump = await poll(
   () => page.evaluate(() => ({
@@ -5948,7 +5948,7 @@ check('R09-MD-3 导入（拖入 .md）：建一页（页名取第一处 `# ` 标
   && imported.brief.includes('状态: 进行中') && imported.brief.includes('导入测试') && imported.brief.includes('草稿'),
   imported)
 
-// ---------- 导入包（第 13 项「拖入 zip」，2026-10-11）：包是 .zip、备份包嗅探、图从包里落 ----------
+// ---------- 导入包（第 13 项「拖入 zip」，）：包是 .zip、备份包嗅探、图从包里落 ----------
 // 普通包：2 篇 .md（含包内图片引用）+ 1 张图 + 1 个 html（报数）+ macOS 杂物（静默）→ 建 2 页、图落地。
 // 备份包（含 project-b.sqlite3）：**不按页面导入**、如实指路「设置 › 备份与恢复」（数据风险点，场景 G）。
 const { zipSync, strToU8 } = await import('fflate')
@@ -6002,7 +6002,7 @@ check('IMPORT-ZIP-1 导入包（第 13 项「拖入 zip」）：拖入 .zip = �
 
 
 // ---------- 侧栏「星标」（`R09-PRIN-1`，活原型 `#navStar`）----------
-// 用户 2026-10-07 报的功能缺失：星标能力早就有（卡片 ⋯ 与 … 菜单都能星标），但侧栏导航没入口。
+// 用户 报的功能缺失：星标能力早就有（卡片 ⋯ 与 … 菜单都能星标），但侧栏导航没入口。
 // 判据：入口在「页面库」下面、带计数徽章；点它进的是**同一个页面库**、只把 star 档拨到「只看星标」；
 // 激活态有背景（与页面库同一条 `is-active` 胶囊）；再点一下取消。
 await reset()
@@ -6070,7 +6070,7 @@ check('R09-PRIN-1 侧栏星标入口：在「页面库」下面、带计数徽�
 // 窄视口（360×800）下的四组数：标准档降一档（--fs-e 15px / --lh-e 1.7；小 / 大 / 特大沿用桌面值 15 / 19 / 21）、
 // 列宽轴归一（--colw 100%——移动没有列宽轴）、页面名 1.87×（= 15 × 1.87 = 28.05px，落在 title1 档）、
 // 悬浮 FAB（56×56 / 圆角 18 / 右 18 / 底 18 + 安全区；桌面档不渲染）。
-// 背景（2026-10-08，回填真机读数时逮到三处「写了但没生效」）：① 两行降档选择器写成 data-fs="standard"
+// 背景（，回填真机读数时逮到三处「写了但没生效」）：① 两行降档选择器写成 data-fs="standard"
 // （实际值是 "normal"）；② --colw 用裸 html 选择器压不过 :root / data-colw 档位规则；③ FAB 只给了落位、
 // 没把基础档的 display: none 开回来。这条检查把 A 批的这组数钉住（规格在 `10`，读数在 `07-V3-验收记录`）。
 // **种子先在桌面档打完再缩**：2a 起 compact = 触控只读态（`MOBILE-EDIT-1`），窄视口里 `reset()`
@@ -6104,11 +6104,11 @@ const mobileTier = await poll(
 // 这里先按 ▣ 把页面列表打开（它收起时不点开就看不到——不点开就判红会把「没打开」当成「没有」）。
 await page.evaluate(() => {
   if (!document.querySelector('.fab')) {
-    // 按**前缀**找：标签里带真键位「⌘⇧\」（2026-10-09 修 D-037 时补的反斜杠）——整串匹配会随文案微调而脆断。
+  // 按**前缀**找：标签里带真键位「⌘⇧\」（ 修 D-037 时补的反斜杠）——整串匹配会随文案微调而脆断。
     [...document.querySelectorAll('button')].find((b) => (b.getAttribute('aria-label') ?? '').startsWith('页面列表（⌘⇧'))?.click()
   }
 })
-// 测试基建（2026-10-12，@0 批准）：**先等 `.pagecol`、再等 `.fab`**。FAB 只在 `compact` + 页面列可见时
+// 测试基建（，@0 批准）：**先等 `.pagecol`、再等 `.fab`**。FAB 只在 `compact` + 页面列可见时
 // 挂载（骨架条件渲染），两者各占一次 React 提交；原先合成一个 4s 轮询，负载下偶发读到 `null`
 // （实测 5 路 2 级，独立复现次数 300ms 内就位）。超时相应放宽到 9s。
 // **仍能红**：FAB 真的不出现时第二个轮询照样超时 ⇒ 读到 `null` ⇒ 下面的 `fab !== null` 判假。
@@ -6432,7 +6432,7 @@ await sleep(400)
 await page.setViewportSize({ width: 360, height: 720 })
 await sleep(700)
 const touchRead = await page.evaluate(() => {
-  // γ1 负例：**只读态绝不能被抑制**（用户 2026-10-12 裁定「保留只读态原生选词与系统长按菜单」）。
+ // γ1 负例：**只读态绝不能被抑制**（用户 裁定「保留只读态原生选词与系统长按菜单」）。
   const block = document.querySelector('.doc-col .moqi-block')
   const style = block ? getComputedStyle(block) : null
   return {
@@ -6442,7 +6442,7 @@ const touchRead = await page.evaluate(() => {
     blockTouchAction: style ? style.touchAction : null,
   }
 })
-// θ13（2026-10-13 真机轮）：**compact 档不吃长按 / 右键**——Android 长按会派发 `contextmenu`，
+// θ13（ 真机轮）：**compact 档不吃长按 / 右键**——Android 长按会派发 `contextmenu`，
 // 旧行为会「选中该块 + 弹桌面块菜单」（连同桌面文本浮条）一起漏进手机。只读态先验一次（合成 contextmenu）。
 const touchLongPressRead = await page.evaluate(() => {
   const block = document.querySelector('.doc-col .moqi-block[data-entity-id]:not([data-block-object="true"])')
@@ -6465,7 +6465,7 @@ const touchEditing = await page.evaluate(() => {
     editMark: editing?.dataset.entityId ?? null,
     otherOpacity: others.length > 0 ? getComputedStyle(others[0]).opacity : null,
     editOpacity: editing ? getComputedStyle(editing).opacity : null,
-    // 批 δ（2026-10-12）：**无弱化**硬断言——编辑态里不得有任何块被降透明（含嵌套叠乘）
+  // 批 δ（）：**无弱化**硬断言——编辑态里不得有任何块被降透明（含嵌套叠乘）
     dimmed: [...document.querySelectorAll('.doc-col .moqi-block')].filter((el) => Number.parseFloat(getComputedStyle(el).opacity) < 1).length,
     // γ1：抑制只限**编辑态正文**（`touch-action: pan-y` / `-webkit-touch-callout: none` 在 app.css）
     editTouchAction: (() => { const el = document.querySelector('.doc-col .editor-content'); return el ? getComputedStyle(el).touchAction : null })(),
@@ -6481,7 +6481,7 @@ const touchLongPressEdit = await page.evaluate(() => {
     txtbar: Boolean(document.querySelector('.txtbar')),
   }
 })
-// 编辑态内点另一个块（正文子块）→ **θ6（2026-10-13 用户走查「点另一块要双击、光标不灵敏」）：光标一步到位**——
+// 编辑态内点另一个块（正文子块）→ **θ6（ 用户走查「点另一块要双击、光标不灵敏」）：光标一步到位**——
 // 不入选区（γ1 不动——选中仍只认左滑）、光标落到**点按的那一块**；负例：不得冒出胶囊 / 选择栏 / 模式类。
 const targetLeaf = page.locator('.doc-col .moqi-block[data-entity-id]:not([data-block-object="true"])').first()
 const targetLeafId = await targetLeaf.getAttribute('data-entity-id')
@@ -6501,7 +6501,7 @@ const touchSelect = await page.evaluate(() => {
     selectMode: Boolean(document.querySelector('.doc-col.is-select-mode')),
   }
 })
-// θ13（2026-10-13 用户走查）：**点空白不退编辑**——一下 / 两下都只回打字态。旧行为是两段阶梯
+// θ13（ 用户走查）：**点空白不退编辑**——一下 / 两下都只回打字态。旧行为是两段阶梯
 // （第一下回打字态、第二下退编辑），真机上双击空白就把它误触成「直接回退到只读态」。
 // 负例：把 `touchBlankTap` 里那级 `exitTouchEdit()` 加回来 ⇒ `stillEditing` / `editable` 必红。
 await page.locator('.doc-col').click({ position: { x: 6, y: 6 } })
@@ -6518,7 +6518,7 @@ const touchBlankTwice = await page.evaluate(() => ({
 }))
 // 退编辑走正门 = 格式栏「完成」（`10` §6.3：完成 / Esc / 返回三出口）
 // 注：5s 短超时 + 吞异常——若「点空白」被误退编辑（回归），`.mbar` 不存在，断言照常报 FAIL；
-// 不这么做时那一轮会 timeout **中断整条套件**（后面的条目全被吞掉，见 2026-10-13 的红证记录）。
+// 不这么做时那一轮会 timeout **中断整条套件**（后面的条目全被吞掉，见 的红证记录）。
 await page.locator('.mbar button[aria-label="完成"]').click({ timeout: 5000 }).catch(() => {})
 await sleep(400)
 const touchExited = await page.evaluate(() => ({
@@ -6698,7 +6698,7 @@ check('MOBILE-UNDO-1 主条撤销 / 重做（`θ11` · `10` §6.3 定稿）：�
   undoBefore !== undoAfter && undoAfter.length < undoBefore.length && redoAfter === undoBefore,
   { undoBefore, undoAfter, redoAfter })
 
-// ---------- 工具栏**可用性**（真触控 · 命中 · 焦点不丢）——用户 2026-10-16 报「手机端工具栏没法用、不能操作」----------
+// ---------- 工具栏**可用性**（真触控 · 命中 · 焦点不丢）——用户 报「手机端工具栏没法用、不能操作」----------
 // 为什么单列：上面所有面板检查都是 `.click()`（鼠标）且只判「面板开没开 / 条在不在」——真机上点
 // `<button>` 会先把焦点从正文根抢走 ⇒ 软键盘收起、视口重排（宿主 adjustResize + IME inset 让 WebView
 // 变高），点按落在移位后的位置、选区也可能塌掉；表现就是「点不动、没反应」，而桌面套件全绿（门盲区）。
@@ -6886,7 +6886,7 @@ check('MOBILE-BUBBLE-1 选区气泡（`10` §6.3 定稿 · 七格 · 344）：�
   && tboxTier.labels.includes('✦AI') === false
   && (tboxTier.above === true || tboxTier.below === true)
   && tboxTier.width === 344
-  && tboxTier.svgCount >= 5 /* 图标说话（真机口径 2026-10-11）：复制/剪切/粘贴/全选/删除…只印单色 Icon，中文名在 aria */
+  && tboxTier.svgCount >= 5 /* 图标说话（真机口径 ）：复制/剪切/粘贴/全选/删除…只印单色 Icon，中文名在 aria */
   && tboxAfterDelete.childText === '' && tboxAfterDelete.bubble === false
   && tboxAfterFormat.bubble === false && tboxAfterFormat.charPanel === true && tboxAfterFormat.charLabels.join('/') === '加粗/斜体/删除线/下划线/行内代码/高亮'
   && tboxLinkSub.sub.join('/') === '外部链接/页面链接' && tboxLinkSub.bubble === true
@@ -6894,8 +6894,8 @@ check('MOBILE-BUBBLE-1 选区气泡（`10` §6.3 定稿 · 七格 · 344）：�
   && tboxExit.bubble === false && tboxExit.bar === false && tboxExit.editing === false,
   { tboxTier, tboxAfterDelete, tboxAfterFormat, tboxLinkSub, tboxAfterLink, tboxExit })
 
-// ---------- γ1/形态阶梯（2026-10-12）：**左滑是唯一进入方式**——下面两个测试都用它选块 ----------
-// 刺激用**合成 PointerEvent**：无头通道里原生鼠标拖拽到不了编辑器根的监听（2026-10-11 探针实测；
+// ---------- γ1/形态阶梯（）：**左滑是唯一进入方式**——下面两个测试都用它选块 ----------
+// 刺激用**合成 PointerEvent**：无头通道里原生鼠标拖拽到不了编辑器根的监听（ 探针实测；
 // 真机触控走原生 pointer 路径，代码里 `pointermove` / `mousemove` / `touchmove` 三条刺激共用同一套判据）。
 const swipeSelectOne = () => page.evaluate(() => {
   const el = document.querySelector('.moqi-block:not([data-block-object="true"])') ?? document.querySelector('.moqi-block')
@@ -6937,7 +6937,7 @@ await page.setViewportSize({ width: 360, height: 720 })
 await sleep(600)
 await page.locator('.doc-col .moqi-block[data-block-object="true"]').first().dblclick()
 await sleep(500)
-// γ1/形态阶梯（2026-10-12）：**左滑（唯一入口）滑选恰好 1 块** → 块胶囊（两行制）到场、键盘栏退场。
+// γ1/形态阶梯（）：**左滑（唯一入口）滑选恰好 1 块** → 块胶囊（两行制）到场、键盘栏退场。
 // （原来是「编辑态内点一块」——单击选中已随 γ1 撤掉。）
 await swipeSelectOne()
 await sleep(450)
@@ -6947,7 +6947,7 @@ const capTier = await page.evaluate(() => ({
   selbar: Boolean(document.querySelector('.capsule.cap-select')),
   // 圈钮在模式内**常显**（含恰好 1 块）⇒ 该块 `::after` = 实心 ✓
   circle: (() => { const el = document.querySelector('.doc-col .moqi-block.is-selected'); return el ? getComputedStyle(el, '::after').content : null })(),
-  // 真机口径（2026-10-11）：工具按钮**不印中文**——可见文本只剩字形 / 图标，aria 里才有中文名。
+ // 真机口径（）：工具按钮**不印中文**——可见文本只剩字形 / 图标，aria 里才有中文名。
   inkFree: [...document.querySelectorAll('.capsule .cap-row button')].every((b) => [...b.childNodes].every((n) => n.nodeType !== 3 || (n.textContent ?? '').trim().length <= 2)),
   mbarGone: Boolean(document.querySelector('.mbar')) === false,
   flybar: document.querySelectorAll('.flybar').length,
@@ -7086,7 +7086,7 @@ const tapHit = await page.evaluate(() => {
   }
   return null
 })
-// φ3 负例（2026-10-12）：模式内点**页面容器**（名字行）⇒ **不入选区**（容器是选区的边界）、圈钮也不画它。
+// φ3 负例（）：模式内点**页面容器**（名字行）⇒ **不入选区**（容器是选区的边界）、圈钮也不画它。
 let selectTapAdd = null
 let selectTapRemove = null
 let wrappedAtTwo = null
@@ -7217,7 +7217,7 @@ await sleep(400)
 const selectAllNow = await page.evaluate(() => ({
   label: (document.querySelector('.cap-count')?.textContent ?? '').trim(),
   selected: document.querySelectorAll('.moqi-block.is-selected').length,
-  // φ3（2026-10-12）：容器不进选区 ⇒ 期望总数 = **非容器**块数；并直接验容器没被选上
+ // φ3（）：容器不进选区 ⇒ 期望总数 = **非容器**块数；并直接验容器没被选上
   total: document.querySelectorAll('.doc-col .moqi-block[data-entity-id]:not([data-block-object="true"])').length,
   containerSelected: Boolean(document.querySelector('.moqi-block[data-block-object="true"]')?.classList.contains('is-selected')),
 }))
@@ -7271,7 +7271,7 @@ check('MOBILE-SELECT-1 选择模式与选择栏（`10` §6.2 定稿）：编辑�
   && selectDone.mode === false && selectDone.bar === false && selectDone.mbar === true && selectDone.editing === true && selectDone.focused === true /* θ12：✓完成退出 ⇒ 焦点回正文（键盘跟着回来） */,
   { selectEntry, tapHit, selectContainerTap, selectTapAdd, wrappedAtTwo, selectTapRemove, selectTwo, dragMid, dragLeftAfterRelease, orderBeforeDrag, orderAfterDrag, orderAfterUndo, microDrag, unselectedDrag, selectAllNow, selectRows, selectDone })
 
-// ---------- θ9（2026-10-13 用户走查「多选后取消不掉」）：选区清空 ⇒ 退模式；吞 click 不漏到下一次 ----------
+// ---------- θ9（ 用户走查「多选后取消不掉」）：选区清空 ⇒ 退模式；吞 click 不漏到下一次 ----------
 // ① 点掉**最后一块**：旧行为 = 底部回格式栏但 `.is-select-mode` 还挂在 `.doc-col` 上（圈钮照画、
 //    点块继续走 toggle 分支）——「谁点都取消不掉」。0 块在形态阶梯里没有形态 ⇒ 退出模式。
 // ② 拖拽吞 click 的泄漏：拖拽（浏览器**不补发** click）漏下的 `swallowed` 会把**下一次**真实点击吃掉。
@@ -7405,7 +7405,7 @@ check('MOBILE-ICON-1 工具栏族正形（字阶与图标批）：主条六键**
   && iconCapsule.svgCount >= 4 && iconCapsule.svgW.every((w) => w >= 19 && w <= 22) && iconCapsule.emoji === false && iconCapsule.deleteIcon === true,
   { iconDock, iconSeg2, iconCapsule })
 
-// ---------- W4 骑批（2026-10-11）：G-E04「下划线整块」＋ G-E06「今天 / 现在」 ----------
+// ---------- W4 骑批（）：G-E04「下划线整块」＋ G-E06「今天 / 现在」 ----------
 await page.setViewportSize({ width: 1280, height: 900 })
 await reset()
 await page.keyboard.press('End')
@@ -7561,7 +7561,7 @@ check('MOBILE-SHELL-1 移动骨架（`10` §三/§4.1/§4.3/§4.5 · 4a）：桌
   && shellBack.pagecolW === 360 && shellBack.burger === true,
   { shellHome, shellDrawer, shellDrawerClosed, shellEditor, shellEditing, shellBlankKept, shellExit, shellBack })
 
-// ---------- 系统返回键的应用内阶梯（用户 2026-10-12 口径：**浮层 → 上一层；编辑态不接**）----------
+// ---------- 系统返回键的应用内阶梯（用户 口径：**浮层 → 上一层；编辑态不接**）----------
 // Kotlin 侧（`MainActivity.kt`）把返回键先问 `window.__moqiBack`：true = 应用内消化、false = 交系统退出。
 // 这里在浏览器通道直接调同一份钩子，走阶梯四级：首页 false → 抽屉 → 编辑器（回页面库）→ 设置（关）。
 await reset()
@@ -7584,7 +7584,7 @@ backLevels.editorBackHome = await page.evaluate(() => ({ pagecol: Boolean(docume
 await page.evaluate(() => { [...document.querySelectorAll('.sidebar button')].find((b) => (b.textContent ?? '').includes('设置'))?.click() })
 await sleep(700)
 backLevels.settingsBefore = await page.evaluate(() => Boolean(document.querySelector('.set-dlg')))
-// 批 ζ（2026-10-12）：先进**子页**——系统返回要**先「子页 → 列表」**（一层一个返回），不是直接关设置。
+// 批 ζ（）：先进**子页**——系统返回要**先「子页 → 列表」**（一层一个返回），不是直接关设置。
 // 若外部状态（`settingsSection`）让设置直接落在子页，先按一次返回回到列表。
 await page.evaluate(() => { if (!document.querySelector('.set-list')) document.querySelector('.set-topbar > button')?.click() })
 await sleep(500)
@@ -7617,7 +7617,7 @@ await sleep(400)
 
 
 // ---------- 设置页移动形态（`10` §4.7，4b 前置）：分区列表 → 子页 ----------
-// 用户走查点名（2026-10-11）：「别把所有东西都挤在一页」——此前窄档把左分栏横排成一条
+// 用户走查点名（）：「别把所有东西都挤在一页」——此前窄档把左分栏横排成一条
 // overflow-x 的胶囊带（360 下截断成「外观与主…」），其余分区难够到。判据：列表行序 / 子页返回 /
 // 控件整宽（范围三选不被压成「按标 签…」）/ 桌面左分栏原样。
 await reset()
@@ -7640,7 +7640,7 @@ const setList = await page.evaluate(() => {
     groups: [...document.querySelectorAll('.set-list .sl-grp')].map((d) => (d.textContent ?? '').trim()),
   }
 })
-// 批 ζ（2026-10-12）：列表页与子页**共用同一条统一标题栏**（返回 ＋ 标题同栏）——不再有两条 `.set-back`。
+// 批 ζ（）：列表页与子页**共用同一条统一标题栏**（返回 ＋ 标题同栏）——不再有两条 `.set-back`。
 const setTopbar = await page.evaluate(() => {
   const bar = document.querySelector('.set-topbar')
   const back = bar?.querySelector('button')
@@ -7709,7 +7709,7 @@ check('MOBILE-SET-1 设置页移动形态（`10` §4.7 + 批 ζ 2026-10-12）：
   && setDesktop.nav === 'block' && setDesktop.list === false && setDesktop.pane === true,
   { setList, setTopbar, setExitClosed, setSub, setBack, setDesktop })
 
-// ---------- θ3（2026-10-13 用户走查）：设置**关掉再进 = 回列表**——子页不是「记忆层级」 ----------
+// ---------- θ3（ 用户走查）：设置**关掉再进 = 回列表**——子页不是「记忆层级」 ----------
 // 缺陷原样：子页 → 关闭（⌘, / Esc / ✕ 任一路）→ 重开还停在子页（层级是外部状态、关闭不归零）。
 // 判据 = 负例两连：重开**不得**出现 `.set-pane`（子页面板）、标题必须是「设置」（不是「导出」）。
 await reset()
@@ -8129,7 +8129,7 @@ await page.evaluate(() => { [...document.querySelectorAll('button')].find((b) =>
 await sleep(400)
 await page.setViewportSize({ width: 360, height: 720 })
 await sleep(700)
-// `D10`（2026-10-14 裁决）：触屏档**常显**折叠箭头——**未指到**（先读）也应在场；
+// `D10`（ 裁决）：触屏档**常显**折叠箭头——**未指到**（先读）也应在场；
 // 负例：把 `blockMarkers.markersForBlock` 里的 `|| input.compact` 摘掉 ⇒ `noHover.present` 必红。
 const w2NoHover = await page.evaluate(() => ({
   present: Boolean(document.querySelector('.block-rail[data-marker-kind="collapse"]')),
@@ -8229,7 +8229,7 @@ check('WINDOW-FIT-1 断点四档：宽度决定版面（compact 手机排版档 
 await page.setViewportSize({ width: 1280, height: 900 })
 
 // ---------- #6 弹窗尺寸自适应（`min()` / `clamp()` **无断点**表达；`R09-SET-16`）---------
-// 实测校正（2026-10-12）：
+// 实测校正（）：
 //   ・桌面档（≥701）`.dlg` 宽 **恒 560**（mask 内距 20px，最小桌面档还剩 661 余量）⇒「宽随视口收窄」在桌面档**不可观测、也不是风险点**（≤700 由 compact 媒体块接管，宽恒 = 视口宽）；
 //   ・真正可红的是**高**（`min(78dvh, 100dvh−56px)`）与**内距**（`clamp`）：已用「写死 `max-height:780px`」实测红（780 高下 h=780 vs 期望 374.4）。
 // 判据：桌面档宽 ≈560 且不溢出 ・ 高随窗缩（900→702 / 480→374.4 / 560→436.8）・ 内距随窗缩（clamp 生效）・ compact 宽 = 视口宽且贴底 ・ 全程无横向溢出 ・ 弹窗底 ≤ 视口高。
@@ -8565,7 +8565,7 @@ check('FEATURE-ON-1 M5 可选能力正向对照：清掉开关后 ✦ / 属性�
 
 const { report, reportPath } = writeReport({ finishedAt: new Date().toISOString() })
 console.log(`\n合计 ${results.length - failed}/${results.length} 通过 · 用时 ${(report.durationMs / 1000).toFixed(1)}s · 预热 ${warmupMs}ms`)
-// 「只看合计不看时间戳，把旧报告读成 149/149」是 2026-10-07 的教训——汇总行里直接带上 at。
+// 「只看合计不看时间戳，把旧报告读成 149/149」是 的教训——汇总行里直接带上 at。
 console.log(`at=${report.at} · 报告：${reportPath}${ONLY ? '（子集跑，不写 history/）' : '（历史留档：同目录 history/）'}`)
 if (ONLY) console.log(`⚠ 子集模式（MOQI_ONLY=${ONLY}）：${skippedChecks} 条未跑、不计入合计 —— **不得**当作全量绿`)
 if (failed > 0) console.log(`失败项：${results.filter((r) => !r.ok).map((r) => r.name.split(' ')[0]).join(' / ')}`)

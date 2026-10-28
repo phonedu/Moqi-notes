@@ -44,14 +44,14 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
   /**
    * 列表的降级出口（docs/04 §3 `R04-ENTER-4` 的另一半）：光标在**有内容的列表项行首**按
    * Backspace → 本项退出列表（变回普通文本块），内容与光标都不动；**再按一次**才轮到原来的
-   * 合并 / 跨行逻辑。没有这一步时，项首 Backspace 会把两个列表项并成一个（用户实测 2026-09-30）。
+  * 合并 / 跨行逻辑。没有这一步时，项首 Backspace 会把两个列表项并成一个（用户实测 ）。
    * 空项不在这里处理：空项的 Backspace 让给既有的「空块合并」通路，语义更自然。
    */
   function onEnter(editor: LexicalEditor): boolean {
     // 代码块里的回车（`R04-ENTER-6`）整段住在 `ui/blockTextOps.ts`（外壳只递依赖——
     // `06` §6「外壳新代码免入」）；不是代码块就落回下面的既有链路。
     if (handleCodeBlockEnter(editor, { store, persist, convertCurrentBlock, flushPendingEnter, syncEditorChanges })) return true
-    // 列表项里的回车（docs/04 §3 R04-ENTER-4，用户实测 2026-09-30）：**继续同类型列表项**；
+  // 列表项里的回车（docs/04 §3 R04-ENTER-4，用户实测 ）：**继续同类型列表项**；
     // 空的列表项则「先逐级外移、回到最外层再按一次退出列表」——退出方式就藏在这条链里。
     // 判据是纯函数 decideListEnter（src/editor/inputRules.ts），这里只执行它的结论。
     {
@@ -72,7 +72,7 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
         }
       }
     }
-    // 大纲惯例：空块再按 Enter 退出缩进——本块升一级，光标留在它开头（用户口径 2026-09-27，
+  // 大纲惯例：空块再按 Enter 退出缩进——本块升一级，光标留在它开头（用户口径 ，
     // `R04-ENTER-3`）。判据在输入规则层（`inputRules.ts` 的 decideEmptyEnter），这里只执行结论：
     // 只在「空块 + 父块是真正的上级块」时生效；页面容器的直接子块已经是一级，按 Enter 仍旧只换行。
     {
@@ -220,7 +220,7 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
     if (type === 'divider') {
       // 转分隔线时**正文会被域层挪到紧随其后的新 `text` 块**（`02` §「类型转换」）。编辑器这边不能
       // 只改当前这一个节点：镜像随后会把正文写回分隔线里（线上留着字、下面还重复一份），新块也看不见
-      // ——2026-10-03 实测。整篇重建一次（与撤销 / AI 落点同一条路）最省事，也顺带把新块摆出来。
+   // —— 实测。整篇重建一次（与撤销 / AI 落点同一条路）最省事，也顺带把新块摆出来。
       reloadFromStore()
       return
     }

@@ -9,7 +9,7 @@ import type { OutlineDraft } from './mdSyntax'
 /**
  * 一页的子树快照（深拷贝、剔除已删块）。编辑器整篇重建（换页 / 撤销 / 同步应用）
  * 与「读整篇」的 AI 入口都按它取正文——**原件留在 store 里**，把它铺进 Lexical 之后
- * 编辑器改的是这份副本。原住在 `ui/EditorShell.tsx`，2026-10-04 还债 #2 模块③
+ * 编辑器改的是这份副本。原住在 `ui/EditorShell.tsx`， 还债 #2 模块③
  * 抽出 AI 运行时时下沉到领域（两个模块都要用，纯函数，本来就该在这里）。
  */
 export function subtreeMap(blocks: BlockMap, pageId: string): BlockMap {
@@ -185,7 +185,7 @@ export function moveBlock(
 ): Omit<Transaction, 'inverse'> | null {
   const block = blocks.get(blockId)
   if (!block || block.deleted) return null
-  // D13 顺带审计（2026-10-05）：**页面容器不能被移进别的块**——它能做的只有根级重排。
+ // D13 顺带审计（）：**页面容器不能被移进别的块**——它能做的只有根级重排。
   // 缩进 / 反缩进本来就靠 `parent === null` 拦住，这里补上移动这一条（域层把关，界面只是第一道）。
   if (block.isObject && newParentId !== null) return null
   if (newParentId === blockId) return null
@@ -214,7 +214,7 @@ export function moveBlock(
 }
 
 /**
- * γ2（2026-10-12）：**块组拖拽** —— 把一组（父级去重后的）根块**一次事务**移到同一个落点，
+ * γ2（）：**块组拖拽** —— 把一组（父级去重后的）根块**一次事务**移到同一个落点，
  * **保持组内相对顺序**、**一步撤销**（与 `copy` / `deleteSelection` 同一写法：数组入参 → 一个 transaction）。
  *
  * 下标口径（关键）：`applyMove` 按 id 移除、但 `newIndex` 是「**块仍在原位**那份列表的空位」
@@ -358,7 +358,7 @@ export function insertOutlineAfter(
  * 正文草稿是它的**子块**（对象锚点 ⇒ 往容器内部插，见 `insertOutlineAfter` 的 `parentId` 规则）。
  * `extras` 是导入读到的 front-matter（标签 id 与属性值由调用方按注册表解析好再传进来——
  * 领域层不认识「标签名」「属性名」这两件事）。`created` / `modified` 是**导出的时间戳回读**
- * （2026-10-10 互通批：导出写了 `created` / `modified`，导入过去只跳过不还原，页面的创建时间
+ * （ 互通批：导出写了 `created` / `modified`，导入过去只跳过不还原，页面的创建时间
  * 静默变成"现在"）；只覆盖这两个字段，`position` 仍按追加位置算 ⇒ 页面库的排序不因导入旧笔记而跳动。
  */
 export function insertOutlineAsPage(

@@ -61,7 +61,7 @@ export function toolbarKeyDown(event: ReactKeyboardEvent<HTMLDivElement>, onEsca
 /**
  * 在 Lexical 更新/读取上下文里按 entityId 找到 BlockNode。
  *
- * 2026-10-05 名字行收口（T5）：实现**下沉**到 `editor/blockNode.ts` 的 `$findBlockNode`
+ * 名字行收口（T5）：实现**下沉**到 `editor/blockNode.ts` 的 `$findBlockNode`
  * （编辑器层也要它，而 `editor/` 不许反向引用 `ui/`）。这里保留原名转出，UI 侧的调用点一个字不用改。
  */
 export { findBlockNode }
@@ -149,7 +149,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
     const selected = selectedIdsRef.current
     // 标记画在**滚动容器（`.doc-col`）的内容坐标**里（`position: absolute`）。此前是
     // 「`position: fixed` + 视口坐标」：快速滚动时标记会落后内容一帧、再弹回原处（用户实测
-    // 2026-10-03「移动页面太快时上下抖动」）。改成内容坐标后，滚动由浏览器自己带着走，不需要每帧追。
+  // 「移动页面太快时上下抖动」）。改成内容坐标后，滚动由浏览器自己带着走，不需要每帧追。
     // **可见带仍按视口坐标判断**：块滚到格式栏 / 原生栏底下时不给它画标记。
     // 坐标系与可见带都由定位服务回答（'content' = 内容坐标 + 正文滚动容器那条可见带）：
     // 原来这里自己抄了一份换算，AI 行那边又抄了一份（T7 收口，见 ui/blockAnchor.ts）。
@@ -157,7 +157,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
     // 编号列表的序号（docs/09 §五 R09-BLOCK-30）：**数据驱动**，由 listOrdinal 按「同级相邻同类型」
     // 算出后写进 data-ordinal，CSS 只读 attr(data-ordinal)。
     // 为什么不用 CSS 计数器：标记画在 ::after 上，而 ::after 排在块的子树**之后**——带子编号的那一项
-    // 读到的计数器已经被子项加过（「第二条」显示成 3，用户实测 2026-09-30）。
+  // 读到的计数器已经被子项加过（「第二条」显示成 3，用户实测 ）。
     // 写在这里的另一层理由：这一层已经在监听 childList / data-block-type（插入、删除、类型转换都会触发
     // 一次重测），序号的失效条件正好被它全覆盖；写在编辑器节点上则要自己盯兄弟变化。
     for (const element of content.querySelectorAll<HTMLElement>('.moqi-block[data-entity-id][data-block-type="numbered"]')) {
@@ -239,7 +239,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
       if (!frame.inView(rect)) continue
       const style = getComputedStyle(element)
       // **整条矩形都要换成内容坐标**：`left` 与 `right` 是两个不同的定位基准（把手的锚在左边、
-      // ＋ 的锚在右边），只换 `top` / `left` 会让靠右锚定的标记跑到块外去（2026-10-03 实测：
+   // ＋ 的锚在右边），只换 `top` / `left` 会让靠右锚定的标记跑到块外去（ 实测：
       // 最后一个块的 ＋ 落在块右边缘外 522px —— 视口坐标的 right 被当成内容坐标的 left 用了）。
       const localRect = frame.rect(rect)
       const lineTop = ownLineCenter(parseFloat(style.lineHeight), parseFloat(style.paddingTop) || 0, localRect)
@@ -270,7 +270,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
     if (!scope || !content || !enabled) return
     const observer = new MutationObserver(() => schedule())
     observer.observe(content, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-collapsed', 'data-checked', 'data-block-type'] })
-    // 滚动监听挂在 **window 的捕获阶段**（2026-09-28 修）：真正滚动的元素是正文列的**父级**
+  // 滚动监听挂在 **window 的捕获阶段**（ 修）：真正滚动的元素是正文列的**父级**
     // `.editor-body`，挂在 `.doc-col` 上根本收不到它的滚动事件——标记层用的是视口坐标，
     // 于是滚动时标记不跟着走（AI 块的标签 / 操作行「飘起来」就是这个原因）。
     // scroll 不冒泡但会捕获，window 捕获能拿到任意滚动容器的滚动事件（斜杠菜单早就用这条）。
@@ -628,7 +628,7 @@ export function AiBlockBars({ scopeRef, contentRef, enabled, onStop, onAccept, o
     const content = contentRef.current
     if (!content) return
     // 行画在**滚动容器的内容坐标**里（`position: absolute` 挂在 `.doc-col` 上），不是视口坐标：
-    // 视口坐标 + `position: fixed` 时，快速滚动会让它们落后一帧再弹回原位（用户实测 2026-10-03
+  // 视口坐标 + `position: fixed` 时，快速滚动会让它们落后一帧再弹回原位（用户实测 
     // 「移动页面太快，AI 块上下抖动、移动然后回到原位」——合成器滚动不等主线程，这是必然结果）。
     // 内容坐标由浏览器自己带着滚。**可见带的判断仍用视口坐标**：块滚到顶栏底下就不画行。
     // 坐标系与可见带都由定位服务回答（'content' = 内容坐标 + 正文滚动容器那条可见带）：
@@ -658,7 +658,7 @@ export function AiBlockBars({ scopeRef, contentRef, enabled, onStop, onAccept, o
     const next = aiBarsFrom(sources)
     /**
      * 操作条会因为正文列变窄而换行，块底端预留的高度按**实测行高**写回块上
-     * （`--ai-ops-h`，CSS 兜底 53px）。两条稳定性规则（2026-09-28，用户报「AI 块文字滚动时上下抖动」）：
+   * （`--ai-ops-h`，CSS 兜底 53px）。两条稳定性规则（，用户报「AI 块文字滚动时上下抖动」）：
      * - **只在值真的变了才写**：这段代码跑在滚动重测的每一帧上，每帧写一次自定义属性会让浏览器
      *   在滚动过程中反复重排（整块文字随之上下抖）；
      * - **读不到操作行时保留上一次的值**，不要退回 CSS 兜底：实测行高 54px 与兜底 53px 会来回跳，

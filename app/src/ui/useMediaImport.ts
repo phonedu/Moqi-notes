@@ -9,7 +9,7 @@ import { entryBaseName, planPackage, resolvePackageImage } from '@moqi/editor'
 import { loadUiPrefs } from './uiPrefs'
 
 /**
- * 媒体三管道 ＋ Markdown 导入 ＋ 嵌入块来源（外壳拆分第六刀之一，2026-10-09 从 `EditorShell` 抽出）。
+ * 媒体三管道 ＋ Markdown 导入 ＋ 嵌入块来源（外壳拆分第六刀之一， 从 `EditorShell` 抽出）。
  *
  * **与编辑器的耦合收成两个能力**（`currentAnchorId` / `syncEditorNow`），不 import 内核——
  * 这样这个模块保持"零内核"，内核冻结名单不必再重定基（那条名单的意图是"看得见谁在碰内核"）。
@@ -256,7 +256,7 @@ export function useMediaImport({
       if (!tagIds.includes(ensured.id)) tagIds.push(ensured.id)
     }
     // 正文里的行内标签（Obsidian 的 `#标签`）：**按开关**收成页面标签——只登记、正文一字不动
-    // （用户 2026-10-10 裁决；开关在导入页，默认开）。对齐 Obsidian 的语义"行内标签 ⊂ 这篇笔记的标签"。
+  // （用户 裁决；开关在导入页，默认开）。对齐 Obsidian 的语义"行内标签 ⊂ 这篇笔记的标签"。
     // 开关读**当前偏好**（导入页的复选框，落盘在 uiPrefs.importInlineTags，默认开）——现读就永远是
     // 用户刚点的那个值，不必让外壳把值穿进来（壳里每加一个 prop 都占体量门的额度）。
     const inlineTags = loadUiPrefs().importInlineTags ? collectInlineTags(withLinks.drafts) : []
@@ -296,7 +296,7 @@ export function useMediaImport({
   }
 
   /**
-   * 拖入 \`.zip\` = **导入包**（第 13 项「zip 批量导入」，2026-10-11）：一次建 N 个页面（允许同名）。
+  * 拖入 \`.zip\` = **导入包**（第 13 项「zip 批量导入」，）：一次建 N 个页面（允许同名）。
    * 分拣判据在 \`domain/mdPackage.ts\`（备份包嗅探 / 支持类型 / 报数）——这里是执行与汇总：
    * 逐篇按静默路导入（不逐篇弹提示、不逐篇跳页），最后开第一篇 + 一条总账；包内的图按相对
    * 引用名取字节落地（两条通道同一条哑写）。超限条目由解包层跳过并报数。

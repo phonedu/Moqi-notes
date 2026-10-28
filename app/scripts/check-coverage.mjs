@@ -1,5 +1,5 @@
 /**
- * 覆盖率读数门（2026-10-11，「体检读数」批）：**只防倒退，不设高门**。
+ * 覆盖率读数门（，「体检读数」批）：**只防倒退，不设高门**。
  *
  * 为什么：覆盖率不是目标（高覆盖 ≠ 测得好），但它是一条诚实的读数——没有它，
  * 「这轮改动让多少代码失去了测试照看」只能靠感觉。规矩：`Lines` 低于基线（允许 0.5pp 抖动）即红；
@@ -13,8 +13,8 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
-/** 2026-10-11 首测：Lines 79.17% / 复测 79.04%（逐次波动 ≈0.13pp）——基线取整到 79.0。只许升。
- *  2026-10-26 下调 79.0 → 76.0：M7 触控交互层入包（Icon / TouchBubble / MobileFmtBar / BlockCapsule /
+/** 首测：Lines 79.17% / 复测 79.04%（逐次波动 ≈0.13pp）——基线取整到 79.0。只许升。
+ *  下调 79.0 → 76.0：M7 触控交互层入包（Icon / TouchBubble / MobileFmtBar / BlockCapsule /
  *  touchEditorLayer 五件，≈1100 行）进测量面——这些是 DOM 集成组件，覆盖归 accept 浏览器断言
  *  （MOBILE-* 三十余项）而非单测；包内单测补了纯逻辑（placement / memoryHost / MoqiEditor 三态）。 */
 const BASELINE_LINES = 85.5

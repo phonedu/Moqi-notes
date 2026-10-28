@@ -101,7 +101,7 @@ export function useEditorState(initialBlocks: Block[], storage: TransactionStora
   const sidebarShown = sidebarVisible({ narrow, collapsed: prefs.sidebarCollapsed, drawerOpen })
   const [contentElement, setContentElement] = useState<HTMLDivElement | null>(null)
   // 默认配置**留空**（aiReady 要求三项全非空 ⇒ 未配置 = AI 入口不亮）：默认值一旦写死具体模型名
-  // 就会随服务端下线静默过时（2026-10-26 deepseek-chat 下线报错）；填什么由用户在设置里定。
+ // 就会随服务端下线静默过时（ deepseek-chat 下线报错）；填什么由用户在设置里定。
   const [aiConfig, setAiConfig] = useState<AiConfig>(() => loadAiConfig() ?? { baseUrl: '', apiKey: '', model: '' })
 
   const editorRef = useRef<LexicalEditor | null>(null)
@@ -182,7 +182,7 @@ export function useEditorState(initialBlocks: Block[], storage: TransactionStora
   /**
    * 开右侧面板（AI / 引用 / 属性）：先收起**会盖住它的**两个抽屉，再开这一个（`docs/09` §四，台账 D-017）。
    *
-   * 反例就是 2026-10-05 用户实测的那个场面：页面库抽屉开着 → 它头部的 🔍 → ⌘K → 「就这些问 AI」，
+  * 反例就是 用户实测的那个场面：页面库抽屉开着 → 它头部的 🔍 → ⌘K → 「就这些问 AI」，
    * 面板确实开出来了，但开在遮罩底下——点面板的任何位置命中的都是遮罩（等于「把页面库关了」），
    * 于是看起来像「必须先收起页面库，AI 面板才能用」。宽屏下栏与面板并排，这几句是无副作用的收尾。
    */
@@ -238,7 +238,7 @@ export function useEditorState(initialBlocks: Block[], storage: TransactionStora
   /**
    * 按增量改偏好（设置页那几组档位走这条）：用**函数式更新**读当前值——
    * 连点两个档位时，渲染期闭包里的 prefs 是旧的，{ ...prefs, ...patch } 会把前一次改动盖掉
-   * （2026-10-06 视觉批 accept 实测：连切主题 + 深色 + 特大，只有最后一下留下）。
+  * （ 视觉批 accept 实测：连切主题 + 深色 + 特大，只有最后一下留下）。
    */
   function patchPrefs(patch: Partial<UiPrefs>) {
     setPrefs((current) => {
@@ -276,7 +276,7 @@ export function useEditorState(initialBlocks: Block[], storage: TransactionStora
     void storage.saveMetadata(next)
   }
 
-  /** 打开设置：导出范围回默认「全部页面」（`EXPORT-MENU-1`）；θ3（2026-10-13）：**一律开在列表页**，子页只由外部指令直落（`openExportPage`）。 */
+ /** 打开设置：导出范围回默认「全部页面」（`EXPORT-MENU-1`）；θ3（）：**一律开在列表页**，子页只由外部指令直落（`openExportPage`）。 */
   function openSettingsView() {
     setExportChoice({ kind: 'all', tagId: null }); setSettingsLevel('list'); setSettingsOpen(true)
   }

@@ -1,5 +1,5 @@
 /**
- * Android 真机读数工具（手机最小批 / A9 真机路径的取证，2026-10-08 建档）。
+ * Android 真机读数工具（手机最小批 / A9 真机路径的取证， 建档）。
  *
  * 为什么这么写：Playwright 的 `connectOverCDP` 对 Android WebView **不支持**
  * （浏览器级端点缺 Browser 域：`Protocol error (Browser.setDownloadBehavior)`），
@@ -20,7 +20,7 @@
  *   - 悬浮 FAB：存在性 / display / 宽高 / 右下距（**只有页面列（窄屏=抽屉）开着时它在**——`10` §4.1
  *     的「首页 FAB」在当前架构里落在这处，0.6 重排移动形态时随批复核）。
  *
- * 已知边界（2026-10-08 实测）：**锁屏不挡读数**（内文宽度/高度会是 0，computed 值照读），
+ * 已知边界（ 实测）：**锁屏不挡读数**（内文宽度/高度会是 0，computed 值照读），
  * 但挡 `pm install` 与 `screencap`（EMUI 安全锁）——装机与截图前先把设备解锁。
  */
 import { createRequire } from 'node:module'

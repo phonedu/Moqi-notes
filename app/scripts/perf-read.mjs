@@ -1,5 +1,5 @@
 /**
- * 桌面性能读数工具（0.6 性能批 ⓐ 的取证；2026-10-09 建档）。
+ * 桌面性能读数工具（0.6 性能批 ⓐ 的取证； 建档）。
  *
  * 它做什么：用**采样库副本**（`03` §11.5 的 `perf_fixture` 生成物，5000 块 / 200 页）起一台
  * 独立桌面实例（`MOQI_DATA_DIR` + 独立 `WEBVIEW2_USER_DATA_FOLDER` + WebView2 远调口），
@@ -24,11 +24,11 @@
  *         5000 块桌面 ~12s / 真机 ~20-30s，台账 `D-084`）。热法：起一次应用，轮询等
  *         `app_metadata` 出 `search-text-v` 且拼音覆盖 5000/5000 落库（任一台 sqlite 读取器；
  *         桌面 ~60s、真机 ~1-2min）。
- * **读数前先看空闲内存**（2026-10-15 一条教训）：7.9GB 机只剩 1.8GB 空闲时，冷启动三轮量到
+ * **读数前先看空闲内存**（ 一条教训）：7.9GB 机只剩 1.8GB 空闲时，冷启动三轮量到
  * 57s/9.9s/4.0s——那组**不采信**；另清掉 `rustc` / `link.exe` 残留再跑。
  * 纪律：**只碰副本**（`%TEMP%`），真库与实验库都不做实验台（`06` §7.0）。
  *
- * **真机跑法（换库那一步照抄，2026-10-10 补——那天踩了坑）**：
+ * **真机跑法（换库那一步照抄， 补——那天踩了坑）**：
  *   ① 备份：`run-as … md5sum project-b.sqlite3`，`exec-out run-as … cat >` 拉回本地并核 md5；
  *      **`snapshots/` 一起备**（那是用户自己的每日快照）。
  *   ② 停稳：`am force-stop` → **确认 `pidof` 为空**（有僵尸 renderer 时 `waitSocket` 会绕开它，见那里的头注）。
@@ -334,14 +334,14 @@ async function measureDevice() {
     for (let i = 0; i < 1200; i += 1) {
       const info = await evalIn(call, `({ blocks: document.querySelectorAll('.moqi-block').length, inPage: Math.round(performance.now()) })`)
       if (info.blocks > 0) { tBlock = Date.now(); console.log(`       冷启动·页内：首块渲染时页内计时 ${info.inPage}ms`); break }
-      // 每 5s 打一次页面实况：等不到首块时，先看清工具**连到了哪个页面**（2026-10-10 加）。
+   // 每 5s 打一次页面实况：等不到首块时，先看清工具**连到了哪个页面**（ 加）。
       if (i % 100 === 99) {
         const where = await evalIn(call, `({ href: location.href, title: document.title, readyState: document.readyState, body: (document.body?.innerText ?? '').slice(0, 60) })`)
         console.log(`       （等待中 ${Math.round(info.inPage / 1000)}s：${where.href} · ${where.title} · ${where.readyState} · 正文「${where.body.replace(/\n/g, ' ')}」）`)
       }
       await sleep(50)
     }
-    // 上限 60s（2026-10-10 放宽）：采样库是**老库首次启动**场景——首帧前还要跑起始的载入 ＋ 自愈，
+  // 上限 60s（ 放宽）：采样库是**老库首次启动**场景——首帧前还要跑起始的载入 ＋ 自愈，
     // 拼音回填则与渲染并行（`D-042` 的复测正要看这一段）。20s 上限会把它误判成「等不到」。
     if (!tBlock) throw new Error('等不到首块渲染')
     const diag = await evalIn(call, `(() => {
@@ -385,7 +385,7 @@ async function measureDevice() {
 /**
  * 取 **活的** WebView 远调 socket（进程刚起时可能还没注册，轮询几轮）。
  *
- * 2026-10-10 修（两个坑，都在真机上实测踩到）：
+ * 修（两个坑，都在真机上实测踩到）：
  * ① 可能同时挂着两个 `webview_devtools_remote_*`——**僵尸 renderer 的口**：`am force-stop` 杀不掉
  *    WebView 的 renderer 进程（它是 isolated uid），它会一直应答、页面永远停在「加载中…」。
  *    所以**启动前就存在的 socket 一律排除**（`stale`），只认这次启动新出现的。
@@ -569,7 +569,7 @@ async function windowSweep(call, exePid) {
   return { dpr, results }
 }
 
-/** 按 PID 树杀干净并等 CDP 口释放（2026-10-16：上轮实例没死透会占住 9333——
+/** 按 PID 树杀干净并等 CDP 口释放（：上轮实例没死透会占住 9333——
  *  下一轮 connect() 连到旧页，读数就悄悄变成「量上一轮」；实测一次卡死 15 分钟）。 */
 async function killInstance(child) {
   try { child.kill() } catch { /* 已经死了 */ }
@@ -606,7 +606,7 @@ async function measureOnce({ warmup = false } = {}) {
     if (PROFILE) { await call('Profiler.enable', {}); await call('Profiler.start', {}) }
 
     // 1) 冷启动：进程启动 → 首块渲染（可写代理）
-    // **上限 120s（2026-10-15 放宽，原 12s）**：老 schema 的采样库首次打开要跑**一次性迁移**
+  // **上限 120s（ 放宽，原 12s）**：老 schema 的采样库首次打开要跑**一次性迁移**
     // （A2 检索文本重算，5000 块一个事务，**同步挡在启动路径上**——见台账 `D-084`），
     // 量到的是「含迁移」的数；稳态读数请先把夹具热一次（`fixtures/perf/README` 的跑法）。
     let readyAt = 0
@@ -618,7 +618,7 @@ async function measureOnce({ warmup = false } = {}) {
     if (!readyAt) throw new Error('等不到首块渲染（已等 120s）')
     const coldStartMs = readyAt - started
     // 预热轮到此为止：它的目的只是把「每次调用重建 WORK ⇒ 首轮写两份每日/每周快照
-    // （~19MB×2）＋ 冷缓存/杀软扫描」这些**一次性工件**付掉，读数不采信（2026-10-16
+  // （~19MB×2）＋ 冷缓存/杀软扫描」这些**一次性工件**付掉，读数不采信（
     // 实测：同日两组首轮 14536ms / 3589ms，而热轮 1850–2900ms）。
     if (warmup) return { coldStartMs, pageAtMs: Date.now() - started, inputP95: null, openMs: null, scroll: null, probe: null }
     if (coldStartMs > 12_000) console.log(`       注意：首块渲染等了 ${(coldStartMs / 1000).toFixed(1)}s —— 夹具可能是**未热**的老 schema（含一次性迁移，见台账 D-084）`)

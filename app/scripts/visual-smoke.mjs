@@ -200,7 +200,7 @@ if (editState.mbarTop !== null && editState.touchEdit) {
   record('J1 格式栏灰带', false, { reason: '进不了 compact 编辑态（前置失败）', editState })
 }
 
-// J2：空名字行必须画得出光标——走 **screencast 帧**（2026-10-13 实测：`Page.captureScreenshot`
+// J2：空名字行必须画得出光标——走 **screencast 帧**（ 实测：`Page.captureScreenshot`
 // 在 headless 下**完全不画 caret**（强制红 caret + 聚焦仿真都零像素）；`Page.startScreencast`
 // 的帧带光标且有闪烁相位）。按 `caret-color` 取色扫竖线，多帧里 ≥1 帧命中即通过。
 const cdp = await page.context().newCDPSession(page)

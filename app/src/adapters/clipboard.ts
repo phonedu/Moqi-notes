@@ -5,7 +5,7 @@
  *   `@tauri-apps/plugin-clipboard-manager`（Android = `ClipboardManager.setPrimaryClip`，
  *   桌面 = 系统剪贴板）；插件失败（浏览器通道 / 插件没注册）再走浏览器这一层。
  * - 浏览器这一层：`navigator.clipboard` 可用就用它；被 WebView 拒时降级到
- *   `execCommand('copy')`（真机 2026-10-24 实测：async 写被拒、`execCommand` 返回 true）。
+ *  `execCommand('copy')`（真机 实测：async 写被拒、`execCommand` 返回 true）。
  *
  * 为什么不在 UI 里直接调 `navigator.clipboard`：`ui/**` 不许碰平台 API（边界门），
  * 而且「原生优先 + 降级」只能有一份实现——复制 / 剪切 / 复制为块引用 / 粘贴检测

@@ -29,7 +29,7 @@ test('⇧⌘Z 用同一套归属规则', () => {
 test('UNDO-ROUTE-2 不再依赖 CAN_UNDO / CAN_REDO 查询命令（Lexical 0.51 旧版 HistoryPlugin 不应答它们）', () => {
   // 归属只由 owner 决定：查询命令返回什么都没关系。
   // 曾经的写法 `lexicalCanUndo ? 'lexical' : 'domain'` 会让 ⌘Z 永远走领域，
-  // 输入文字后按 ⌘Z 撤不掉字、反倒撤掉更早的结构动作（2026-09-28 用户实测）。
+ // 输入文字后按 ⌘Z 撤不掉字、反倒撤掉更早的结构动作（ 用户实测）。
   assert.equal(routeUndo.length, 1, 'routeUndo 只接受 owner 一个入参')
   assert.equal(routeRedo.length, 1, 'routeRedo 只接受 owner 一个入参')
 })

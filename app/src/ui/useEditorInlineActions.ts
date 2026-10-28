@@ -34,7 +34,7 @@ export function useEditorInlineActions(deps: InlineActionDeps) {
     if (!block) return
     // 斜杠菜单的触发词（`/标题`）要丢掉，触发词之前的正文必须留下。
     // **触发词不一定在块尾**（光标在块中间时它不是后缀）——老写法用末尾正则只认后缀，
-    // 块中间的 `/外部` 清不掉、会留在正文里（2026-10-05 实测）。改成按区间切：
+  // 块中间的 `/外部` 清不掉、会留在正文里（ 实测）。改成按区间切：
     // 后缀命中就按后缀；否则按「光标偏移 − 触发词长度」算起点（越界时退回块尾）。
     const full = textContent(block)
     const caret = caretRangeInBlock(editor)
@@ -72,7 +72,7 @@ export function useEditorInlineActions(deps: InlineActionDeps) {
    * 行内格式的统一入口（常驻格式栏 + ⌘B/⌘I/⌘⇧S/⌘⇧H）：**作用于选区**——
    * 折叠光标时就是「接下来输入的字」的格式（Lexical 原生的 `formatText` 语义），
    * 有选区时作用在选区并延续到之后的输入。块级格式走块工具栏的「整块」（toggleBlockFormat），
-   * 两者不要混在一条路上（用户 2026-09-27 定的三层作用域，见 src/editor/formatState.ts）。
+  * 两者不要混在一条路上（用户 定的三层作用域，见 src/editor/formatState.ts）。
    */
   function toggleInlineFormat(format: TextFormatType) {
     const editor = editorRef.current

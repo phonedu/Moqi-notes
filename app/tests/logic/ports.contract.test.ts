@@ -8,7 +8,7 @@ import type { DocumentStoragePort, EditorHost } from '@moqi/editor'
 import { createMemoryEditorHost } from '@moqi/editor'
 
 /**
- * 契约门（治理期还债 #4a，2026-10-04）。
+ * 契约门（治理期还债 #4a，）。
  *
  * `docs/03` §14 把同步协议与存储端口写成了对外契约：端口形状、`<deviceId>.jsonl` 的记录形状。
  * 契约改了**必须有人知道**——以前它只是文档里的散文，改了端口没人拦，写到别的设备上的文件格式漂移了
@@ -31,7 +31,7 @@ type Assert<T extends true> = T
 type StoragePortShape = Assert<Equals<keyof StoragePort, 'loadBlocks' | 'saveBlocks' | 'saveBlockChanges' | 'purgeBlocks' | 'loadMetadata' | 'saveMetadata'>>
 type TransactionStoragePortShape = Assert<Equals<keyof TransactionStoragePort, keyof StoragePort | 'commitPersistBatch' | 'deviceId' | 'commitTransaction' | 'loadSyncState' | 'saveSyncState' | 'loadOplog' | 'maxOplogSeq' | 'markTransactionUndone'>>
 type SyncPortShape = Assert<Equals<keyof SyncPort, 'exchange'>>
-/** 资产随同步的端口（`docs/03` §14.2「媒体文件」，2026-10-11 落）：键集合同样钉住。 */
+/** 资产随同步的端口（`docs/03` §14.2「媒体文件」， 落）：键集合同样钉住。 */
 type AssetSyncPortShape = Assert<Equals<keyof AssetSyncPort, 'exchange'>>
 type SyncFileIoShape = Assert<Equals<keyof SyncFileIo, 'append' | 'readOthers'>>
 type SyncChangeShape = Assert<Equals<keyof SyncChange, 'deviceId' | 'seq' | 'opId' | 'created' | 'opJson'>>

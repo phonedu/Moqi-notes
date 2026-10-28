@@ -15,7 +15,7 @@
 .set-dlg .dlg-h { border-bottom: none; }
 
 /* 左分栏（约 230px，右缘 1px 分隔）：条目 = 图标 ＋ 文字；选中 = 弱主题底 ＋ 主题色文字
-   （与侧栏 `.sb-nav.is-active` 同一组合，2026-10-10 视觉批 ⓓ 的口径）。 */
+   （与侧栏 `.sb-nav.is-active` 同一组合， 视觉批 ⓓ 的口径）。 */
 .set-split { display: flex; align-items: stretch; flex: 1; min-height: 0; }
 
 .set-nav { flex: 0 0 230px; width: 230px; background: var(--bg); padding: 8px; overflow-y: auto; }

@@ -25,7 +25,7 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
           {/* ---------- 浮层 ---------- */}
           {/* 编辑器自己的浮层（大纲 / ⋯ 菜单 / 块类型 / 插入 / 筛选 / 块工具栏）都以**视口坐标**挂在整个
               视图之外（这里排在所有 `<section>` 之后），所以必须显式按视图门住：不然切到设置 / 回收站时
-              它们会继续悬浮在新视图上面（用户实测 2026-10-03）。状态由下面那个「离开编辑器就清掉」的
+              它们会继续悬浮在新视图上面（用户实测 ）。状态由下面那个「离开编辑器就清掉」的
               effect 一并收拾，免得切回来时又冒出来。 */}
           {view === 'editor' && menu?.kind === 'outline' ? (
             <OutlinePop anchor={menu.anchor} entries={outlineEntries} onJump={jumpToBlock} onClose={() => closeMenu()} />
@@ -49,7 +49,7 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
               starred={activePage?.starred ?? false}
               onToggleStar={() => { if (activePageId) toggleStar(activePageId) }}
               onOpenProperties={() => {
-                // §0-1/§0-9（2026-10-10 裁决）：⋯ 的「属性」入口——**标签行直接加进面板**（摩擦归零）、
+        // §0-1/§0-9（ 裁决）：⋯ 的「属性」入口——**标签行直接加进面板**（摩擦归零）、
                 // 面板展开（是用户点出来的），同时开「添加属性」弹层供添加其他属性。
                 mountProperty(DEFAULT_FIELD.tags)
                 setBriefOpen(true)

@@ -92,7 +92,7 @@ export type SyncState = {
   directory: string
   cursor: SyncCursor
   lastSyncAt: number | null
-  /** A1（2026-10-10）：定义同步的本机状态。老库没有这一项——读回时按"从未同步过定义"处理。 */
+ /** A1（）：定义同步的本机状态。老库没有这一项——读回时按"从未同步过定义"处理。 */
   registry?: RegistrySyncState
 }
 
@@ -259,7 +259,7 @@ export class TauriStoragePort implements TransactionStoragePort {
 
   async loadBlocks(): Promise<Block[]> {
     // 载入面用 `parseBlockForLoad`：报告级形状问题（媒体四条 / pinned·starred 两条……）随块放行——
-    // 挡在启动上等于连「删掉那一块」的修法都够不着（`03-技术说明（数据与存储）` §5；2026-10-11 审计）。
+  // 挡在启动上等于连「删掉那一块」的修法都够不着（`03-技术说明（数据与存储）` §5； 审计）。
     const json = await this.invoke<string[]>('load_blocks')
     return json.map(parseBlockForLoad)
   }
@@ -302,7 +302,7 @@ export class TauriStoragePort implements TransactionStoragePort {
    * 缓存的是**进行中的 Promise**，不是它的结果：启动时会有多处并发调用（编辑器挂载的两处 +
    * 同步引擎），缓存结果的话每个并发调用都会各自生成候选值、各自问一次 Rust——「先写进库的」
    * 成为文件名、「最后写进库的」成为界面与库里显示的身份，于是**同一台机器在共享目录里留下
-   * 两个 `<deviceId>.jsonl`**（2026-10-03 清单 C 在真机/真窗口实测到，库没有 device_id 的全新安装
+  * 两个 `<deviceId>.jsonl`**（ 清单 C 在真机/真窗口实测到，库没有 device_id 的全新安装
    * 就会命中）。
    */
   deviceId(): Promise<string> {

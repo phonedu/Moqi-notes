@@ -22,7 +22,7 @@ function openDocument(text = '') {
 
 /**
  * 同 `openDocument`，另加**一页别的页面**（`other`）。对象引用的用例要拿它当目标：
- * D-014（2026-10-04）之后「本篇」不再是合法目标，而这份夹具里唯一那页就是本篇自己。
+ * D-014（）之后「本篇」不再是合法目标，而这份夹具里唯一那页就是本篇自己。
  */
 function openDocumentWithOtherPage(text = '') {
   const base = openDocument(text)
@@ -432,7 +432,7 @@ test('D: type [[ → accept object link → save → reopen keeps inline-ref bin
 })
 
 /**
- * D-011（2026-10-05）：**行内高亮要落领域层**——它是 Lexical 的 format 位（不是 style），
+ * D-011（）：**行内高亮要落领域层**——它是 Lexical 的 format 位（不是 style），
  * 曾经只做了「编辑器里看得见」：`marksFromTextNode` / `applyMarks` 两侧都没有 `highlight`，
  * 于是切页或重载就丢（界面在承诺、数据没有）。这条锁的就是「写得出、读得回」。
  */
@@ -790,7 +790,7 @@ test('打开页面后光标落在页面容器自己的那一行：新建页面�
     assert.ok($isRangeSelection(selection), '加载后必须有 selection')
     const block = innermostBlock(selection.anchor.getNode())
     assert.ok(block, '光标必须落在 Block 内')
-    // 2026-09-29 更正：这条用例过去断言「落在第一个正文块 b1」——它能过，靠的正是
+  // 更正：这条用例过去断言「落在第一个正文块 b1」——它能过，靠的正是
     // 「容器自己那一行没有落脚点 ⇒ 光标被归一化下压进子块」这个缺陷（见 07 的 R04-NAME-11）。
     // 契约是 R04-NAME-3：打开 / 新建页面的落点是**页面容器自己的那一行**（页面名所在行）。
     assert.equal(block.getEntityId(), 'page', '光标落在页面容器（名字行），不是下面的正文块')
@@ -915,7 +915,7 @@ test('D: 光标不在该块时读不到偏移（不猜、不串块）', () => {
   assert.equal(fromOtherBlock, null)
 })
 
-// ---------- 2026-09-28：换文档格式归零 / 编辑器侧删除的镜像 ----------
+// ---------- ：换文档格式归零 / 编辑器侧删除的镜像 ----------
 
 test('LIFECYCLE-OPEN-2 换文档（loadBlocksIntoEditor）后行内格式归零：上一处光标的加粗不带进新文档', () => {
   const store = openDocument('加粗的字')

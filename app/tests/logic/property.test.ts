@@ -8,7 +8,7 @@ import { parseMarkdownDocument, type OutlineDraft } from '@moqi/editor'
 import { isStructuralCode, validateBlockGraph } from '@moqi/editor'
 
 /**
- * **属性 / 模糊测试**（2026-10-11，`PROP-MD-1` / `PROP-STORE-1`）：不枚举用例，而是拿
+ * **属性 / 模糊测试**（，`PROP-MD-1` / `PROP-STORE-1`）：不枚举用例，而是拿
  * **随机生成**的输入去打两条最容易出边界问题的链——
  *
  * - `PROP-MD-1`：随机块树 → 导出 `.md` → 导回来（`parseMarkdownDocument`）。属性 = **不丢字 /

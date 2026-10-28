@@ -20,7 +20,7 @@ import { createTextBlock, type Block, type BlockMap, type BlockType } from '@moq
  * **不测什么**：模型输出的事实正确性（要看真模型，属人工）；向量检索（本阶段未做）。
  *
  * **为什么住在 `golden_data/v2c/` 子目录**：`golden_data/` 根目录被 AI 契约测试（`ai.contract.test.ts`）当作它自己的样本目录
- * 非递归扫描（所有 `.json` 都按它的样本形状解析）——换形状的数据集必须进子目录，否则会把那条测试打红（2026-10-04 实测踩到）。
+ * 非递归扫描（所有 `.json` 都按它的样本形状解析）——换形状的数据集必须进子目录，否则会把那条测试打红（ 实测踩到）。
  */
 type GoldenBlock = {
   entityId: string

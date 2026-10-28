@@ -293,7 +293,7 @@ export function DataExportPage({ enabled, busy, activePageName, tags, choice, on
           <label>范围</label>
           <div className="ctl">
             <div className="seg" role="group" aria-label="导出范围">
-              {/* θ15（2026-10-13 用户裁定）：**设置页没有「当前页面」**——这一项只在**从页面上下文进来**（编辑器 … / 卡片 ⋯
+              {/* θ15（ 用户裁定）：**设置页没有「当前页面」**——这一项只在**从页面上下文进来**（编辑器 … / 卡片 ⋯
                   预选）时在位；一旦离开它就回不来（「全部 / 按标签」两选才是设置页的常驻范围）。 */}
               {choice.kind === 'page' ? (
                 <button type="button" className="is-on" disabled={busy} onClick={() => onChoiceChange({ kind: 'page', tagId: null })}>当前页面</button>
@@ -347,7 +347,7 @@ export function DataExportPage({ enabled, busy, activePageName, tags, choice, on
  * 「单文件 8 MB」；可给这批页面打一个标签；zip = 导入包（一次建 N 个新页面）。
  * **选文件 / 选文件夹**两条通路尚未接（桌面为系统对话框、移动为 SAF），本刀先立页面与口径。
  *
- * **行内标签开关（用户 2026-10-10 裁决，本页第一个真能用的控件）**：导入 Obsidian 的 `.md` 时，
+ * **行内标签开关（用户 裁决，本页第一个真能用的控件）**：导入 Obsidian 的 `.md` 时，
  * 正文里的 `#标签` / `#父/子` 要不要收成页面标签——默认开（对齐 Obsidian 语义"行内标签 ⊂ 这篇
  * 笔记的标签"）；**只登记、正文一字不动**（幂等、往返逐字一致），判据见 `domain/mdRefs.collectInlineTags`。
  * 拖入 `.md` 那条快捷通路读同一份偏好（开关在哪条通路上都生效）。

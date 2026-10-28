@@ -5,7 +5,7 @@ import { decideNameRowCross, decideNameRowEdge } from '@moqi/editor'
 /**
  * 名字行的两个**判据**（纯函数，动作与注册见 `src/editor/nameLine.ts`）。
  *
- * 2026-10-05 随名字行收口（T5）从 `editorKeys.test.ts` 迁来这里——模块换了家，判据一字未改
+ * 随名字行收口（T5）从 `editorKeys.test.ts` 迁来这里——模块换了家，判据一字未改
  * （这次搬家是纯搬家：行为零变化，由 `pnpm accept` 的 `PAGENAME-*` 四十来项锁住）。
  */
 

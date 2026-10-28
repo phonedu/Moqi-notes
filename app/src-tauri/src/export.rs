@@ -604,7 +604,7 @@ mod tests {
         );
     }
 
-    /// IPC 形状（2026-10-11 审计）：前端 `TauriExportPort.write` 送的是 **camelCase** JSON
+  /// IPC 形状（ 审计）：前端 `TauriExportPort.write` 送的是 **camelCase** JSON
     /// （`artifactName` / `assets[].from|to`），命令入参必须按同一套命名反序列化。这类接口此前
     /// 从没被端到端跑过（`05` W1 记着「真窗口的导出 → 拖回导入没跑过」），四个结构体又都缺
     /// `rename_all` ⇒ **桌面端 Markdown 导出必挂**（missing field `artifact_name`）。这条用例把

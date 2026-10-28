@@ -26,7 +26,7 @@ export type MarkdownExportWrite = {
 
 /**
  * 领域层的导出计划 → 落盘入参。**做成纯函数就是为了这个字段有单测看住**：此前调用点在这里
- * 丢掉了 `plan.assets`，桌面端导出的 `.md` / `.zip` 永远不带图（2026-10-11 审计，
+ * 丢掉了 `plan.assets`，桌面端导出的 `.md` / `.zip` 永远不带图（ 审计，
  * `EXPORT-ASSET-1`）。Rust 侧一直有搬运能力（`export.rs` 的 `assets`），是前端不喂它。
  */
 export function exportWriteOf(plan: {

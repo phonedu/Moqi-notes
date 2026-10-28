@@ -52,7 +52,7 @@ export function useEditorPersistence(deps: PersistenceDeps) {
     // A1：定义随同步走——读当下注册表；远端并进来之后写回（`updateRegistry` 自带落盘）。
     registry: () => registry,
     applyRegistry: updateRegistry,
-    // 资产随同步（2026-10-11）：读名册算推 / 拉计划；拉回新文件后刷新名册并重建编辑器（占位变真图）。
+  // 资产随同步（）：读名册算推 / 拉计划；拉回新文件后刷新名册并重建编辑器（占位变真图）。
     assetPort,
     onAssetsPulled: () => { void assetPort.listNames().then((names) => { setAssetNames(new Set(names)); reloadFromStore() }).catch(() => undefined) },
   })
@@ -239,7 +239,7 @@ export function useEditorPersistence(deps: PersistenceDeps) {
    *
    * `pageId` 只在**闭包可能陈旧**的调用点显式传入（目前是同步轮询：`setInterval` 捕获的是
    * 建定时器那一版的 `runSyncOnce`，它读到的 `activePageId` 可能早已不是当前页——
-   * 2026-10-03 实测表现是「远端改动到了、标题是新的、正文却被重载成启动时那一页」）。
+  * 实测表现是「远端改动到了、标题是新的、正文却被重载成启动时那一页」）。
    * 其余调用点都在渲染闭包里，省略参数即用当下的 `activePageId`。
    */
   function reloadFromStore(pageId: string | null = activePageId, persistAll = true) {

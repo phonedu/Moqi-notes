@@ -267,7 +267,7 @@ impl SqliteBlockStore {
                 )?;
             }
         }
-        // V2c 补丁（2026-10-04 真机验收暴露）：加 `pinyin_at` 标记列——**拼音覆盖不能再拿「拼音列非空」当判据**。
+    // V2c 补丁（ 真机验收暴露）：加 `pinyin_at` 标记列——**拼音覆盖不能再拿「拼音列非空」当判据**。
         //
         // 缺口长什么样：空块（以及只含标点/表情的块）的拼音天生是空串，而覆盖数原来数的是
         // `pinyin_full <> ''` ⇒ 这类块永远算「还没建」：设置页长期停在 3 / 4 块（像坏了），
@@ -608,7 +608,7 @@ impl SqliteBlockStore {
     ///
     /// 为什么必须带上已删除的：`deletedRoots()` 就是回收站列表的来源，而「30 天到期自动清理」
     /// 也是遍历载入的块来判定的——只载入存活块会让回收站在重启后凭空变空、到期清理永远空转
-    /// （2026-10-03 清单 C 在真实窗口实测到）。领域层与界面早就按「块图里同时有存活与已删除的块」
+  /// （ 清单 C 在真实窗口实测到）。领域层与界面早就按「块图里同时有存活与已删除的块」
     /// 写（内存 / localStorage 两个端口一直如此），这里只是把 SQLite 端口对齐。
     pub fn list_all(&self) -> Result<Vec<StoredBlock>> {
         let mut statement = self.conn.prepare(
@@ -825,7 +825,7 @@ impl SqliteBlockStore {
     ///
     /// **不看 `children` 列**：软删除会把子块从父块的 `children` 里摘掉，但 `parent` 仍然
     /// 指向父块；只删可见子树就会留下引用已删父块的行，SQLite 的即时外键会让整批回滚
-    /// （D-091；2026-10-24 手机回收站实测）。
+  /// （D-091； 手机回收站实测）。
     ///
     /// 分块查询是为了避开 SQLite 的变量上限（默认 999）：一个页面可能有几百个块。
     fn expand_purge_ids(conn: &Connection, entity_ids: &[String]) -> Result<Vec<String>> {
@@ -1223,7 +1223,7 @@ fn upsert_block_tx(tx: &Transaction<'_>, block: &StoredBlock) -> Result<()> {
         ],
     )?;
     // **保住拼音列**：FTS 行的更新是「删了重插」，而拼音是前端另算后写进来的派生数据——
-    // 不先读出来带回去，每次保存都会把拼音抹成空（路线 B 的隐形坑，2026-10-04 设计时先堵掉）。
+  // 不先读出来带回去，每次保存都会把拼音抹成空（路线 B 的隐形坑， 设计时先堵掉）。
     // `pinyin_at` 标记同进同出：丢掉它，每次保存都会让这个块重新被算成「没建过」。
     let previous_pinyin: Option<(String, String, i64)> = tx
         .query_row(
@@ -1540,7 +1540,7 @@ mod tests {
         store.update_pinyin_index(&[("py3".to_owned(), "yinhang".to_owned(), "yh".to_owned())])?;
         assert_eq!(store.search_hits("yinhang", 20)?.len(), 1);
 
-        // 再保存一次（改正文）——FTS 行是「删了重插」，拼音必须活下来（2026-10-04 专门堵的坑）
+    // 再保存一次（改正文）——FTS 行是「删了重插」，拼音必须活下来（ 专门堵的坑）
         block.content_text = "银行与保险".to_owned();
         block.modified = 200;
         store.upsert_block(&block)?;
@@ -1578,7 +1578,7 @@ mod tests {
         Ok(())
     }
 
-    /// 2026-10-04 真机验收暴露的坑：**空块（和纯标点块）不是拼音缺口**。
+  /// 真机验收暴露的坑：**空块（和纯标点块）不是拼音缺口**。
     ///
     /// 旧判据数的是 `pinyin_full <> ''`，于是空块永远算「没建」：设置页长期 3 / 4 像坏了，
     /// 而启动回填的门禁 `pinyinIndexed >= indexed` 永远不成立 ⇒ 每次开机全库重算重写一遍。
@@ -1905,7 +1905,7 @@ mod tests {
     #[test]
     fn list_all_keeps_deleted_blocks_so_the_trash_survives_restart() -> Result<()> {
         // `load_blocks` 走 `list_all`：只回存活块的话，回收站重启后变空、30 天到期清理永远空转
-        // （2026-10-03 清单 C 在真实窗口逮到）。这条把「带着已删除的块一起载入」钉住。
+    // （ 清单 C 在真实窗口逮到）。这条把「带着已删除的块一起载入」钉住。
         let mut store = SqliteBlockStore::open_in_memory()?;
         store.upsert_block(&sample("alive", "alive001", "活着"))?;
         let mut trashed = sample("trashed", "trash001", "在回收站");
@@ -1939,7 +1939,7 @@ mod tests {
         Ok(())
     }
 
-    // ---------- 边界电池（2026-10-11，「坏库」这一类；用户问「坏库极端测试写完整了吗」的答卷）----------
+  // ---------- 边界电池（，「坏库」这一类；用户问「坏库极端测试写完整了吗」的答卷）----------
 
     /// 临时目录（照 `sync_files.rs` / `backup.rs` 的写法：同一进程内唯一、开头先清）。
     fn temp_dir(tag: &str) -> std::path::PathBuf {
@@ -2003,7 +2003,7 @@ mod tests {
         // 迁移链实测得到一个**已知瑕疵**（台账 `D-060`）：A2 的 search-text 回填会用
         // `from_block_json` 重写每一行，而 v1 时代的 JSON 里没有 `position` 键 ⇒ serde 默认 0 会把
         // 「position 回填为 created」覆盖成 0。**实际影响 ≈ 0**：排序退到 created 兜底键，而回填的
-        // 目标值本来就是 created；且 1.0 前没有已发布的老库（用户 2026-10-11：老库走廊 1.0 前不做）
+    // 目标值本来就是 created；且 1.0 前没有已发布的老库（用户 ：老库走廊 1.0 前不做）
         // ⇒ 不动迁移代码，只把真实行为钉在这里。
         assert_eq!(store.get_block("old1")?.expect("老块还在").position, 0, "A2 回填覆盖了 position 那一步（D-060 已记录，不改代码）");
         assert_eq!(store.list_active()?.len(), 1, "老块照常在活跃列表里（顺序由 created 兜底）");

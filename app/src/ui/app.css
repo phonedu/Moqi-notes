@@ -57,7 +57,7 @@ input, select, textarea { font-family: inherit; font-size: inherit; color: inher
   transition: border-color var(--dur-fast);
 }
 /* 聚焦 = **一条**指示：描边转主题色，不再叠全局的 `:focus-visible` 环。
-   两条线套在一起（主题色描边 + 外圈环）是用户 2026-10-06 点名的观感问题；
+   两条线套在一起（主题色描边 + 外圈环）是用户  点名的观感问题；
    `.pe-input` 一直是这么写的，这里只是把同一口径推到全站输入框（`R09-TOKEN-33` 已同步）。 */
 .inp:focus, .inp:focus-visible { border-color: var(--accent); outline: none; }
 .inp:disabled { color: var(--text-3); cursor: not-allowed; }
@@ -184,13 +184,13 @@ svg { color: inherit; }
   transition: background var(--dur-fast);
 }
 .sb-nav:hover { background: var(--hover); }
-/* 选中胶囊（2026-10-10 视觉批 ⓓ：**实心主题色 + 翻转字 → 弱主题底 + 主题色文字**）。
+/* 选中胶囊（ 视觉批 ⓓ：**实心主题色 + 翻转字 → 弱主题底 + 主题色文字**）。
    依据：大面积实心填充是「廉价感」的头号来源；参照 linear.app 的纪律——主题色只出现在
    品牌标记 / 主操作 / 焦点环 / 链接强调，选中态走弱底 + 主题色文字（同 `.sb-tag.is-active` 的组合）。 */
 .sb-nav.is-active { background: var(--accent-soft); color: var(--accent-text); font-weight: 600; }
 .sb-nav .cnt { margin-left: auto; font-size: var(--type-caption2-size); line-height: var(--type-caption2-line); color: var(--text-3); font-variant-numeric: tabular-nums; }
 /* 激活态的计数徽章：与主文字同色、压一点透明度（**不是** `--accent-text`——那是在主题色底上看不见的，
-   2026-10-07 加侧栏星标时按活原型 `.sb-nav.active .cnt` 的 `--ink-t` + `.72` 改回来）。 */
+    加侧栏星标时按活原型 `.sb-nav.active .cnt` 的 `--ink-t` + `.72` 改回来）。 */
 .sb-nav.is-active .cnt { color: var(--accent-text); opacity: .8; }
 
 /* 侧栏统计（`R09-PRIN-13`）：只读，不造卡片、不加线；用留白 + 12px 小格。
@@ -245,7 +245,7 @@ svg { color: inherit; }
   justify-content: center;
   border-radius: var(--r-block);
   color: var(--icon-idle);
-  /* 常显、低强度（2026-10-10 视觉批 ⓓ）：原为 `opacity: 0` 只在 hover 出现——ui-ux-pro-max 的
+ /* 常显、低强度（ 视觉批 ⓓ）：原为 `opacity: 0` 只在 hover 出现——ui-ux-pro-max 的
      ux 规则「不要把唯一操作藏在 hover 里 / 可交互 chip 要有可见的键盘焦点与状态」点名这条；
      改为常显 + 弱化，hover / 键盘聚焦时提亮。 */
   opacity: .55;
@@ -296,7 +296,7 @@ svg { color: inherit; }
 .tb-save[data-st="error"] { color: var(--danger); font-weight: 500; }
 
 /* ============ 4. 页面库 ============ */
-/* （整页页面库的 `.lib-head` / `.lib-title` / `.lib-ops` 一整套 2026-10-09 大扫除 U5-2/3 随视图一起删了；
+/* （整页页面库的 `.lib-head` / `.lib-title` / `.lib-ops` 一整套 大扫除 U5-2/3 随视图一起删了；
     页面库现在只有中间栏一种载体，页头样式见下方 `.pagecol-head`。） */
 .lib-chips { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 40px 0; }
 
@@ -375,7 +375,7 @@ svg { color: inherit; }
 
 /* ============ 5. 回收站视图 ============ */
 /* 设置 / 回收站视图的底 = `--bg`（指令 §九-10 ③：表单视图保持 --bg 灰底 + 白卡片，不跟随编辑区提白）。
-   2026-10-08 用户走查 #4 后：栏头（返回 + 大标题）**固定不随滚动**——`.tr-head` 在滚动口里
+    用户走查 #4 后：栏头（返回 + 大标题）**固定不随滚动**——`.tr-head` 在滚动口里
    sticky 贴住窗口顶边（标题栏 40px 是绝对定位的覆盖层，z 更高，正好由它覆盖栏头带的最上面一截）。
    **顶部内边距必须放在栏头自己身上、外层 wrapper 的 padding-top 留 0**：Chrome 的 sticky 约束按
    「滚动口内容盒顶 + top」算——wrapper 有 padding-top 时，栏头会被顶到 `padding + top` 的位置
@@ -456,7 +456,7 @@ svg { color: inherit; }
 /* 界面头部三条（原生栏 / 格式栏 / 属性条）必须压住正文里的覆盖层。
    装饰层与 AI 行是 `position: fixed` 的覆盖层（z-index 5/6，用视口坐标跟块走），头部这三条原先
    没有 z-index、属于「静态元素」，于是覆盖层画到了它们**上面**：块向上滚出可见区时，它的把手 /
-   待办框 / AI 标签行会浮在格式栏与窗口栏之上（用户实测 2026-09-28：「AI 块上面的字直接浮在格式栏
+   待办框 / AI 标签行会浮在格式栏与窗口栏之上（用户实测 ：「AI 块上面的字直接浮在格式栏
    窗口栏上面」）。规则：头部取自令牌的 --z-sticky（100）——高于覆盖层（5/6），低于菜单弹层（300）。 */
 .wbar { position: relative; z-index: var(--z-sticky); }
 .fmtbar { position: relative; z-index: var(--z-sticky); }
@@ -494,7 +494,7 @@ svg { color: inherit; }
 .fmtbar .fb-ai { color: var(--accent-text); }
 /* 折叠（`R09-FMT-21`）：只留折叠条与箭头，状态记本机（`uiPrefs.fmtBarCollapsed`）。 */
 .fmtbar.is-collapsed { height: 16px; }
-.fmtbar.is-collapsed { display: none; } /* 折叠 = 整条栏消失（入口在 ⋯ 菜单，2026-10-07 用户裁决） */
+.fmtbar.is-collapsed { display: none; } /* 折叠 = 整条栏消失（入口在 ⋯ 菜单， 用户裁决） */
 
 /* 专注模式：侧栏、顶栏、格式栏、属性钉住区全部隐去，正文列上移（docs/09 §6.7） */
 body.is-focus .sidebar { margin-left: calc(-1 * var(--side-w)); opacity: 0; pointer-events: none; }
@@ -505,7 +505,7 @@ body.is-focus .prop-wrap { display: none; }
 /* ============ 7. 属性钉住区（摘要条 + 原位展开面板） ============ */
 /* 属性摘要条分界线删除（v3 §二-B「属性栏的全部线」） */
 .prop-wrap { flex-shrink: 0; background: var(--panel); }
-/* 与正文列**同一条轴**（`13-属性区重规划` §3.3，2026-10-10）：摘要条与展开面板的内容都收进
+/* 与正文列**同一条轴**（`13-属性区重规划` §3.3，）：摘要条与展开面板的内容都收进
    `.doc-inner` 那条轴——两侧内边距照 `.doc-col` 的 56px，内容 `max-width: var(--colw)` 居中。
    面板不再铺满编辑栏（用户第 ① 条不满意的正解）；chevron 因此落在正文列右缘。 */
 .prop-brief, .prop-edit { padding-left: 56px; padding-right: 56px; }
@@ -542,12 +542,12 @@ body.is-focus .prop-wrap { display: none; }
   font-weight: 500; /* 微标签去铭牌体（v3 §三）：500 / 无字距 */
 }
 .pe-head .ops { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-/* 属性行解剖（2026-10-09 用户裁决，按当日新原型）：[类型图标][标签窄栏][值区弹性右置]；零分隔线；
+/* 属性行解剖（ 用户裁决，按当日新原型）：[类型图标][标签窄栏][值区弹性右置]；零分隔线；
    管理收进行内 ⋯（悬停 / 聚焦浮出，触屏常显）；行 hover 给一层反馈底。 */
 .pe-row { display: flex; align-items: center; gap: 14px; padding: 7px 4px; min-height: 38px; border-radius: var(--r-ctrl); transition: background var(--dur-fast); }
 .pe-row:hover { background: var(--panel-2); }
 .pe-type { display: flex; align-items: center; flex-shrink: 0; margin-right: -8px; color: var(--text-3); }
-/* 名称栏 60px → **96px 起步且长名换行不截断**（`13-属性区重规划` §3.3，2026-10-10）。
+/* 名称栏 60px → **96px 起步且长名换行不截断**（`13-属性区重规划` §3.3，）。
    为什么仍是定宽而不是「按最长名自适应」：自适应会让每行的值区左缘参差，而「值区左缘统一基准线」
    是这条修订的另一半——两利相权取基准线（定宽 + 换行两头都占住；名字极长时换行，不留省略号）。 */
 .pe-k { width: 96px; min-width: 96px; flex-shrink: 0; color: var(--text-2); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); font-weight: 500; white-space: normal; overflow-wrap: anywhere; }
@@ -622,11 +622,11 @@ body.is-focus .prop-wrap { display: none; }
 /* 触屏没有 hover：⋯ 常显（与「移动档分叉」同一套物理判据，`08` §3）。 */
 /* 触屏通则（`pointer:coarse`）已收到文件末尾的单一块（按压换轨 + 桌面悬停的触屏等价）；
    本批（A3）把原来这里只写 `.pe-more` 的一行也合并进那一块，保持「触屏通则可一处」见。 */
-/* 列表末尾的「＋ 添加属性」行（2026-10-09：从面板头部挪下来）+ 行内提示 */
+/* 列表末尾的「＋ 添加属性」行（：从面板头部挪下来）+ 行内提示 */
 .pe-addrow { display: flex; align-items: center; gap: 8px; width: 100%; margin: 4px 0 0; padding: 8px 4px; color: var(--text-3); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); text-align: left; transition: color var(--dur-fast); }
 .pe-addrow:hover { color: var(--text); }
 .pe-hint { padding: 2px 4px 0; color: var(--text-3); font-size: var(--type-caption2-size); line-height: 1.6; }
-/* 添加属性弹窗（2026-10-09 轻结构）：搜索 →「最近使用」→「全部属性」（点了即加即关）→ 底部一行式新建 → ⚙ 角落入口 */
+/* 添加属性弹窗（ 轻结构）：搜索 →「最近使用」→「全部属性」（点了即加即关）→ 底部一行式新建 → ⚙ 角落入口 */
 .ap-search { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; padding: 8px 12px; border-radius: var(--r-ctrl); background: var(--panel-2); color: var(--text-3); }
 .ap-search-inp { flex: 1; min-width: 0; border: none; background: none; color: var(--text); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); }
 .ap-search-inp:focus { outline: none; }
@@ -687,14 +687,14 @@ body.is-focus .prop-wrap { display: none; }
 }
 /* ============ 8. 编辑器正文 ============ */
 .editor-body { flex: 1; display: flex; min-height: 0; position: relative; overflow: hidden; overflow: clip; }
-/* 正文列上边距 16px（原型是 40px，2026-10-06 用户裁决收窄，偏差见 `docs/13-偏差台账.md` D-022）：
+/* 正文列上边距 16px（原型是 40px， 用户裁决收窄，偏差见 `docs/13-偏差台账.md` D-022）：
    原型的 40px 定在「正文直接顶在窗口栏下」的语境里，而本仓库的正文上方**钉着属性摘要条**
    （`R09-EDIT-4`），两条叠起来名字行上方的空白就有 51px（40 上边距 + 容器块自身 11.29 外边距，
    实测工具量得）。收窄到 16px 后同一处为 27px。 */
 /* 密度放宽一档（v3 §六）：左右外边距 +20% → 56px；上边距 16px 是用户裁决值（`R09-EDIT-4`）不动。 */
-/* 上边距两态（`13-属性区重规划` §6 连锁②，2026-10-10）：**有属性摘条 16px**（那是 D-022 的原推导）；
+/* 上边距两态（`13-属性区重规划` §6 连锁②，）：**有属性摘条 16px**（那是 D-022 的原推导）；
    没有属性面时回到原型口径 40px（正文顶在窗口栏下）。由外壳按「本页有没有属性面」挂 `is-with-brief`。 */
-.doc-col { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 16px 56px calc(120px + var(--kb-h, 0px)); position: relative; } /* 底部预留 + 键盘高（`#8`：光标能被滚到键盘上方）；顶部 40→16（D-095：顶栏到标题视距 65px 太远，用户 2026-10-26 报） */
+.doc-col { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 16px 56px calc(120px + var(--kb-h, 0px)); position: relative; } /* 底部预留 + 键盘高（`#8`：光标能被滚到键盘上方）；顶部 40→16（D-095：顶栏到标题视距 65px 太远，用户  报） */
 .doc-col.is-with-brief { padding-top: 16px; }
 /* 专注模式正相反：顶栏 / 格式栏 / 属性条全隐藏、正文直接顶窗口上沿（`body.is-focus`，docs/09 §6.7），
    上面没有钉住条可叠，留白照旧（原型同处是 70px，本仓库取 40px 与收窄前一致）。 */
@@ -772,7 +772,7 @@ body.is-focus .doc-col { padding-top: 40px; }
 /* 拖拽落点指示 = **独立于块的整横线**（真元素 `.drop-line`，单所有者 `ui/dropLine.ts`）：
    挂 `.doc-col` 用内容坐标（fixed 追滚动必抖）；before/after = 目标间隙里的水平线
    （左右翘头、两端圆头），into = 目标左缘竖轨。不用块上的 inset/outset 内外影：
-   它们贴着块的圆角轮廓画，三态拼起来读作「左括号」而不是线（用户 2026-10-26 两轮反馈）。 */
+   它们贴着块的圆角轮廓画，三态拼起来读作「左括号」而不是线（用户  两轮反馈）。 */
 .drop-line {
   position: absolute;
   z-index: 6;
@@ -787,7 +787,7 @@ body.is-focus .doc-col { padding-top: 40px; }
 .drop-line.is-into { width: 3px; height: auto; }
 .moqi-block.is-flash { animation: flash var(--dur-flash) ease; }
 /* 触控编辑态（`10` §6.3，compact 档由 JS 挂类）：底栏（FAB）与属性面在编辑中暂隐。
-   **弱化已取消**（批 δ · 2026-10-12 用户裁定：「字体全部都会变成灰色，而不是正常的黑色」）——
+  **弱化已取消**（批 δ · 用户裁定：「字体全部都会变成灰色，而不是正常的黑色」）——
    原先这里是 `.moqi-block { opacity: .45 }` ＋ 编辑块 `opacity: 1`：两个问题：① 用户要的就是「全部正常黑」；
    ② 块 DOM 是真嵌套，**父块 .45 会把子块（哪怕自身 1）一起压暗**（叠乘）——「编辑块也灰」的真因。
    编辑块只留光标主题色（下一行）；标签 `data-touch-edit` 保留（验收按它找编辑块）。
@@ -795,7 +795,7 @@ body.is-focus .doc-col { padding-top: 40px; }
    颜色硬口径同样蓋到它：日后若有人重引「聚焦表达」，也不得把编辑块 / 名字行带灰。 */
 .doc-col.is-touch-edit .moqi-block[data-touch-edit="1"] { color: var(--text); }
 .doc-col.is-touch-edit .editor-content { caret-color: var(--accent-text); }
-/* γ1（2026-10-12 用户裁定「只剩左滑」）：**编辑态正文**的触摸抑制——`touch-action: pan-y` 把横向手势
+/* γ1（ 用户裁定「只剩左滑」）：**编辑态正文**的触摸抑制——`touch-action: pan-y` 把横向手势
    留给 JS（左滑 = 选择模式），`-webkit-touch-callout: none` 禁系统长按菜单（`10` 二册 §6.2「系统长按
    菜单一律禁用」）。**只限编辑态**：只读态要保留原生选词与系统长按菜单（同日裁定），所以绝不落到
    只读态或公共层（`accept:MOBILE-BUBBLE-1` = 编辑态选区气泡必须仍绿）。 */
@@ -806,7 +806,7 @@ body.is-touch-editing .prop-wrap { display: none; }
    命中区例外的唯一持有者）＋ **四张就地面板**（浮在主条正上方、键盘不退）＋ **插入面板**
    （收键盘、占键盘位；高度吃打开时的键盘高快照 `--kb-snap`，避免跟键盘动画抖）。 */
 .mbar { position: fixed; left: 0; right: 0; bottom: var(--kb-h, 0px); height: 46px; display: flex; align-items: stretch; gap: 2px; padding: 0 4px calc(env(safe-area-inset-bottom, 0px)); background: var(--panel); box-shadow: var(--shadow); z-index: var(--z-sticky); } /* `#8`：`bottom` 只吃 `--kb-h`；安全区仍由 padding 承担（避免双计、保住底色覆盖） */
-/* 图标色 = 正文黑（用户 2026-10-28：灰调太丑，工具栏族统一「黑、重」——与选择栏/胶囊同调；激活态仍 accent） */
+/* 图标色 = 正文黑（用户 ：灰调太丑，工具栏族统一「黑、重」——与选择栏/胶囊同调；激活态仍 accent） */
 .mbar button { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; color: var(--text); border-radius: var(--r-ctrl); font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); transition: background var(--dur-fast); }
 .mbar button:hover:not(:disabled) { background: var(--hover); }
 .mbar button.is-on { background: var(--accent-soft); color: var(--accent-text); }
@@ -818,9 +818,9 @@ body.is-touch-editing .prop-wrap { display: none; }
 .mbar-panel button { flex: 1 1 0; min-width: 0; height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; border-radius: var(--r-ctrl); background: var(--panel-2); color: var(--text); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); transition: background var(--dur-fast); }
 .mbar-panel button.is-on { background: var(--accent-soft); color: var(--accent-text); }
 .mbar-panel .mbar-sep { flex: 0 0 auto; width: 1px; height: 24px; margin: 0 2px; background: var(--border); }
-.mbar .mi, .mbar-panel .mi { display: inline-flex; } /* 主条六键与就地面板共用同一套图标盒（2026-10-24） */
+.mbar .mi, .mbar-panel .mi { display: inline-flex; } /* 主条六键与就地面板共用同一套图标盒（） */
 /* 插入面板（点 `＋`）：键盘收起后从底部升起、**占键盘位**——高度 = 打开时的键盘高快照。 */
-.mbar-sheet { position: fixed; left: 0; right: 0; z-index: var(--z-sticky); /* 兜底高度 = **放得下**（用户 2026-10-14 真机：340 兜底把 12 格里的最后一行切掉、还滚不动）——
+.mbar-sheet { position: fixed; left: 0; right: 0; z-index: var(--z-sticky); /* 兜底高度 = **放得下**（用户  真机：340 兜底把 12 格里的最后一行切掉、还滚不动）——
    键盘不在场时取 68dvh（选择栏的插入面板走这条路）；键盘在场时 `--kb-snap` 仍由 JS 钉在键盘高上。 */
   bottom: var(--sheet-bottom, 0); /* 宿主栏高（选择栏两排时面板落在它上方——真机：面板被两排键压住、还滑不动） */
   max-height: var(--kb-snap, min(68dvh, calc(100dvh - var(--sheet-bottom, 0px) - 8px))); overflow-y: auto; -webkit-overflow-scrolling: touch; background: var(--panel); box-shadow: var(--shadow-toolbar); }
@@ -875,22 +875,22 @@ body.is-touch-editing .prop-wrap { display: none; }
 .mbar-dir .seg button { padding: 5px 12px; font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); color: var(--text-2); }
 .mbar-dir .seg button.on { background: var(--accent-soft); color: var(--accent-text); }
 /* 选择模式（`10` §6.2 · 3b）：每块右缘圈钮（空圈 / 选中实心 ✓）——圈是装饰，点块本体的增删由 JS 管。 */
-/* γ2（2026-10-12 选择模式内拖拽）：模式内**禁原生选词与系统长按菜单**——只挂 `.is-select-mode`；
+/* γ2（ 选择模式内拖拽）：模式内**禁原生选词与系统长按菜单**——只挂 `.is-select-mode`；
    只读态的原生选词照旧保留（同日裁定），编辑态正文的抑制在 `.is-touch-edit` 那边。 */
 .doc-col.is-select-mode .moqi-block { user-select: none; -webkit-touch-callout: none; }
 /* 拖拽中：块升起 + 跟随（附 C 的视觉反馈）；落点线复用 `.is-drop-before/after/into`（桌面同一套）。 */
 .doc-col.is-select-mode .moqi-block.is-dragging { opacity: .9; transform: scale(1.02); box-shadow: var(--shadow-lg); z-index: 5; transition: transform var(--dur-fast), box-shadow var(--dur-fast), opacity var(--dur-fast); }
 .doc-col.is-select-mode .moqi-block[data-entity-id] { position: relative; }
-/* γ3（2026-10-12 裁定）：圈钮**不画在页面容器上**——容器不参与选区（`useBlockSelection.selectBlock` 一处守卫）。 */
+/* γ3（ 裁定）：圈钮**不画在页面容器上**——容器不参与选区（`useBlockSelection.selectBlock` 一处守卫）。 */
 /* `--sel-dx` = 本块右缘相对正文列右缘的内收量（触控层在进选择模式时逐个量、写在块上）——
-   子块比父块窄，不补这一下圈钮就会跟着缩进（用户 2026-10-14 真机：「子块的选中框和其他的不是一条线」）。 */
-.doc-col.is-select-mode .moqi-block[data-entity-id]:not([data-block-object="true"])::after { content: ''; position: absolute; right: calc(12px - var(--sel-dx, 0px)); /* 12 = 圈右缘距列右缘的留白（原 41 偏里，用户 2026-10-14 点名外移） */ top: 6px; width: 18px; height: 18px; border: 1.5px solid var(--border-2); border-radius: var(--r-pill); background: var(--panel); }
+   子块比父块窄，不补这一下圈钮就会跟着缩进（用户  真机：「子块的选中框和其他的不是一条线」）。 */
+.doc-col.is-select-mode .moqi-block[data-entity-id]:not([data-block-object="true"])::after { content: ''; position: absolute; right: calc(12px - var(--sel-dx, 0px)); /* 12 = 圈右缘距列右缘的留白（原 41 偏里，用户  点名外移） */ top: 6px; width: 18px; height: 18px; border: 1.5px solid var(--border-2); border-radius: var(--r-pill); background: var(--panel); }
 .doc-col.is-select-mode .moqi-block[data-entity-id]:not([data-block-object="true"]).is-selected::after { content: '✓'; display: flex; align-items: center; justify-content: center; border-color: var(--accent); background: var(--accent-hover); color: var(--ink-t); font-size: var(--type-caption2-size); line-height: var(--type-caption2-line); }
 
 .moqi-block-heading1 { margin: 1.167em 0 .417em; font-size: calc(var(--fs-e) * 1.45); font-weight: 700; } /* 1.45× / 上距 28px÷24px / 下距 10px÷24px；标题不设字距（v3 §三） */
 .moqi-block-heading2 { margin: 1.05em 0 .4em; font-size: calc(var(--fs-e) * 1.21); font-weight: 700; } /* 1.21× / 21px÷20px / 8px÷20px */
 .moqi-block-heading3 { margin: .882em 0 .353em; font-size: calc(var(--fs-e) * 1.03); font-weight: 600; } /* 1.03× / 15px÷17px / 6px÷17px */
-.moqi-block-heading4 { margin: .788em 0 .364em; font-size: var(--fs-e); font-weight: 600; } /* 1× / 上距 13px÷17px / 下距 6px÷17px（指令 §4.2；2026-10-06 用户裁决引入 H4–H6） */
+.moqi-block-heading4 { margin: .788em 0 .364em; font-size: var(--fs-e); font-weight: 600; } /* 1× / 上距 13px÷17px / 下距 6px÷17px（指令 §4.2； 用户裁决引入 H4–H6） */
 .moqi-block-heading5 { margin: .688em 0 .313em; font-size: calc(var(--fs-e) * .97); font-weight: 600; } /* .97× / 11px÷16px / 5px÷16px */
 .moqi-block-heading6 { margin: .645em 0 .323em; font-size: calc(var(--fs-e) * .94); font-weight: 600; color: var(--text-2); } /* .94× / 10px÷15.5px / 5px÷15.5px；次要色 */
 .moqi-block-text { font-size: var(--fs-e); } /* 正文块段距沿用基线 .364em（6px÷17）；其余块若要收紧在各自规则里覆盖 */
@@ -901,7 +901,7 @@ body.is-touch-editing .prop-wrap { display: none; }
 .moqi-block-quote {
   margin: .8em 0;
   padding: .667em 1.067em;
-  border-left: 3px solid var(--text-3); /* 中性色竖线（2026-10-06 按原型；原主题色） */
+  border-left: 3px solid var(--text-3); /* 中性色竖线（ 按原型；原主题色） */
   border-radius: 0 var(--r-ctrl) var(--r-ctrl) 0;
   background: var(--panel-2);
   font-size: calc(var(--fs-e) * .909);
@@ -921,7 +921,7 @@ body.is-touch-editing .prop-wrap { display: none; }
 }
 /* 分隔线占**一整块**（与别的块同高：上内边距 5 + 一行 28 + 下内边距 5），线画在块的中线上。
    此前它是 `height: 1px` 的一条线：1px 的命中区（点不到、悬停不亮、块标记没有落点），
-   而且块上带正文时文字会从线上溢出来（用户实测 2026-10-03「线应该在块的中间、分割线该是一整个块」）。
+   而且块上带正文时文字会从线上溢出来（用户实测 「线应该在块的中间、分割线该是一整个块」）。
    线用 `::after` 画（分隔线不用列表标记，这个伪元素是空的）。 */
 .moqi-block-divider { min-height: 38px; }
 .moqi-block-divider::after {
@@ -945,7 +945,7 @@ body.is-touch-editing .prop-wrap { display: none; }
   left: 16px;
   /* 标记要与**首行文字**同一条中线：`.moqi-block` 是 padding-top 5px + line-height 1.75（16px ⇒ 28px），
      首行中线 = 5 + 14 = 19px；圆点 6px ⇒ top = 19 − 3 = 16px（`1lh` 是同样的算式，行高改了两边一起动）。
-     2026-10-03 用户实测「圆点整体偏高」时这里还是 14px（中线 17px）。 */
+      用户实测「圆点整体偏高」时这里还是 14px（中线 17px）。 */
   top: 16px;
   top: calc(5px + .5lh - 3px);
   width: 6px;
@@ -953,7 +953,7 @@ body.is-touch-editing .prop-wrap { display: none; }
   border-radius: var(--r-pill);
   background: var(--text-3);
 }
-/* 无序标记按层级换形（docs/09 §五 R09-BLOCK-31，用户 2026-09-30 定案）：
+/* 无序标记按层级换形（docs/09 §五 R09-BLOCK-31，用户 定案）：
    一级实心圆点 / 二级空心圆点 / 三级实心方块 / 四级空心方块 / **五级及更深一律实心圆点**。
    用后代链表达层级（块是嵌套 DOM，父块就是上一级）：更深层同样命中五级那条链，所以五级规则天然覆盖 6、7… 级。 */
 .moqi-block-bullet .moqi-block-bullet::after {
@@ -998,13 +998,13 @@ body.is-touch-editing .prop-wrap { display: none; }
 .moqi-block-numbered { padding-left: 34px; /* px 豁免：为固定尺寸的序号让位 */ font-size: calc(var(--fs-e) * .97); }
 /* 序号 = **数据**（装饰层按「同级相邻同类型」算好写进 data-ordinal，见 BlockTools 的 measure）。
    不用 CSS 计数器：标记画在 ::after 上、而 ::after 排在块的子树之后，带子编号的项会读到已被子项加过的值
-   （「第二条」显示成 3，用户实测 2026-09-30）。字号 / 颜色也一起调亮：原来 13px 的浅灰在正文里几乎看不见。 */
+   （「第二条」显示成 3，用户实测 ）。字号 / 颜色也一起调亮：原来 13px 的浅灰在正文里几乎看不见。 */
 .moqi-block-numbered::after {
   content: attr(data-ordinal) '.';
   position: absolute;
   left: 4px;
   /* 数字与首行文字共用同一条基线：行盒从块的 padding-top 开始 ⇒ top = 5px（中线 5 + 14 = 19px）。
-     2026-10-03 用户实测「编号整体偏高」时这里是 0（中线 14px）。 */
+      用户实测「编号整体偏高」时这里是 0（中线 14px）。 */
   top: 5px;
   width: 24px;
   text-align: right;
@@ -1029,16 +1029,16 @@ body.is-touch-editing .prop-wrap { display: none; }
  */
 
 /* 页面名那一行 = 容器自己那一行（docs/04 §3.1）：排版 = 页面标题（指令 §4.2）——
-   无衬线（`--sans`，2026-10-06 起单轨）、2×（标准档 = 34px，正好落在 large-title 档）、700、行高 1.2；下距 18px ÷ 34 = .529em。
+   无衬线（`--sans`， 起单轨）、2×（标准档 = 34px，正好落在 large-title 档）、700、行高 1.2；下距 18px ÷ 34 = .529em。
    只作用于**容器元素自己**：选择器权重压过基底 `.moqi-block`，而子块各自按类型规则声明排版
    （见上方「呈现基线」注释与 `tests/ui/typography.test.ts`），字号字重行高都不会继承过去。 */
 .moqi-block[data-block-object='true'] {
   /* 顶部内距收紧（D-095）：.303em 的块呼吸距对标题行是多余——顶栏到标题文字的视距
-     曾达 75px（40 doc-col + 10.3 此处 + 12 基线空气；用户 2026-10-26 报「太远」）。 */
+     曾达 75px（40 doc-col + 10.3 此处 + 12 基线空气；用户  报「太远」）。 */
   padding-top: .15em;
   /* 页面标题：**2×（基准 17px 时 = 34px，正好是 large-title 档）/ 700 / 行高 1.2**
-     （2026-10-24 全站字阶重排：原 2.35× 在 16.5px 上是 38.8px，比 Cupertino large-title 大一档；
-     `tests/ui/typography.test.ts` 同步钉 2×；2026-10-10 视觉批 ⓓ 已把行高收到 1.2）；
+     （ 全站字阶重排：原 2.35× 在 16.5px 上是 38.8px，比 Cupertino large-title 大一档；
+     `tests/ui/typography.test.ts` 同步钉 2×； 视觉批 ⓓ 已把行高收到 1.2）；
      此处不再加字距——标题上的 letter-spacing 是无意义装饰。 */
   font-size: calc(var(--fs-e) * 2);
   font-weight: 700;
@@ -1050,14 +1050,14 @@ body.is-touch-editing .prop-wrap { display: none; }
 .moqi-block[data-block-object='true'][data-hovered='true']::first-line { background: var(--panel-2); }
 
 /* 页面容器（data-block-object）的空名字行：给一行看得见的占位（docs/04 §3.1）。
-   没有它时新页面看起来「连块都没有、纯粹空白」（用户实测 2026-09-28）——占位是装饰，
+   没有它时新页面看起来「连块都没有、纯粹空白」（用户实测 ）——占位是装饰，
    不是内容：真正写进名字的是用户敲的字。
    占位必须**脱离文档流**（`position: absolute`）：留在行内会两头踩坑——`::before` 排在内容
-   之前，光标（落在名字行行首）被挤到占位文字**后面**（用户实测 2026-09-29）；`::after` 排在
+   之前，光标（落在名字行行首）被挤到占位文字**后面**（用户实测 ）；`::after` 排在
    内容之后，浏览器把这一带点击解析到容器**末尾**（点占位反而落进下面的块）。
    定位必须钉在**名字行那一行**上（`top` = 块的上内边距、高度 = 行高）：用 `top: 50%` 会跟着
    **整个容器**的高度走——容器里有子块时占位就被推到中间，看着像「按 Enter 后占位跟着光标
-   跑到下面的块里」（用户实测 2026-09-29）。行盒由名字行锚点自己撑（见 `.moqi-name-line-anchor`），
+   跑到下面的块里」（用户实测 ）。行盒由名字行锚点自己撑（见 `.moqi-name-line-anchor`），
    占位与名字文字左对齐（同一个左内边距）。 */
 .moqi-block[data-block-object='true'][data-own-line='missing']::before {
   content: '未命名页面';
@@ -1078,7 +1078,7 @@ body.is-touch-editing .prop-wrap { display: none; }
    间距挂在它身上才会落在名字行与第一个子块**之间**，而不是整块容器的外面）。
    高度随字号（`calc(var(--fs-e) * 2 / 1.2)` = 名字行 1.2 行高的字面值）而不是 `1lh`：
    有文字后行盒以**文字的行内盒**为准（34px 字的盒 ≈44px > 1lh=40.8），`vertical-align: bottom`
-   会把文字往行盒底压出 12px——「标题输入后缩到下面」与「占位偏上」的真因（2026-10-26 实测）。
+   会把文字往行盒底压出 12px——「标题输入后缩到下面」与「占位偏上」的真因（ 实测）。
    锚点高与文字对到同一条线，两态不再跳。 */
 .moqi-name-line-anchor { display: inline-block; width: 0; height: calc(var(--fs-e) * 2 / 1.2); margin-bottom: 14px; }
 /* 重占用 ::before 的块（图片本体 / 附件图标 / 嵌入卡头）**不进这条补行**：它们的 ::before 不是
@@ -1109,7 +1109,7 @@ body.is-touch-editing .prop-wrap { display: none; }
  * 子块**再吃一次**自己那份就多出 10px（实测：桌面名字行文本 718、正文块文本 728）⇒ 容器的
  * **直接子块**把自己的左内距归零，两者文本落回同一 x（718）；窄档 `--doc-pad-l: 0` 后同为 34。
  * 更深的嵌套不在此列（`> .moqi-block` 只覆盖一层，真上级块的 12px 缩进规则照旧）。
- * **θ13（2026-10-13 真机轮）**：**标记族除外**——无序 / 有序 / 待办的左内距是**给标记让位**的
+ * **θ13（ 真机轮）**：**标记族除外**——无序 / 有序 / 待办的左内距是**给标记让位**的
  * （`•` / 序号 / 复选框就画在那 30 / 34 / 36px 里）；θ7 那版把容器级子块统统归零，真机上就是
  * 「光标跑到列表原点前面、一打字列表没了」与「待办文字压住复选框」两条同源（`011be20` 的回归）。
  */
@@ -1128,7 +1128,7 @@ body.is-touch-editing .prop-wrap { display: none; }
    位置、尺寸与点击区全部来自 src/ui/blockMarkers.ts 的 MARKER_GEOMETRY（--hit 为点击区扩展量）。 */
 /* 标记层挂在**正文滚动容器**（`.doc-col`，`position: relative`）里、用内容坐标：
    滚动由浏览器带着走，不需要每帧重定位（`position: fixed` + 视口坐标时，快速滚动会落后一帧再弹回，
-   用户实测 2026-10-03「移动页面太快时上下抖动」）。 */
+   用户实测 「移动页面太快时上下抖动」）。 */
 .block-rail { position: absolute; z-index: 6; display: flex; pointer-events: none; }
 .block-rail button {
   position: relative;
@@ -1234,7 +1234,7 @@ body.is-touch-editing .prop-wrap { display: none; }
   color: var(--text);
   font-size: calc(var(--fs-e) * .9);
 }
-/* 嵌入块卡片（`R09-BLOCK-24`，2026-10-06 更正：无左侧竖线）。
+/* 嵌入块卡片（`R09-BLOCK-24`， 更正：无左侧竖线）。
    与原型 `.embed-block` 同构：**块元素自己就是卡片**；卡头里的图标块 / 标题两行 / 「来源 ↗」胶囊
    是**真元素**（伪元素既点不了、一个 `attr()` 字符串也放不下三种样式），由装饰层渲染、按内容坐标
    定位，落点来自 `blockMarkers.ts` 的 `EMBED_CARD_GEOMETRY` / `embedCardChromePlacement`
@@ -1250,7 +1250,7 @@ body.is-touch-editing .prop-wrap { display: none; }
 }
 /* 卡头占位：34px（与 `EMBED_CARD_GEOMETRY.head` 同数），下距 9（原型 `.eb-head` 的 margin-bottom）。
    标题 / 副行本身是真元素（`.eb-meta`，装饰层），这里只负责把那一行的高度**留在流里**。
-   `content` 必须是空串——写成 `none` 伪元素根本不生成，占位是死的，正文分隔线会切进副行（2026-10-06 实测）。 */
+   `content` 必须是空串——写成 `none` 伪元素根本不生成，占位是死的，正文分隔线会切进副行（ 实测）。 */
 .moqi-block-embed::before {
   content: '';
   display: block;
@@ -1407,7 +1407,7 @@ html[data-mode="dark"] .lb-mask { background: rgba(0, 0, 0, .78); }
   transition: background var(--dur-fast);
 }
 .wl:hover, .moqi-inline-ref.moqi-ref-object:hover { background: var(--accent-soft); }
-/* 外部链接 [文字](url)（R09-ELINK-3，2026-10-05 落）：与页面链接同族，悬停多一个 ↗（提示会离开应用）。 */
+/* 外部链接 [文字](url)（R09-ELINK-3， 落）：与页面链接同族，悬停多一个 ↗（提示会离开应用）。 */
 .el { color: var(--accent-text); border-bottom: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius: var(--r-inline); padding: 0 1px; cursor: pointer; transition: background var(--dur-fast); }
 .el:hover { background: var(--accent-soft); }
 .el:hover::after { content: '↗'; margin-left: 2px; font-size: .85em; opacity: .65; }
@@ -1444,7 +1444,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 
 /*
  * ---- AI 结果块（docs/09 §6.11、原型 .ai-block）----
- * 主题色虚线框 + `--panel-2` 中性底（指令铁律 2：主题色不作大面积背景，2026-10-06 按指令改）；
+ * 主题色虚线框 + `--panel-2` 中性底（指令铁律 2：主题色不作大面积背景， 按指令改）；
  * 块内**顶部**常驻状态 / 来源标签，**底端**常驻操作条（虚线分隔），
  * 布局关系与原型把 `.lab` / `.ai-ops` 放进块内一致。两条行由装饰层渲染在块之外，
  * 这里只负责把它们的空间预留出来：顶部 33px 放标签行，底端（非生成中）53px 放操作条。
@@ -1876,7 +1876,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 }
 .peek .pk-t { margin-bottom: 5px; font-family: var(--sans); font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); font-weight: 700; }
 .peek .pk-s { margin-bottom: 7px; color: var(--text-3); font-size: var(--type-caption2-size); line-height: var(--type-caption2-line); }
-/* 别名链接多出来的一行「实际指向：<真实页名>」（`R09-ALIAS-2`，2026-10-05 落）。 */
+/* 别名链接多出来的一行「实际指向：<真实页名>」（`R09-ALIAS-2`， 落）。 */
 .peek .pk-alias { margin-top: -3px; margin-bottom: 7px; color: var(--text-2); }
 .peek .pk-b { color: var(--text-2); font-size: var(--type-footnote-size); line-height: 1.7; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 .peek .pk-go { display: inline-flex; align-items: center; gap: 3px; margin-top: 9px; padding: 3px 8px 3px 0; border-radius: var(--r-block); color: var(--accent-text); font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
@@ -1920,7 +1920,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 .side-panel-head .x:hover { background: var(--panel-2); color: var(--text); }
 .side-panel-body { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 16px 20px; }
 
-/* `.pp-row` / `.pp-sec` / `.pp-vals` / `.pp-val` 随右侧属性面板一并删除（2026-10-06）：
+/* `.pp-row` / `.pp-sec` / `.pp-vals` / `.pp-val` 随右侧属性面板一并删除（）：
    这里做死规则清理（v3 §二-G）——`.pp-hint` 仍被引用面板使用，保留。 */
 .pp-hint { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); color: var(--text-3); font-size: var(--type-caption2-size); line-height: 1.8; }
 .pp-hint b { color: var(--text-2); }
@@ -1983,7 +1983,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 .aip-grid button .gi { width: 29px; height: 29px; display: flex; align-items: center; justify-content: center; border-radius: var(--r-ctrl); background: var(--panel-2); color: var(--accent-text); transition: background var(--dur-fast); }
 .aip-grid button:hover:not(:disabled) .gi { background: var(--panel); }
 /* 禁用态必须看得出来：图标是这个格子的视觉主体（29px 色块），只把 12.5px 的文字调灰等于没标，
-   用户会以为整排都能点（2026-10-01 用户实测反馈：「界面都做出来了，功能还没有出来」）。 */
+   用户会以为整排都能点（ 用户实测反馈：「界面都做出来了，功能还没有出来」）。 */
 .aip-grid button:disabled .gi { color: var(--text-3); }
 .aip-grid button .d { color: var(--text-3); font-size: var(--type-caption2-size); line-height: 1.1; }
 /* 宫格下方的范围说明（`R09-AIPANEL-3c`）：改写型只作用于一段——能跑时说清作用在哪，
@@ -2021,7 +2021,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
   border-radius: var(--r-card);
   background: var(--panel);
 }
-.set-card h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); font-weight: 600; } /* 曾经是 baseline：SVG 没有基线 ⇒ 图标被顶得比字高、后面的小字也歪（用户 2026-10-15 点名），改 center。 */
+.set-card h3 { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line); font-weight: 600; } /* 曾经是 baseline：SVG 没有基线 ⇒ 图标被顶得比字高、后面的小字也歪（用户  点名），改 center。 */
 .set-card h3 .sub { color: var(--text-3); font-size: var(--type-subheadline-size); font-weight: 400; line-height: 1; }
 .set-card .hint { margin-bottom: 14px; color: var(--text-3); font-size: var(--type-caption1-size); line-height: 1.7; }
 /* `?` 注释（θ5）：行内小圆问号——说明按需展开（桌面锚定气泡 / 窄档底部 Sheet）。
@@ -2071,7 +2071,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 .seg button:hover:not(:disabled) { color: var(--text); }
 .seg button.is-on { background: var(--panel); color: var(--text); font-weight: 500; box-shadow: var(--shadow); }
 .seg button:disabled { color: var(--text-3); cursor: not-allowed; }
-/* 类型分段的图标版（属性类型五件套，2026-10-08 T3）：图标与文字同一行、同一颜色（继承按钮语义色，
+/* 类型分段的图标版（属性类型五件套， T3）：图标与文字同一行、同一颜色（继承按钮语义色，
    浅深两轴跟着走）。**禁止折行 + 禁止收缩**：五个「图标 + 两字标签」在 420px 弹窗里自然宽 269 < 276
    （`R09-PADD-2` 的 96px 标签列 + 12px 间距），挤不动就不该被挤成两行字（窄档下整组分段器换行）。
    只作用在带图标的那组分段器上，其余分段器（浅深 / 字号 / 行高 / 列宽）保持原样。 */
@@ -2102,7 +2102,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 .pmr .pmr-grip { padding-top: 3px; }
 .pmr-grip:active { cursor: grabbing; }
 .pmr-main { display: flex; align-items: center; gap: 10px; flex: 1 1 auto; min-width: 0; padding: 4px 0; border: none; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-/* 名称 / 类型 上下两行（`09` §十五 与 `10` §4.8 两张线框同款；用户 2026-10-14 真机点出「没整体居中」= 一行式与线框不符）。 */
+/* 名称 / 类型 上下两行（`09` §十五 与 `10` §4.8 两张线框同款；用户 真机点出「没整体居中」= 一行式与线框不符）。 */
 .pmr-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 .pmr-text .k { width: auto; font-weight: 500; }
 .pmr-text .tp { color: var(--text-3); font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
@@ -2124,7 +2124,7 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 .pmr-chip .pe-type { margin-right: 0; }
 .pmr-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .pmr-chip { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 56px; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--r-ctrl); background: none; color: var(--text-2); font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
-/* 图标在上、文字在下（用户 2026-10-15：横排「不好看，直接整成上下结构」）；文字更大更粗更深。 */
+/* 图标在上、文字在下（用户 ：横排「不好看，直接整成上下结构」）；文字更大更粗更深。 */
 .pmr-chip .pmr-chip-label { font-size: var(--type-footnote-size); font-weight: 600; color: var(--text); line-height: 1.1; }
 .pmr-chip:hover { background: var(--hover); }
 .pmr-chip.is-on { border-color: var(--accent-hover); color: var(--accent-text); background: var(--accent-muted); }
@@ -2227,9 +2227,9 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 @media (max-width: 700px) {
   /* 手机排版档（A 批：最小「手机能日用」）：桌面字阶（17 × 2 = 34px 的页面名）塞进 360px
      会「每行五六个字」；手机上把标准档降一档、列宽轴去掉（`10` 只写「按移动阅读距离微调」，
-     这组数随 2026-10-08 的真机读数回填进 `10` §五 / §2.3）。
+     这组数随  的真机读数回填进 `10` §五 / §2.3）。
      档位值 = `uiPrefs.ts` 的 FontSizeStep 取值，标准档是 `normal`——这两行原先写成
-     `"standard"`，选择器匹配不上、降档从未生效（2026-10-08 回填读数时逮到，`accept:MOBILE-A1` 看住）。 */
+     `"standard"`，选择器匹配不上、降档从未生效（ 回填读数时逮到，`accept:MOBILE-A1` 看住）。 */
   html[data-fs="normal"] { --fs-e: 15px; }
   html[data-lh="normal"] { --lh-e: 1.7; }
   /* 列宽轴在手机上不存在（`10` §二）：归一到 100%。两个坑：`:root`（0,1,0）与
@@ -2243,12 +2243,12 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
   .tb-save { display: none; }
   /* 页面名在手机上降到 1.87×（手机标准档 --fs-e: 15px ⇒ 28px，正好是 title1 档）：
      桌面 2× 是给 1100px 宽窗口定的，15 × 2 = 30px 在 360px 上仍然「一行五六个字」。
-     `10` 只写了「按移动阅读距离微调」没给数，这组数落在 2026-10-08 的回填里。 */
+     `10` 只写了「按移动阅读距离微调」没给数，这组数落在  的回填里。 */
   .moqi-block[data-block-object="true"] > .moqi-block:first-child,
   .moqi-block[data-block-object="true"] { font-size: calc(var(--fs-e) * 1.87); }
   /* 桌面窗口控件（最小化 / 最大化 / 关闭）不该出现在手机上（docs/10；`body.is-android` 由 EditorShell 按 UA 挂）。 */
   body.is-android .wctl { display: none; }
-  /* 整条窗口标题栏在 Android 上退场（2026-10-11 真机第一轮）：里面只剩「面板开关（compact 已藏）
+ /* 整条窗口标题栏在 Android 上退场（ 真机第一轮）：里面只剩「面板开关（compact 已藏）
      + 拖拽区（手机没有窗口拖拽）+ 三键（上一行已藏）」——退场前它是一条 **40px 空带**，
      把库页头与编辑器顶栏整条往下推（用户：「页面库顶到信息栏」「两个标题隔了老远」的项目之一）。
      桌面窄窗不在此列：三键在窄窗也要可达（`accept:WINDOW-FIT-1` 看住）。 */
@@ -2289,7 +2289,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
      窄档把栏头带的呼吸收到 20px。 */
   .kb-grid { grid-template-columns: 1fr; }
 
-  /* —— 移动骨架（`10` §三/§4.1/§4.3，2026-10-11 骨架 4a）：首页 ☰ / 底栏三键 / 桌面件让位 —— */
+ /* —— 移动骨架（`10` §三/§4.1/§4.3， 骨架 4a）：首页 ☰ / 底栏三键 / 桌面件让位 —— */
   /* 面板开关由骨架接管：首页的 ☰（页面库头）与编辑器的 ←（顶栏）就是移动端导航入口；窗口三键照旧可达。 */
   .wbar .tb-btn { display: none; }
   /* 首页头 =「☰ + 页面库」：形态切换是桌面件（手机上一种形态）、＋新建归 FAB（`10` §4.1）。 */
@@ -2333,7 +2333,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 
 /* 画册 / 列表 / 简约 三态切换：页面库头部与编辑器左侧页面列共用同一份数据源渲染。 */
 /* 栏头的 `.sp` 必须真的撑开：此前只在 `.topbar .sp` 定义过，这里没生效 ⇒ 分段器被
-   `margin-left: auto` 顶到搜索旁边（用户实测 2026-10-06「挨太近」）。
+   `margin-left: auto` 顶到搜索旁边（用户实测 「挨太近」）。
    修法同原型 `.lc-head`：分段器靠左、图标靠右，中间由 spacer 撑开。 */
 .pagecol-head .sp { flex: 1; }
 .lib-switch {
@@ -2389,7 +2389,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 .lcard .cnt { font-family: var(--sans); font-size: var(--type-footnote-size); line-height: 1.55; color: var(--text-2); }
 .lcard .cnt p { margin: 0 0 8px; }
 /* 超出即**直接截断**：`-webkit-line-clamp` 截在**行边界**上、末行带省略号；**不做渐隐遮罩**
-   （2026-10-09 用户裁决：「模糊处理看着不对劲，直接截断就可以了」——原 `.is-fade::after` 那层渐变已删）。 */
+   （ 用户裁决：「模糊处理看着不对劲，直接截断就可以了」——原 `.is-fade::after` 那层渐变已删）。 */
 .lcard .cnt.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; max-height: calc(1.55em * 2); overflow: hidden; }
 .lcard .cnt.clamp p { margin-bottom: 0; }
 /* 展开 / 收起（docs/09 §4.1 的 `R09-CARD-2`、`R09-LVIEW-3`，原型 `.expb` / `.clps`）：
@@ -2397,7 +2397,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
      占一行会吃掉 34px，三行摘要 + 属性行就放不进 200px 的卡片（用户实测的重叠根因）。
    - 「收起」是**浮动**的 sticky 胶囊（`position: sticky; bottom: 10px`，下限为内容末尾），
      展开后随滚动悬浮、落在内容末尾就位；两侧同属内容区（`11` 的 `LIB-EXPAND-1`「同侧」）。
-   - 样式同为胶囊、**不带图标**（用户口径 2026-09-29：▾ 与 ∧ 不是同一种类型，去掉）。 */
+   - 样式同为胶囊、**不带图标**（用户口径 ：▾ 与 ∧ 不是同一种类型，去掉）。 */
 .lcard .cwrap { position: relative; display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
 .lcard .expb,
 .lcard .clps {
@@ -2411,7 +2411,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
   transition: background var(--dur-fast);
   cursor: pointer;
 }
-/* 展开（视觉批 ⓓ 第三版，2026-10-10 用户实测两轮）：**落在摘要行与属性行之间的空带里**，不再压正文。
+/* 展开（视觉批 ⓓ 第三版， 用户实测两轮）：**落在摘要行与属性行之间的空带里**，不再压正文。
    演进：① 灰底胶囊压在正文上 → 脏；② 改「透明 → 卡色」渐隐铺底 → 渐隐带里第 3 行的尾巴透出来成重影；
    ③ 现版：`bottom` 从 `0`（= `.cnt` 底，正文最后一行）改 `-10px`，按钮落进摘要盒被三行上界收口后
    空出来的那 10px + 属性行上内边距 10px 的带子里——正文与按钮不再有像素交叠，也不再需要任何铺底。
@@ -2422,7 +2422,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 .lcard .clps { position: sticky; bottom: 10px; margin: 12px 0 2px auto; z-index: 6; box-shadow: var(--shadow); }
 .lcard .expb:hover { background: none; color: var(--accent-text); }
 .lcard .clps:hover { background: var(--hover); }
-/* 手机档：卡片「展开 / 收起」改**靠左**（2026-10-09 用户裁决 + 实测）——FAB 占着右下角，而收起胶囊是
+/* 手机档：卡片「展开 / 收起」改**靠左**（ 用户裁决 + 实测）——FAB 占着右下角，而收起胶囊是
    右对齐的 sticky：375px 视口实测 **16/16 个滚动位置与 FAB 相交**（胶囊底边离屏底 30px、FAB 顶边 74px，
    同一列同一带）。规范原写的「抬起 84px 避开」实现里从来没有过（写了没生效）。桌面档不动（内容区右下角，
    `R09-CARD-2`）。**必须写在基础规则之后**：媒体查询不加权重，靠源序取胜。 */
@@ -2444,7 +2444,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 .lcard .hd, .scard .hd { display: flex; align-items: center; padding: 10px 8px 8px 16px; gap: 4px; }
 .lcard .hd .tm, .scard .hd .tm { margin-right: auto; }
 .lcard .hd .pmore, .scard .hd .pmore { width: 22px; height: 22px; flex: 0 0 auto; }
-/* V2b 置顶标记：放在时间之前、与头部同一条基线（用户口径 2026-09-30：「在卡片的时间前面加一句已置顶」）。
+/* V2b 置顶标记：放在时间之前、与头部同一条基线（用户口径 ：「在卡片的时间前面加一句已置顶」）。
    白底 + 主题色浅边而不是主题色浅底——同一行里还有别的浅底 chip，同色会糊在一起。 */
 .lcard .hd .ppin, .scard .hd .ppin {
   flex: 0 0 auto; padding: 1px 7px;
@@ -2505,10 +2505,10 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
   gap: 8px;
   /* 与编辑器顶栏**同高**（`R09-TOKEN-25`「顶栏 50px 三视图统一」）：三栏是并排的，
      两条底边分隔线必须落在同一条水平线上——此前这里是内容撑高（12+30+10+1 = 53px），
-     比顶栏高 3px，两栏的线错开（用户实测 2026-10-06）。 */
+     比顶栏高 3px，两栏的线错开（用户实测 ）。 */
   /* 与编辑器顶栏**同高**（`R09-TOKEN-25`「顶栏 50px 三视图统一」）：三栏是并排的，
      两条底边分隔线必须落在同一条水平线上——此前这里是内容撑高（12+30+10+1 = 53px），
-     比顶栏高 3px，两栏的线错开（用户实测 2026-10-06）。 */
+     比顶栏高 3px，两栏的线错开（用户实测 ）。 */
   /* 页面库头 46px（三色分块体系 §一-5）：落在 `--bg` 带内，**与主列（标题栏 40 + 顶栏 50）
      高度不齐是特性**（macOS 式，不要强行对齐）；本身零下划线。 */
   height: 46px;
@@ -2525,10 +2525,10 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 .ed-split { flex: 1; display: flex; min-height: 0; }
 /* `position: relative` 是必需的：编辑器空态（`.ed-empty`）是 absolute + inset，靠它把定位上下文钉在
    **编辑器列**里。少这一条时空态的包含块落到 `.app-body` 上——删掉正在浏览的页面后，
-   「从一个页面开始」会横跨中栏（页面库）与右栏（用户实测 2026-09-28）。 */
+   「从一个页面开始」会横跨中栏（页面库）与右栏（用户实测 ）。 */
 /* 编辑区（右边栏）**显式声明白底**——指令 §九-10 ① 明文要求：
    「编辑区必须显式声明 `background:var(--panel)`，禁止透传 body 底色（曾出现编辑区透 `--bg` 导致「灰纸」观感）」。
-   2026-10-06 实测我们正踩这个坑：`.doc-col / .main` 一路透明、落到 `.app` 的 `--bg`(#F4F6FA)，
+    实测我们正踩这个坑：`.doc-col / .main` 一路透明、落到 `.app` 的 `--bg`(#F4F6FA)，
    于是编辑区与中间栏同色 ⇒ 用户看到「两栏连在一起」。 */
 .ed-col { flex: 1; display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; background: var(--panel); padding-top: var(--wbar-h); } /* 顶部让出标题栏 40px（标题栏绝对定位在主列顶上） */
 
@@ -2605,12 +2605,12 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
   position: absolute;
   left: 0;
   /* 宽度封顶 = 主列宽：抽屉是 400px 固定宽的栏，**视口比它窄时右缘会越出窗口**
-     （2026-10-09 实测：320 / 360 / 375 下越出 80 / 40 / 25px——卡片 ⋯、页头 ＋新建 被裁掉，
+     （ 实测：320 / 360 / 375 下越出 80 / 40 / 25px——卡片 ⋯、页头 ＋新建 被裁掉，
      绝对定位还会把 `.ed-split` / `.view` 的 scrollWidth 撑大）。手机档的页面库是**整屏**的，
      这里取 min（`10` §十 的「375px 宽度无横向溢出」）。 */
   width: min(var(--pagecol-w), 100%);
   /* 从**标题栏下方**开始（`--wbar-h`）：抽屉的 z（drawer+1 = 301）高于标题栏（sticky = 100），
-     从带顶开始会盖住主列左缘的 ☰/▣（2026-10-07 实测：窄窗打开页面库后收起开关点不到）。 */
+     从带顶开始会盖住主列左缘的 ☰/▣（ 实测：窄窗打开页面库后收起开关点不到）。 */
   top: var(--wbar-h);
   bottom: 0;
   z-index: calc(var(--z-drawer) + 1);
@@ -2630,7 +2630,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
   .pagecol.is-drawer { width: 100%; }
 }
 
-/* ============ 页面库中间栏与统一卡片（2026-09-27 定案，docs/09 §4.1.4） ============ */
+/* ============ 页面库中间栏与统一卡片（ 定案，docs/09 §4.1.4） ============ */
 
 /* 中间栏页头（`R09-RESP-3`）：一排 = 形态切换 + 🔍 + 筛选 + ＋新建；列折叠在原生标题栏（`R09-WBAR-2`）。 */
 .pagecol .pagecol-head { padding-bottom: 8px; }
@@ -2657,16 +2657,16 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 .lcard .hd, .lcard .atrow, .lcard .blrow { flex: 0 0 auto; }
 /* 摘要**按剩余空间**截断：卡片是固定高的 flex 列，`.bd` 拿剩余高度，但摘要盒原先写死
    `max-height: 68px` 不会跟着缩——内容一多（标题 + 三行摘要 + 标签行）就溢出到标签行上
-   （用户实测 2026-09-29：「页面库的列表形式的卡片标签上移与内容重叠了」）。
+   （用户实测 ：「页面库的列表形式的卡片标签上移与内容重叠了」）。
    结构是 `.bd > [button.bd-open > h3] + [div.cnt]`：标题那一行**不伸缩**（`flex: 0 0 auto`），
    摘要 `flex: 1 1 auto; min-height: 0` 吃掉剩余空间——截断由 `.cnt.clamp` 的 `-webkit-line-clamp` 截在行边界上
-   （2026-10-09 起不做渐隐遮罩）。
+   （ 起不做渐隐遮罩）。
    反例（已实测踩过）：给按钮也写 `flex: 1 1 auto` 会把标题那一行压成十几像素高，内容反而溢出更狠。
-   **上界必须补回来（2026-10-10 视觉批 ⓓ）**：`-webkit-box` 在 flex 子项里被浏览器降级成 `flow-root`
-   （2026-10-10 实测 computed display），`line-clamp` 因此**不生效**，只剩 `overflow: hidden` 按盒子高度硬切——
+  **上界必须补回来（ 视觉批 ⓓ）**：`-webkit-box` 在 flex 子项里被浏览器降级成 `flow-root`
+   （ 实测 computed display），`line-clamp` 因此**不生效**，只剩 `overflow: hidden` 按盒子高度硬切——
    盒子被撑到 3.45 行时就切在**第 4 行中间**，卡片底就是「半行残字」。上界取**恰好三行**
    （行高 1.55 × 字号，与 `.cnt` 同源），既恢复「截在行边界」，又保留 `min-height: 0` 的可收缩性
-   （写死 `height` 会回到 2026-09-29 的溢出老路）。`max-height: none` 那版就是缺了这道上界。 */
+   （写死 `height` 会回到  的溢出老路）。`max-height: none` 那版就是缺了这道上界。 */
 .lcard .bd { flex: 1; min-height: 0; display: flex; flex-direction: column; }
 .lcard .bd-open { flex: 0 0 auto; }
 .lcard .cnt.clamp { flex: 1 1 auto; min-height: 0; max-height: calc(1.55em * 2); }
@@ -2711,7 +2711,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 .plan { user-select: none; cursor: col-resize; }
 
 
-/* 简约卡两行截断：同列表卡——`-webkit-line-clamp` 截在行边界，**不做渐隐**（2026-10-09）。 */
+/* 简约卡两行截断：同列表卡——`-webkit-line-clamp` 截在行边界，**不做渐隐**（）。 */
 .scard .cnt.clamp { position: relative; }
 
 
@@ -2753,7 +2753,7 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 /* 无边框窗口的八向拉伸边。
    热区**不得压在标题栏的窗口按钮上**（Windows 惯例：标题栏按钮区不参与拉伸）：
    上边条在按钮区前收住，右边条从标题栏下方开始——否则点偏 ✕ 会被拉伸条吞掉，
-   表现成「退出键点了没反应」（2026-09-28 排查时的怀疑点之一）。 */
+   表现成「退出键点了没反应」（ 排查时的怀疑点之一）。 */
 .wresize { position: fixed; z-index: 70; }
 .wresize-North { top: 0; left: 8px; right: 146px; height: 4px; cursor: ns-resize; }
 .wresize-South { bottom: 0; left: 8px; right: 8px; height: 4px; cursor: ns-resize; }
@@ -2797,10 +2797,10 @@ html[data-mode="dark"] .notice button { color: #4F5AC0; }
 
 /* V2c：页面库筛选下拉（docs/09 §4.2）。选中态是描边式（`R09-FILT-5`），与视图 Tab 的实底填充区分开。 */
 /* 面板是一根 flex 列：表头与底部双按钮常驻，只让中间（条件 / 排序）滚动——
-   否则内容一长，Popover 的 max-height 会把「查看 N 条 · 完成」裁到看不见（2026-10-04 实测）。 */
+   否则内容一长，Popover 的 max-height 会把「查看 N 条 · 完成」裁到看不见（ 实测）。 */
 .fp { display: flex; flex-direction: column; flex-wrap: nowrap; padding: 0; overflow: hidden; }
 /* `.pop button` 是给菜单行写的（width:100% + 8px/10px 内边距 + 大圆角）：面板里的按钮按自己的布局来。
-   不覆盖的话，底部「重置 / 查看 N 条」会各占满一行、第二个被挤出可视区（2026-10-04 实测：
+   不覆盖的话，底部「重置 / 查看 N 条」会各占满一行、第二个被挤出可视区（ 实测：
    面板底部只剩一个宽度不对的「重置」，完成按钮裁在右边）。 */
 .pop.fp button { width: auto; gap: 5px; padding: 5px 9px; border-radius: var(--r-ctrl); }
 .pop.fp .fp-chip { padding: 3px 9px; border-radius: var(--r-ctrl); }
@@ -2929,7 +2929,7 @@ html[data-mode="dark"] .ee-recent { border: 1px solid var(--border); }
 html[data-mode="dark"] .lcard.cur,
 html[data-mode="dark"] .scard.cur { border: 1.5px solid var(--accent); }
 
-/* ============ 移动端底部 Sheet（`10` §三/§2.3 · 4b-①，2026-10-11）============
+/* ============ 移动端底部 Sheet（`10` §三/§2.3 · 4b-①，）============
    只由 compact 档的调用点渲染（`Overlays.Sheet`）：遮罩 + 底滑面板；默高 72% / 重面板 88%。
    首个消费者 = 卡片 ⋯（§4.1.2 六项 + 底部说明）。 */
 .sh-backdrop { position: fixed; inset: 0; z-index: calc(var(--z-modal) - 1); background: rgba(32, 32, 39, .32); }
@@ -3001,7 +3001,7 @@ html[data-mode="dark"] .scard.cur { border: 1.5px solid var(--accent); }
 .tr-wrap.is-compact .tr-head { position: static; padding: 2px 0 0; background: none; }
 .tr-wrap.is-compact .tr-sub { margin-bottom: 12px; }
 
-/* AI 块三态在触屏档补命中区（`10` §6.4 / §1.2，2026-10-11 第 5 项）：条内按钮原来是桌面密度
+/* AI 块三态在触屏档补命中区（`10` §6.4 / §1.2， 第 5 项）：条内按钮原来是桌面密度
    （停止 ≈20px / 操作条 ≈24px 高），手机上太细——视觉仍走同族样式、只是变大。 */
 @media (max-width: 700px) {
   .ai-block-bar .ai-stop { padding: 6px 14px; font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
@@ -3009,7 +3009,7 @@ html[data-mode="dark"] .scard.cur { border: 1.5px solid var(--accent); }
   .ai-block-bar .ai-lab { font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
 }
 
-/* 手机格式栏的**格式族字形**（B / I / S / U / `<>` / ab）已于 2026-10-24 退役：
+/* 手机格式栏的**格式族字形**（B / I / S / U / `<>` / ab）已于 退役：
    主条九键与 `Aa` 面板六项都改用 Lucide 线条图标（20px / 2px 圆头，与左滑胶囊同源），
    字形规则（`.mb-g*`）随之删除——不再用「字形大小 + 字重 + 装饰线」去模拟图标。 */
 

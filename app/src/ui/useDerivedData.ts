@@ -16,7 +16,7 @@ import type { LibraryCard, NavEntry, TrashEntry } from './types'
 import type { UiPrefs } from './uiPrefs'
 
 /**
- * 派生数据（外壳拆分第七刀，2026-10-09）：把「从 snapshot / registry / 选中态算出来的只读视图」
+ * 派生数据（外壳拆分第七刀，）：把「从 snapshot / registry / 选中态算出来的只读视图」
  * 整批收在一处——外壳只把输入接进来、把结果摆出去。每个 memo 的依赖数组与原实现逐条一致，
  * 重算时机不变；这里不持有可变状态、也不认识界面。**页面列 / 卡片 / 反链这些大件都从这走。**
  */
@@ -58,7 +58,7 @@ export function useDerivedData(inputs: DerivedDataInputs) {
       if (!page?.isObject) continue
       const paragraphs: string[] = []
       // 页面根块（isObject）的正文**就是页面名**，卡片标题已经显示一次了——摘要从子块开始，
-      // 否则卡片里「页面名」出现两遍（2026-10-10 视觉批 ⓓ：截图实锤的重复行）。
+   // 否则卡片里「页面名」出现两遍（ 视觉批 ⓓ：截图实锤的重复行）。
       for (const childId of page.children) {
         const child = snapshot.get(childId)
         if (!child || child.deleted) continue

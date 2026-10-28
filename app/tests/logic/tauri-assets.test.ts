@@ -4,7 +4,7 @@ import { BrowserAssetPort, TauriAssetPort, createDefaultAssetPort } from '../../
 import type { AssetImportResult, AssetPort } from '../../src/application/assets'
 
 /**
- * 桌面原生通道的契约门（T2，2026-10-08）。
+ * 桌面原生通道的契约门（T2，）。
  *
  * 为什么有它：「拖图报 `Cannot read properties of undefined (reading 'includes')`」那次，缺陷出在
  * **JS ↔ Rust 的边界形状**上——`import_asset` 在 Rust 侧返回元组 `(String, u64)`，过 IPC 是 **JSON 数组**，

@@ -10,7 +10,7 @@ import type { LibraryCard, ViewKind } from './types'
 import type { UiPrefs } from './uiPrefs'
 
 /**
- * 快捷键（外壳拆分第五刀，2026-10-09 从 `EditorShell` 抽出）。**两个 effect，两种注册契约**：
+ * 快捷键（外壳拆分第五刀， 从 `EditorShell` 抽出）。**两个 effect，两种注册契约**：
  *
  * - `useEditorShortcuts`：主 keydown（⌘\ / ⌘⇧\ / ⌘⇧↑↓ / ⌫ / ⌘C⌘X / ⌘L / ⌘N / ⌘B / ⌘K / ⌘F / Esc / ⌘/ / `?` / ⌘⇧F）——
  *   **依赖清单原样保留**（prefs / dialog / menu / 面板开合 / 选中 / 视图 / 页面列 …），随这些状态重装；
@@ -71,7 +71,7 @@ export function useEditorShortcuts(deps: ShortcutDeps): void {
       const target = event.target as HTMLElement | null
       const inEditable = Boolean(target?.closest('.editor-content, input, textarea, select'))
       // 表单控件单独判：块级 ⌘C / ⌘X 不能用 `inEditable` 当守卫——**块选中态下焦点本来就还在
-      // 正文容器上**（块标记画在 `.doc-col` 里、点了不改焦点），用它会把自己拦掉（2026-10-05 实测）。
+   // 正文容器上**（块标记画在 `.doc-col` 里、点了不改焦点），用它会把自己拦掉（ 实测）。
       const inFormField = Boolean(target?.closest('input, textarea, select'))
       // 当前选择（文字选区 > 块选中 > 无）：判据只在 ui/selectionModel.ts 一份，块级键盘共用它。
       const selectionKind = selectionKindOf({ textSelected: hasTextSelection(), blockCount: selectedIds.length })
@@ -197,7 +197,7 @@ export function useEditorShortcuts(deps: ShortcutDeps): void {
         return
       }
       // 专注模式 ⌘⇧F（docs/09 §6.7、R09-KEY-19）：**必须是组合键**——正文里单按 `f` 是打字，
-      // 而专注模式恰恰只在写作时想用；旧的裸 `f` 又被 `!inEditable` 拦住，等于按不出来（用户实测 2026-09-29）。
+   // 而专注模式恰恰只在写作时想用；旧的裸 `f` 又被 `!inEditable` 拦住，等于按不出来（用户实测 ）。
       if (mod && event.shiftKey && event.key.toLowerCase() === 'f') {
         event.preventDefault()
         if (view !== 'editor') {

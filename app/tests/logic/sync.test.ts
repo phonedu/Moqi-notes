@@ -96,7 +96,7 @@ class Device {
 const port = (io: SyncFileIo, deviceId: string, directory = 'shared') =>
   new DirectorySyncPort(io, () => directory, async () => deviceId)
 
-// ---------- A1：定义随同步走（`13-属性区重规划` §7.1-A1，2026-10-10）----------
+// ---------- A1：定义随同步走（`13-属性区重规划` §7.1-A1，）----------
 /** 一条属性定义：同一个 id、不同时刻的版本（合并口径 = 同 id 取 `modified` 大的整条）。 */
 const propDef = (id: string, name: string, modified: number): PropertyDef =>
   ({ id, name, type: 'select', created: 1000, modified })
@@ -310,7 +310,7 @@ test('SYNC-BADLINE-1 一个设备写坏一行不拖垮整次同步（坏行跳�
   assert.equal(received.applied, 1, '好的那行照常应用')
 })
 
-// ---------- 删除跨端与离线补传（V2b 收口遗留的 ⚠️，2026-10-04 补）----------
+// ---------- 删除跨端与离线补传（V2b 收口遗留的 ⚠️， 补）----------
 // 规则住在 `docs/03` §14.5（删除的三层与墓碑）与 `docs/11` §3.15 的行为表。
 // 最要紧的一条：**传播的是「已删除」状态，不是「内容被清空」这个动作**。
 
@@ -359,7 +359,7 @@ test('SYNC-DELETE-1 删除 vs 同时编辑：更晚的编辑胜——本端删�
   assert.equal(b.store.get('p1')?.deleted, false, 'B 的页面没进回收站（它的编辑更晚，删除在 B 侧被压住）')
   assert.equal(b.store.get('p1')?.objectName, 'B 更晚的编辑')
   assert.equal(a.store.get('p1')?.objectName, 'B 更晚的编辑', 'A 的正文收敛到 B 那版（内容这一半是收敛的）')
-  // 规范锁（2026-10-08，`docs/03` §14.5 规则 4 的推论「本端的删除被覆盖」；台账 `D-012` 走「改实现」）：
+ // 规范锁（，`docs/03` §14.5 规则 4 的推论「本端的删除被覆盖」；台账 `D-012` 走「改实现」）：
   // 赢家是更晚的 update 时，本端那次删除**整棵子树一起翻回**——同步通路合成一条 `restore` 操作，
   // 与用户点「还原」同一条语义通路（子树一起翻、逆操作成对；一次同步 = 一个事务 = 一步撤销）。
   assert.equal(a.store.get('p1')?.deleted, false, 'A 的删除被更晚的编辑覆盖——本端翻回，两端同态')
@@ -515,7 +515,7 @@ test('SYNC-TOLERATE-1 一条应用不了的变更不卡死整台设备：坏组�
   const a = new Device('dev-a', port(io, 'dev-a'))
   const b = new Device('dev-b', port(io, 'dev-b'))
   // A 两笔事务（时间戳不同 ⇒ 两个组）。第一组在 B 上「应用不了」（模拟校验拒绝 / 结构不符）——
-  // 2026-10-11 审计：此前没有逐组保护，这一组会把整轮 runSync 抛掉 ⇒ 游标不落盘 ⇒ 每拍重拉
+ // 审计：此前没有逐组保护，这一组会把整轮 runSync 抛掉 ⇒ 游标不落盘 ⇒ 每拍重拉
   // 同一批、永远停在「离线 · N 条待同步」（数据拒绝被伪装成网络问题）。
   a.store.apply(tx([{ type: 'insert', opId: 'op-bad', parentId: null, block: makePage('bad', '坏页', 1000) }], 1000))
   a.store.apply(tx([{ type: 'insert', opId: 'op-good', parentId: null, block: makePage('good', '好页', 2000) }], 2000))
@@ -536,7 +536,7 @@ test('SYNC-TOLERATE-1 一条应用不了的变更不卡死整台设备：坏组�
   assert.equal(result.cursor['dev-a'], 2, '游标照常前进到已读的那一条——下一拍不再重拉同一批')
 })
 
-// ---------- 字段随同步：星标 / 置顶 / 嵌入来源 / aiMeta（2026-10-11 次批 · 烧矩阵 ❓）----------
+// ---------- 字段随同步：星标 / 置顶 / 嵌入来源 / aiMeta（ 次批 · 烧矩阵 ❓）----------
 
 test('STAR-SYNC-2 星标 / 置顶随块跨端：A 端点上一页，B 端收到（此前只有降级登记、无自动用例）', async () => {
   const io = memoryIo()

@@ -2,7 +2,7 @@ import { pinyin } from 'pinyin-pro'
 import { textContent, type Block } from '@moqi/editor'
 
 /**
- * 拼音检索（`docs/03` §15.2 的**路线 B**，用户 2026-10-04 裁决交付）。
+ * 拼音检索（`docs/03` §15.2 的**路线 B**，用户 裁决交付）。
  *
  * 做法：**TS 侧算、随保存写进索引**——理由在 spike 里量过（`03` §15.2 的结论表）：
  * Rust 的 `pinyin` crate 只有逐字转换（12 个样本 6 个多音字全错：银行→yinxing、音乐→yinle），

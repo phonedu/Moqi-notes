@@ -22,7 +22,7 @@ export class TauriExportPort implements ExportPort {
 
   async write(plan: MarkdownExportWrite, targetPath?: string): Promise<MarkdownExportResult> {
     // `assets` 必须随行：Rust 侧照着搬运单复制 / 入包（缺这一步 = 导出的 .md / .zip 里图全丢，
-    // 2026-10-11 审计修复；`EXPORT-ASSET-1` 看住透传）。
+  // 审计修复；`EXPORT-ASSET-1` 看住透传）。
     const out = await this.invoke<NativeWriteOut>('write_markdown_export', {
       plan: { kind: plan.kind, artifactName: plan.artifactName, files: plan.files, assets: plan.assets, targetPath: targetPath ?? null },
     })

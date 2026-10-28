@@ -305,7 +305,7 @@ test('L2: AI 结果落点按「选中块 > 光标块 > 正文最后一块」（R
   assert.equal(resolveAiAnchor({ targetBlockId: 'ai-1', selected: ['b1'], caretBlockId: 'b2', sources: ['b1', 'b2'] }), 'ai-1')
   // 按块多选：落在**最后选中的块**（不是光标块，也不是文章末尾）
   assert.equal(resolveAiAnchor({ selected: ['b1', 'b2'], caretBlockId: 'b3', sources: ['b1', 'b2'] }), 'b2')
-  // 整篇问答 / 只有文字选区：落在**光标块**——读整篇不等于落在篇末（用户 2026-09-29 实测）
+ // 整篇问答 / 只有文字选区：落在**光标块**——读整篇不等于落在篇末（用户 实测）
   assert.equal(resolveAiAnchor({ selected: [], caretBlockId: 'b3', sources: ['b1', 'b2', 'b9'] }), 'b3')
   // 光标不在本页（调用方传 null）：回落到最后一个来源块
   assert.equal(resolveAiAnchor({ selected: [], caretBlockId: null, sources: ['b1', 'b2', 'b9'] }), 'b9')
@@ -347,7 +347,7 @@ test('L2: 入口 → 读什么：块选中 > 光标/文字选区所在块 > 整�
   assert.equal(aiSourceLabel({ sourceCount: plan.sourceIds.length, scope: plan.scope }), '基于全篇')
 })
 
-test('L2: 文本选区那一路的标签与落点（用户实测 2026-09-29 的回归）', () => {
+test('L2: 文本选区那一路的标签与落点', () => {
   const page = createTextBlock({ entityId: 'page', blockUid: 'page00001', text: '页面', isObject: true, objectName: '页面' })
   const b1 = createTextBlock({ entityId: 'b1', blockUid: 'b1000001', text: '第一块', parent: 'page' })
   const b2 = createTextBlock({ entityId: 'b2', blockUid: 'b2000001', text: '第二块（选中这里的字）', parent: 'page' })
@@ -370,7 +370,7 @@ test('L2: AI 块的来源文案说范围、不数块数（R09-AIB-7）', () => {
   assert.equal(aiSourceLabel({ sourceCount: 1 }), '基于本段', '缺省按选中口径')
 })
 
-// D-019（2026-10-05，顺着 E3 材料「换角度」那条格式破损查出来的）：解析行首列表符时**不能吃正文**。
+// D-019（，顺着 E3 材料「换角度」那条格式破损查出来的）：解析行首列表符时**不能吃正文**。
 // 旧正则 `[-*•]\s*` 允许列表符后跟**零个**空白 ⇒ 行首 `**能写**` → `*能写**`（E3 那条输出三行全中）、
 // `1.5 倍` → `5 倍`、`2026.10.05` → `10.05`。口径：`-` / `*` / `•` 后必须跟空白；`数字.` 后不能跟数字。
 test('D-019: parseItems —— 行首加粗 / 小数 / 日期不得被当成列表符吃掉，真列表符照常剥掉', () => {

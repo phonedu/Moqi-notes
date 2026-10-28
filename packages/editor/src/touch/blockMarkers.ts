@@ -22,13 +22,13 @@ import type { BlockType } from '../domain/block'
 /**
  * 编号列表的序号（docs/09 §五）：**同级、相邻、同类型的连续段各自从 1 开始**。
  *
- * 用户 2026-09-30 问的就是这条口径：一段编号列表 → 普通文字 → 又一段编号列表，
+ * 用户 问的就是这条口径：一段编号列表 → 普通文字 → 又一段编号列表，
  * 后一段**重新从 1 开始**（不是全文流水号）；缩进到下一层的编号也**在自己的层级里从 1 开始**
  * （不与父级共用序号）。同段的切分就是这条纯函数：碰到别的类型就归零。
  *
  * 过去这份数字是 CSS 计数器算的，结果踩了一个更隐蔽的坑：标记画在 `::after` 上，而
  * `::after` 排在**块的子树之后**——带子编号的那一项读到的计数器已经被子项加过，
- * 于是「第二条」显示成 3、子条也显示 3（用户实测 2026-09-30）。现在改成数据驱动：
+ * 于是「第二条」显示成 3、子条也显示 3（用户实测 ）。现在改成数据驱动：
  * 序号由这里算、写进 `data-ordinal`，CSS 只读 `attr(data-ordinal)`。
  */
 export function listOrdinal(siblingTypes: BlockType[], index: number, type: BlockType): number | null {
@@ -88,8 +88,8 @@ export function markerGeometryOf(kind: MarkerKind, compact = false): MarkerGeome
 export function markersForBlock(input: MarkerInput): MarkerKind[] {
   if (input.isObject) return []
   const kinds: MarkerKind[] = []
-  // 折叠箭头：**有子块的块都能折叠，不限标题**（`R09-BLOCK-7`，2026-10-10 裁决 `W2`）。
-  // **触屏档常显**（`10` §6.2 定稿 · 2026-10-14 裁决 `D10`）：`hovered` 是鼠标事件，触屏只在
+ // 折叠箭头：**有子块的块都能折叠，不限标题**（`R09-BLOCK-7`， 裁决 `W2`）。
+ // **触屏档常显**（`10` §6.2 定稿 · 裁决 `D10`）：`hovered` 是鼠标事件，触屏只在
   // tap 后的 hover 残留里偶现 ⇒ 有子块的块一律出箭头（可发现性；真机读作噪声时退路 = 只在编辑 / 选中态）。
   if (input.hasChildBlocks && (input.hovered || input.collapsed || input.compact)) kinds.push('collapse')
   // 触屏档只留折叠箭头 + 待办圈（把手 / ＋ 是 hover 桌面件；`MOD-MOBILE`「桌面件不上手机」）。

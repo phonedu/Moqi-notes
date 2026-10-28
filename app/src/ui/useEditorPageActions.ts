@@ -67,7 +67,7 @@ export function useEditorPageActions(deps: PageActionDeps) {
       objectName: '未命名页面',
     })
     // 新建页面只建容器块（名字行为空）：用户接下来敲的第一行就是页面名（docs/04 §3.1）。
-    // 不预置空子块——否则光标会落在空子块上，名字那一行永远是空的（2026-09-28 用户实测）。
+  // 不预置空子块——否则光标会落在空子块上，名字那一行永远是空的（ 用户实测）。
     store.apply({
       id: crypto.randomUUID(),
       timestamp: Date.now(),

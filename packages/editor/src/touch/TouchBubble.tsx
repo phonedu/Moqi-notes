@@ -28,7 +28,7 @@ export function TouchBubble({ editingBlockId, onFormat, onLinkDialog, onConvertL
 }) {
   const [rect, setRect] = useState<{ top: number; left: number; right: number; bottom: number; width: number; height: number } | null>(null)
   const [dismissed, setDismissed] = useState(false)
-  /** 链接子菜单（就地两行）：外部链接 / 页面链接（`13-工具栏线框首稿` §四）。 */
+  /** 链接子菜单（就地两行）：外部链接 / 页面链接（工具栏线框（已归档） §四）。 */
   const [linkSub, setLinkSub] = useState(false)
   const [canPaste, setCanPaste] = useState(false)
   /** 动作后收起时记下当时的选区文字：选的东西一变（含清空）气泡就复活，同一个选区不反复弹。 */
@@ -82,7 +82,7 @@ export function TouchBubble({ editingBlockId, onFormat, onLinkDialog, onConvertL
     setDismissed(true)
   }
   // 删除 / 粘贴都走 `insertText`（空串 = 删）——经 beforeinput 回流 Lexical → 领域（与打字同一条路）。
-  // 为什么不用 `execCommand('delete')`：在 Lexical 树上会被它的 DOM 调协回滚（2026-10-10 探针实测：
+ // 为什么不用 `execCommand('delete')`：在 Lexical 树上会被它的 DOM 调协回滚（ 探针实测：
   // 返回 true、文字原样）；`Range.deleteContents` 同样被回滚。空白 insertText 是实测唯一真删路。
   const replaceSelection = (text: string) => {
     document.execCommand('insertText', false, text)
@@ -126,7 +126,7 @@ export function TouchBubble({ editingBlockId, onFormat, onLinkDialog, onConvertL
 
   if (!rect || dismissed) return null
   const width = 344
-  // 定位入参用**视觉视口**（`#4` 遗留收口项，2026-10-12）：键盘弹起时 `visualViewport.width` 才是可用的那一块
+ // 定位入参用**视觉视口**（`#4` 遗留收口项，）：键盘弹起时 `visualViewport.width` 才是可用的那一块
   // （`10` 二册 §6.3「键盘上方格式栏与选区气泡按视觉视口坐标锚定」）；无 `visualViewport` 的桌面/测试环境
   // 回落到 `innerWidth`。气泡不按 `bottom` 锚（它是 `top/left` 由本函数算的），所以不加 `--kb-h`。
   const viewportWidth = typeof window === 'undefined'

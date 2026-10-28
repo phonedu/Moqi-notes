@@ -148,7 +148,7 @@ export class DomainStore {
   }
 
   /**
-   * γ2（2026-10-12）：**块组拖拽**——一个 transaction 移动整组（保持相对顺序、**一步撤销**）。
+  * γ2（）：**块组拖拽**——一个 transaction 移动整组（保持相对顺序、**一步撤销**）。
    * 与 `copy` / `deleteSelection` 同一写法（数组入参 → 一个 transaction）；返回 false = 定义好的 no-op
    * （任一成员落点非法 ⇒ 整组都不动，界面的「回弹」）。
    */

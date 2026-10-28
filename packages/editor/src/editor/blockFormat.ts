@@ -8,7 +8,7 @@ import type { EditorTextFormat } from './formatState'
 /**
  * 整块行内格式：作用于块内全部文本节点，结果通过常规内容同步写回领域。
  *
- * 2026-10-24 模块化 M2-1：从 `ui/BlockTools.tsx` 搬到 `editor/`；UI 只拿块 id 和六格式联合，
+ * 模块化 M2-1：从 `ui/BlockTools.tsx` 搬到 `editor/`；UI 只拿块 id 和六格式联合，
  * 不再直接 import Lexical 的 `LexicalEditor` / `TextFormatType`。
  */
 export function toggleBlockFormat(editor: LexicalEditor, blockIds: string[], format: EditorTextFormat): void {

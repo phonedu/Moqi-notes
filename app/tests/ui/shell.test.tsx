@@ -225,7 +225,7 @@ test('设置左分栏（R09-SET-17）：五组分区、「数据」组五页在�
   assert.match(sync, /同步位置/)
   assert.match(sync, /立即同步/)
   assert.doesNotMatch(sync, /同步属于 V3 能力/, '同步已是 V2b 的真实能力，不该再有 V3 占位文案')
-  // 视觉批（2026-10-06）：外观卡改名「外观与主题」，除浅深外多了 20 套主题与排版三轴。
+ // 视觉批（）：外观卡改名「外观与主题」，除浅深外多了 20 套主题与排版三轴。
   const appearance = renderSettings('appearance')
   assert.match(appearance, /暖纸·赭/)
   assert.match(appearance, /正文字号/)
@@ -271,7 +271,7 @@ test('属性面板（`13-属性区重规划` §0-2/§0-7/§0-10）：一张表�
   assert.match(markup, /pe-addrow/)
   assert.match(markup, /添加属性/)
   // 管理入口 = 行内 ⋯：自定义属性行 / 标签行 / **「时间」一行**都有（默认字段也「可从本页删除」，§0-2；
-  // ⋯ 保留 = 用户 2026-10-10 裁决）
+ // ⋯ 保留 = 用户 裁决）
   const menus = markup.match(/的属性操作/g) ?? []
   assert.equal(menus.length, 3, '⋯ 出现在自定义属性行、标签行与「时间」行上')
   // 眼睛开关不再常驻（旧形态的字符串不许残留）；「移除」旧文案下岗（现在是「从本页删除」，在 ⋯ 里）
@@ -369,7 +369,7 @@ test('插入下拉的媒体三件套已点亮（R09-BLOCK-19/20/24）：不再�
   assert.match(markup, /引用/)
   assert.match(markup, /代码/)
   assert.doesNotMatch(markup, /AI 块/)
-  // 2026-10-06 起三项都实现了（13-媒体设计（已归档））：可点、无版本徽标、tooltip 只说能力
+ // 起三项都实现了（13-媒体设计（已归档））：可点、无版本徽标、tooltip 只说能力
   assert.match(markup, /title="同步显示来源块内容"/)
   assert.match(markup, /title="本地上传 \/ 粘贴 \/ 拖入"/)
   assert.match(markup, /title="任意文件占位卡"/)
@@ -441,13 +441,13 @@ test('R09-FMT-5 插入项各有明确落点：文字型直插 / 图片附件走�
   const routes = INSERT_ITEMS.map((item) => [item.kind, insertRoute(item.kind)] as const)
   assert.deepEqual(routes, [
     ['todo', 'block'], ['quote', 'block'], ['code', 'block'],
-    ['today', 'block'], ['now', 'block'], // G-E06（2026-10-11）：今天 / 现在 = 装着日期的文本块
+    ['today', 'block'], ['now', 'block'], // G-E06（）：今天 / 现在 = 装着日期的文本块
     ['embed', 'embed'], ['image', 'file'], ['file', 'file'],
   ], '插入清单与落点路由必须一一对上——加一项就往这里补一行（2026-10-08：斜杠菜单曾把图片喂给文字型直插，落出空壳块）')
 })
 
 test('G-E06 斜杠「今天」「现在」的插入文本：today = YYYY-MM-DD、now = YYYY-MM-DD HH:MM（本地时区，补零）', () => {
-  const ts = new Date(2026, 9, 11, 9, 5).getTime() // 2026-10-11 09:05 本地
+  const ts = new Date(2026, 9, 11, 9, 5).getTime() //  09:05 本地
   assert.equal(insertDateText('today', ts), '2026-10-11')
   assert.equal(insertDateText('now', ts), '2026-10-11 09:05')
   assert.equal(insertDateText('now', new Date(2026, 11, 3, 23, 59).getTime()), '2026-12-03 23:59')

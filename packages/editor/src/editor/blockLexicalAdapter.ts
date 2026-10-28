@@ -101,7 +101,7 @@ function blockToNode(block: Block, blocks: BlockMap): BlockNode {
   const node = $createBlockNode(block)
   // **代码块**的正文把 `\n` 拆成 `LineBreakNode`（渲染 `<br>`）：只有这样，结尾换行才看得见、
   // 光标才走得过去（Chromium 对 contenteditable 里结尾的 `\n` 做悬挂处理）；适配器读回时再
-  // 序列化回 `\n`——数据形态不变（`R04-ENTER-6`，2026-10-10 裁决机制 A）。
+ // 序列化回 `\n`——数据形态不变（`R04-ENTER-6`， 裁决机制 A）。
   const withBreaks = block.type === 'code'
   for (const fragment of block.content) {
     if (withBreaks && fragment.t === 'text') {
@@ -225,7 +225,7 @@ function readBlockNode(node: BlockNode, parentId: string | null, output: BlockMa
 }
 
 /**
- * 编辑器里有、领域里没有 → **按编辑器现状补建**，不再抛异常（2026-09-28 修）。
+ * 编辑器里有、领域里没有 → **按编辑器现状补建**，不再抛异常（ 修）。
  *
  * 这条差异是真实存在的：编辑器里删掉一块（Backspace 合并）会被镜像成领域删除，而用户随后按 ⌘Z
  * 时 Lexical 会把块**带回编辑器**、领域那边却没有撤销记录——两边就此分家。以前这里直接抛

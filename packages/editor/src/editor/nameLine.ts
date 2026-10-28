@@ -8,7 +8,7 @@ import { $contentOffset, $selectBlockStart, $selectOffsetInBlock } from './caret
 /**
  * 名字行（= 页面容器块自己那一行，`docs/04` §3.1 `R04-NAME-11/12`）的**唯一所有者**。
  *
- * 2026-10-05 名字行收口（T5）：这三件事原来散在 `ui/EditorShell.tsx`（落点 / 接缝的动作）
+ * 名字行收口（T5）：这三件事原来散在 `ui/EditorShell.tsx`（落点 / 接缝的动作）
  * 与 `editor/inputRules.ts`（接缝的判据），现在归到这里——**行为零变化**，只是换家：
  *
  * | 归属 | 对外 | 说明 |
@@ -27,7 +27,7 @@ import { $contentOffset, $selectBlockStart, $selectOffsetInBlock } from './caret
 export type NameRowSpot = 'block-start' | 'text-end' | number
 
 /**
- * 空名字行的**行盒持有者**（台账 `D-072`，2026-10-13 真机试验场实证）：空名字行在锚点**之后**
+ * 空名字行的**行盒持有者**（台账 `D-072`， 真机试验场实证）：空名字行在锚点**之后**
  * 持一个 `LineBreakNode`——「锚点之前」(容器,0) 的折叠光标在 Android WebView 画不出来
  * （那一行没有可编辑的行盒承载物；普通空块靠 Lexical 渲染的 `<br>`，锚点是 DecoratorNode，不带来）。
  * 持有者给这行一个可编辑行盒，(容器,1)〔锚点之后、持有者之前〕桌面与真机两通道都能画。
@@ -178,7 +178,7 @@ export function crossNameRow(editor: LexicalEditor, facts: NameRowFacts, options
  *
  * 锚点是行内 run 的**最后一个**子节点，Lexical 的「行尾」于是落在锚点之后（一个元素点）：
  * 用户按 End 再按 Backspace，第一下会被这个空位置吃掉（`pnpm accept` 的 `PAGENAME-RENAME-1`、
- * 以及「删光名字」的最后一下都栽在这里，2026-09-29 实测）。所以光标在名字行时，Home / End
+ * 以及「删光名字」的最后一下都栽在这里， 实测）。所以光标在名字行时，Home / End
  * 一律落到**这一行自己的**行首 / 文字末尾。
  */
 export function nameRowEdge(editor: LexicalEditor, facts: { containerId: string }, end: boolean): boolean {

@@ -9,7 +9,7 @@ import { $inlineTextChildren, $isBlockNode, $isNameLineAnchor, type BlockNode } 
  *
  * 自带一次 `read`（所以名字不是 `$` 前缀）：调用点大多是事件回调，不想为了读一个 id
  * 自己包一层 `editor.getEditorState().read(...)`。原住在 `ui/EditorShell.tsx`，
- * 2026-10-04 随还债 #2 模块③下沉到这里——AI 的「光标块」档位（`R09-AIB-6`）与编辑器外壳都要用。
+ * 随还债 #2 模块③下沉到这里——AI 的「光标块」档位（`R09-AIB-6`）与编辑器外壳都要用。
  */
 type EditorReadHandle = { getEditorState(): ReturnType<LexicalEditor['getEditorState']> }
 
@@ -148,7 +148,7 @@ export function $selectBlockEnd(block: BlockNode): void {
  * 「在名字行末尾」。锚点在块元素上时按「前面那些子节点的文字量之和」算（子块不计，同
  * `$inlineTextChildren` 的口径）。
  *
- * 原住在 `ui/EditorShell.tsx`（2026-10-05 名字行收口 T5 时随光标原语一起下沉）。
+ * 原住在 `ui/EditorShell.tsx`（ 名字行收口 T5 时随光标原语一起下沉）。
  */
 export function $contentOffset(blockNode: BlockNode, anchorKey: string, anchorOffset: number): number {
   if (blockNode.getKey() === anchorKey) {

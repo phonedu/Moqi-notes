@@ -49,7 +49,7 @@ export class TauriWindowShell implements WindowShellPort {
   }
 
   /**
-   * **形状照 Rust 侧给，刻意不用 `LogicalSize` 类**（2026-10-09 真窗口实测，台账 `D-041`）：
+  * **形状照 Rust 侧给，刻意不用 `LogicalSize` 类**（ 真窗口实测，台账 `D-041`）：
    * 锁版本下 `@tauri-apps/api@2.8.0` 的 `LogicalSize` 序列化成 `{ width, height }`（不带标签），
    * 而 `tauri@2.11.6` 的 `Size` 反序列化要**外部标签** `{ Logical: { … } }`——传类会被打回
    * `invalid args \`value\` … expected map with a single key`，最小宽度**静默失效**（浏览器通道与单测都看不见）。

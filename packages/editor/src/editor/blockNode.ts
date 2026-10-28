@@ -193,7 +193,7 @@ function applyOwnLineFlag(dom: HTMLElement, node: BlockNode): void {
 export function ownLineFlag(counts: { inlineText: number; blocks: number; isObject?: boolean }): 'missing' | 'present' {
   if (counts.inlineText > 0) return 'present'
   // 页面容器必须永远有「名字那一行」（docs/04 §3.1）：空页面就只有一个空行，没有这一行的话
-  // 编辑器看起来完全空白、连块都没有（用户实测 2026-09-28）。
+ // 编辑器看起来完全空白、连块都没有（用户实测 ）。
   if (counts.isObject || counts.blocks > 0) return 'missing'
   // 普通空块自己就有一行（Lexical 渲染 <br>），不需要补。
   return 'present'
@@ -312,7 +312,7 @@ export function $ensureNameLineAnchor(block: BlockNode): boolean {
 
 /**
  * 哪些 AI 块在界面上**有** AI 外观：生成中与待采用的块有；已接受（accepted）的块没有——
- * 用户 2026-09-29 裁决的方案 A：采用后只留数据、什么都不显示（连块角的 ✦ 也不做）。
+ * 用户 裁决的方案 A：采用后只留数据、什么都不显示（连块角的 ✦ 也不做）。
  */
 /**
  * 媒体块的数据属性（`R09-BLOCK-19/20`）：名字 / 原名 / 大小 / 类型摊在这里，
@@ -345,7 +345,7 @@ export function aiDecorationShown(aiMeta: AiMeta | null): boolean {
 /**
  * AI 结果块的可视标记（docs/09 §6.11）：虚线框与来源标记由领域数据驱动，
  * **已接受（accepted）的块在界面上与普通块完全一样**——不写任何 `data-ai-*`、不加类名、不留提示，
- * 来源与操作类型只活在领域数据里（R09-AIB-7「保留至采用或丢弃」，用户 2026-09-29 裁决方案 A）。
+ * 来源与操作类型只活在领域数据里（R09-AIB-7「保留至采用或丢弃」，用户 裁决方案 A）。
  * 标签文字用属性承载，避免改写编辑器托管的子节点。
  */
 function decorateAi(dom: HTMLElement, aiMeta: AiMeta | null): void {
@@ -478,7 +478,7 @@ export class InlineFragmentNode extends TextNode {
  *
  * **不可合并**（`toggleUnmergeable`）：链接是一个整体，光标贴在它旁边接着打字时，Lexical 的
  * 归一化会把新输入的文本**并进这个节点**——下划线与底背景就跟着空格一路长出去（用户实测
- * 2026-09-29：「[[ / (( 双链的样式，下划线会随着空格一直出现，块链接样式的背景也是」）。
+ * ：「[[ / (( 双链的样式，下划线会随着空格一直出现，块链接样式的背景也是」）。
  * `unmergeable` 只挡相邻文本的合并与删除，不影响在链接**内部**编辑（光标在链接文字中间时
  * 照旧可改）。链接边上的空白由 `$trimInlineRef` 挪到链接之外（光标跟着走）。
  */
@@ -493,7 +493,7 @@ export function $isInlineFragmentNode(node: LexicalNode | null | undefined): nod
 /**
  * 行内引用**首尾不留空白**（`R04-CARET-5`）：链接是一个整体，用户在链接边上敲的空白属于
  * 链接**之外**的普通文本。把 `[[目标页面]]` 后面的空格留在链接里，下划线与底背景就会跟着空格
- * 一路长出去（用户实测 2026-09-29：「下划线会随着空格一直出现，块链接样式的背景也是」）。
+ * 一路长出去（用户实测 ：「下划线会随着空格一直出现，块链接样式的背景也是」）。
  * 内部空格保留（页面名可以是「项目 B」）。
  *
  * **光标跟着挪走的那截空白**：用户刚敲的空格被挪到链接之外后，光标也跟到链接外面（落在那截

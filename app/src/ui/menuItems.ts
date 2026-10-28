@@ -10,8 +10,8 @@ import type { BlockType } from '@moqi/editor'
 export type BlockTypeItem = { type: BlockType; label: string; hint: string; icon: IconName; short: string }
 
 export const BLOCK_TYPE_ITEMS: BlockTypeItem[] = [
-  // 「标题 1」补回（2026-10-10 用户裁决，`R09-FMT-2` / `R09-EDIT-3` 同日改写）：**页面标题 = 容器
-  // 名字行、不参与正文级别**；正文 H1–H6 完整可用。（此前 2026-10-08「级别 1 留给页面标题」已废。）
+ // 「标题 1」补回（ 用户裁决，`R09-FMT-2` / `R09-EDIT-3` 同日改写）：**页面标题 = 容器
+ // 名字行、不参与正文级别**；正文 H1–H6 完整可用。（此前 「级别 1 留给页面标题」已废。）
   { type: 'heading1', label: '标题 1', hint: 'H1', icon: 'heading', short: 'H1' },
   { type: 'heading2', label: '标题 2', hint: 'H2', icon: 'heading', short: 'H2' },
   { type: 'heading3', label: '标题 3', hint: 'H3', icon: 'heading', short: 'H3' },
@@ -28,7 +28,7 @@ export const BLOCK_TYPE_ITEMS: BlockTypeItem[] = [
 ]
 
 /**
- * 块类型的显示名（格式栏 `Aa` 的 tooltip / aria、转换 toast）——与菜单同源（含「标题 1」，2026-10-10 起）。
+ * 块类型的显示名（格式栏 `Aa` 的 tooltip / aria、转换 toast）——与菜单同源（含「标题 1」， 起）。
  */
 export const blockTypeLabel: Record<string, string> = {
   ...Object.fromEntries(BLOCK_TYPE_ITEMS.map((item) => [item.type, item.label])),
@@ -36,7 +36,7 @@ export const blockTypeLabel: Record<string, string> = {
 
 /**
  * 块类型的**全量显示名**（16 类）：活动块是媒体三员（只插不转、不在 `BLOCK_TYPE_ITEMS` 里）时也要有名字——
- * 此前格式栏直接用可转换 13 类的表，媒体块显示成「块类型：undefined（点击转换）」（2026-10-11 审计修复）。
+ * 此前格式栏直接用可转换 13 类的表，媒体块显示成「块类型：undefined（点击转换）」（ 审计修复）。
  */
 export function blockTypeName(type: BlockType): string {
   return blockTypeLabel[type] ?? ({ image: '图片', file: '附件', embed: '嵌入' } as Partial<Record<BlockType, string>>)[type] ?? type
@@ -57,11 +57,11 @@ export const INSERT_ITEMS: InsertItem[] = [
   { kind: 'todo', label: '待办', hint: '下方新建待办', icon: 'check-square' },
   { kind: 'quote', label: '引用', hint: '下方新建引用', icon: 'quote' },
   { kind: 'code', label: '代码', hint: '下方新建代码块', icon: 'code' },
-  // 「今天」「现在」（2026-10-11，`13-功能缺口总账` `G-E06`）：中文笔记高频（日记 / 会议记录）——
+ // 「今天」「现在」（，`13-功能缺口总账` `G-E06`）：中文笔记高频（日记 / 会议记录）——
   // 插入一个装着日期时间的普通文本块（`insertDateText` 出文本，不加新块类型）。
   { kind: 'today', label: '今天', hint: '下方新建日期块', icon: 'calendar' },
   { kind: 'now', label: '现在', hint: '下方新建日期时间块', icon: 'history' },
-  // 「AI 块」项 2026-10-08 用户裁决删除：插入一个空 AI 块没有用（AI 内容由指令生成，
+ // 「AI 块」项 用户裁决删除：插入一个空 AI 块没有用（AI 内容由指令生成，
   // 入口在块浮动工具栏 / 常驻格式栏 / AI 助手面板）——条文见 `R09-FMT-5` / `R09-AIB-8`。
   { kind: 'embed', label: '嵌入块', hint: '同步显示来源块内容', icon: 'embed' },
   { kind: 'image', label: '图片块', hint: '本地上传 / 粘贴 / 拖入', icon: 'image' },
@@ -69,7 +69,7 @@ export const INSERT_ITEMS: InsertItem[] = [
 ]
 
 /**
- * 整块格式清单（`R09-BEDIT-1`）：块浮动工具栏的「整块格式」一组——2026-10-11 补「下划线整块」成**六连**
+ * 整块格式清单（`R09-BEDIT-1`）：块浮动工具栏的「整块格式」一组—— 补「下划线整块」成**六连**
  * （`13-功能缺口总账` `G-E04`：常驻栏 / 文本栏 / 斜杠菜单都有下划线，只此一处漏了）。
  * **移动端胶囊仍五连**（`10` §6.2，清单在 `BlockCapsule`）；type 用结构化字面量（不 import lexical，边界门 ③）。
  */
@@ -97,7 +97,7 @@ export function insertItemsForMedia<T extends { kind: InsertKind }>(items: T[], 
 /**
  * 插入项的**落点路由**（`pickInsert` 的唯一依据）：文字型直插 / 图片附件走选文件 / 嵌入落占位。
  * 做成纯映射是为了可单测——`INSERT_ITEMS` 每加一项，`tests/ui/shell.test.tsx` 会要求它有明确去处
- * （2026-10-08 的教训：斜杠菜单曾把图片 / 附件直接喂给只认文字型的 `insertBlockOfType`，
+ * （ 的教训：斜杠菜单曾把图片 / 附件直接喂给只认文字型的 `insertBlockOfType`，
  * 落出没有 asset 的空壳块；根因正是「去哪」散在调用点里、没有单一所有者）。
  */
 export type InsertRoute = 'block' | 'file' | 'embed'
@@ -109,7 +109,7 @@ export function insertRoute(kind: InsertKind): InsertRoute {
 }
 
 /**
- * 页面库两种形态（docs/09 §4.1；画册形态 2026-09-27 已移除）：列表 / 简约。
+ * 页面库两种形态（docs/09 §4.1；画册形态 已移除）：列表 / 简约。
  * 单一数据源：页面库头部的切换器与编辑器左侧的页面列都从这里渲染，避免两处漂移。
  */
 export type LibraryViewMode = 'list' | 'compact'

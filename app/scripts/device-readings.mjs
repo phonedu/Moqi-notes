@@ -4,7 +4,7 @@
  * 为什么有它：真机批此前的走法是「手工 adb + 截图 + 人眼」——发现过账（θ 批），但**每次都要重新摸一遍**。
  * 这里把 H2 的「常驻读数」表脚本化：一条命令把 P-1…P-9 逐个读出来（读数型：打印 + JSON，缺前置就跳过该条）。
 *
-* **P-7…P-9（2026-10-14 补，T-06 后半）**：
+* **P-7…P-9（ 补，T-06 后半）**：
 *   P-7 手柄拖选收敛：左滑进选择模式 → 按住块拖 → 松手；读「拖后无异物 / 选区与滚动收敛」，读完**撤销还原**（移动 = 一次域事务）。
 *   P-8 杀进程：`am force-stop` → 重启；**只读**比对库里已有内容（不代写一字，`06` §7.0）。
 *   P-9 块级三读数：折叠态**落库**（折叠 → 重开仍在 → 展回）· 待办圈命中（中心/边缘，改完即还原）· 附件打开（点开即关）。
@@ -47,14 +47,14 @@ const adb = (...args) => execFileSync(ADB, args, { encoding: 'utf8' })
 
 // —— 连接：确保应用在前台、socket 在、forward 好 ——
 const APP = 'com.moqi.projectb'
-// **冷启拿确定起点**（2026-10-14 实测：不冷启时上一条读数留在屏上的浮层/抽屉会让下一条**假红**——
+// **冷启拿确定起点**（ 实测：不冷启时上一条读数留在屏上的浮层/抽屉会让下一条**假红**——
 // `P-1` 读到 null、`P-5` 的 `:hover` 链里混进 `.mask/.dlg/.sidebar`、`P-2` 找不到光标，三条都不是产品问题）。
 try { adb('shell', 'am', 'force-stop', APP) } catch { /* 没在跑也无事 */ }
 await sleep(700)
 try { adb('shell', 'am', 'start', '-n', `${APP}/.MainActivity`) } catch { /* 已在则无事 */ }
 await sleep(4500)
 // **按本应用 PID 挑 socket**：华为机上有个系统级 `huawei_webview_devtools_remote_*`，
-// 不认 PID 的正则会先匹配到它 ⇒ 转发指错、CDP 连不上（2026-10-15 实测）。
+// 不认 PID 的正则会先匹配到它 ⇒ 转发指错、CDP 连不上（ 实测）。
 const appPid = adb('shell', 'pidof', 'com.moqi.projectb').trim()
 const socket = adb('shell', 'cat /proc/net/unix').split('\n').find((row) => row.includes(`webview_devtools_remote_${appPid}`))?.match(/webview_devtools_remote[^ \r\n]*/)?.[0]?.replace(/[^\x20-\x7e]/g, '')
 if (!socket) { console.error('没有 webview_devtools_remote —— 应用在前台跑着吗？'); process.exit(2) }
@@ -64,7 +64,7 @@ await sleep(300)
 let ws = null
 /**
  * 连（或**重连**）页面级 CDP。为什么要有重连：`P-8` 会 `am force-stop` 把 WebView 连根拔掉——
- * 老连接上任何 `evaluate` 都是死的，而 ws 的 error 事件没接住会**直接把脚本崩掉**（2026-10-14 实测：
+ * 老连接上任何 `evaluate` 都是死的，而 ws 的 error 事件没接住会**直接把脚本崩掉**（ 实测：
  * 那一轮 P-8 之后的读数全丢、JSON 都没落盘）。杀完重启后调一次本函数即可接着读。
  */
 async function connect() {
@@ -120,7 +120,7 @@ const record = (id, name, ok, detail) => {
 }
 
 /** 清浮层：真机读数最容易栽在**上一条把弹窗留在屏上**（`P-1` 进设置→关于后，后面几条的 tap 全打在它上面——
- *  2026-10-14 实测：`P-5` 读到 `:hover` 链里是 `.mask/.dlg`、`P-2` 找不到光标，两条都是**假红**）。
+ *  实测：`P-5` 读到 `:hover` 链里是 `.mask/.dlg`、`P-2` 找不到光标，两条都是**假红**）。
  *  每一条读数前先清一遍：优先点关闭按钮，退而点遮罩（mousedown 关弹窗）。 */
 const closeOverlays = async () => {
   const what = await evaluate(`(() => {
@@ -153,13 +153,13 @@ console.log('· P-1 后清浮层：', await closeOverlays())
 
 // ---------- P-5 hover 残留（先做：会从首页点进一页，正好把下面几条带进编辑器）----------
 await closeOverlays()
-// 窄档：页面库是独立视图（不是并排的列）——先走顶栏 ← 回页面库，再找卡片（2026-10-14 实测）。
+// 窄档：页面库是独立视图（不是并排的列）——先走顶栏 ← 回页面库，再找卡片（ 实测）。
 await evaluate(`(() => { const b = document.querySelector('.tb-btn[aria-label="返回页面库"]'); if (b) { b.click(); return true } return false })()`)
 await sleep(900)
 try {
   const before = await evaluate(`(() => {
     const v = document.querySelector('.view.is-on')?.getAttribute('aria-label') ?? null
-    // **只认"看得见"的卡片**：窄档页面列可能是收着的抽屉，DOM 里有卡但坐标落在编辑器上（2026-10-14 实测）。
+  // **只认"看得见"的卡片**：窄档页面列可能是收着的抽屉，DOM 里有卡但坐标落在编辑器上（ 实测）。
     const cards = [...document.querySelectorAll('.lcard, .scard')]
     const card = cards.find((el) => { const r = el.getBoundingClientRect(); return r.width > 40 && r.height > 40 && r.top >= 0 && r.bottom <= innerHeight + 1 })
     if (!card) return { view: v, card: null, domCards: cards.length }
@@ -207,7 +207,7 @@ try {
   } else {
     // 触控编辑：点底栏「✎ 编辑」（edit 态）——光标只在编辑态里画；已在编辑态就不重复点（`D-072` 的口径：靛蓝 caret）。
     // **态收敛**：已在编辑态时（冷启可能直接进编辑）光标可能在正文里——那不是 `D-072` 的问题。
-    // 口径 = 只读态点「✎ 编辑」（进编辑的落点就在名字行）。2026-10-14 实测补。
+  // 口径 = 只读态点「✎ 编辑」（进编辑的落点就在名字行）。 实测补。
     const inEdit = await evaluate(`Boolean(document.querySelector('.doc-col.is-touch-edit'))`)
     if (inEdit) {
       const done = await evaluate(`(() => { const b = document.querySelector('.mbar button[aria-label="完成"]'); if (b) { b.click(); return true } return false })()`)
@@ -334,7 +334,7 @@ try {
     if (!before.selectMode) {
       record('P-7', '手柄拖选收敛', null, { skipped: '左滑没进选择模式（本机手势阈值不同？）', before })
     } else {
-      // 按住选中块往下拖 ~120px：**CDP 合成触控**（`input swipe` 不能「按住再拖」——2026-10-14 实测被当滚动：
+   // 按住选中块往下拖 ~120px：**CDP 合成触控**（`input swipe` 不能「按住再拖」—— 实测被当滚动：
       // 顺序一字未动、只有 scrollTop 变了）。按下 → 停顿 500ms（过长按阈值）→ 分步移动 → 抬起。
       await call('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: target.x, y: target.y }] })
       await sleep(500)

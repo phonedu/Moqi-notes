@@ -3,7 +3,7 @@ import type { AssetPort } from './assets'
 
 /**
  * 资产随同步（`docs/03` §14.2「媒体文件」；13-媒体设计（已归档） §2 第 3 行的裁决「最小形态」，
- * 2026-10-11 落地）。协议层只搬 `oplog` 与注册表行，**文件本体不在协议里**——这条通路补上它：
+ * 落地）。协议层只搬 `oplog` 与注册表行，**文件本体不在协议里**——这条通路补上它：
  * 每轮同步之后，把本机资产推到共享目录 `<同步目录>/assets/`、把共享目录里有的拉回来。
  *
  * 三条边界（与 Rust 侧 `sync_files::assets_exchange` 是同一份契约）：
@@ -33,7 +33,7 @@ export function assetSyncPlan(referenced: ReadonlySet<string>, local: ReadonlySe
 /**
  * 清掉**不再被任何块引用**的资产文件（彻底删除 / 到期清理 / 清空回收站之后调用；启动时也扫一次，
  * 这同时兜住历史遗留的孤儿）。此前 `AssetPort.remove` 是死代码：磁盘只涨不减、「从本机彻底删除」
- * 名不副实（2026-10-11 审计，`SYNC-ASSET-2`）。`onNames` 把清理后的名册交回界面（刷新「文件缺失」占位）。
+ * 名不副实（ 审计，`SYNC-ASSET-2`）。`onNames` 把清理后的名册交回界面（刷新「文件缺失」占位）。
  * 读不到名册就什么都不删——宁可留孤儿，不许误删（删文件是不可逆动作）。
  */
 export async function cleanupUnreferencedAssets(

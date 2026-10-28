@@ -4,7 +4,7 @@
 /**
  * **Markdown 行引擎的唯一所有者**（`09-桌面端交互规范` §6.12 `R09-MD-3` 的那张行首表）——
  * **行内记号**那一半住在 `mdInline.ts`、**front-matter** 在 `mdFrontMatter.ts`、
- * **引用还原与媒体落地**在 `mdRefs.ts`（2026-10-10 随「Obsidian 互通」批各归各家，体量门也够了）。
+ * **引用还原与媒体落地**在 `mdRefs.ts`（ 随「Obsidian 互通」批各归各家，体量门也够了）。
  *
  * 四个方向都吃这里的行首表：
  * ① **导出**：行首记号要**转义**（`\- x`）——否则 `- 记着买牛奶` 这种正文会在目标工具里变成列表项（语义漂移）；
@@ -16,7 +16,7 @@
  * （打字侧判据把全角 / 中文标点归一成半角再比，见 `editor/inputRules.ts`；读回侧按原文，不归一）；
  * **不提供转义字符**（那是输入侧的规矩——打完触发词 ⌘Z 就回到纯文本）；表外的一律当普通字符。
  *
- * 读回来时另外认三件通用 / Obsidian 写法（2026-10-10 互通批）：
+ * 读回来时另外认三件通用 / Obsidian 写法（ 互通批）：
  * - **tab 缩进**（Obsidian 编辑器默认）：缩进按**列**算，tab 跳到下一个 4 的倍数——不然 `\t- 子项` 的层级会丢；
  * - **setext 标题**（CommonMark）：`===` / `---` 紧跟在一段文字下一行时是「标题 1 / 标题 2」，
  *   空行隔开时才按分隔线（导出侧写分隔线**前面保证空行**，所以自家往返不受影响）；
@@ -60,7 +60,7 @@ const MARKERS: Array<{ pattern: RegExp; type: BlockType; checked?: boolean; hand
 
 /**
  * 行首是不是一个「空记号」（整行就是触发词本身，或触发词后只剩空白）——**打字触发**的判据：
- * `R09-MD-2` 说打完触发词立即转换 ⇒ 只有整行等于记号时才动，句中（`5 - 3`、`2026-10-04`）永不误伤。
+ * `R09-MD-2` 说打完触发词立即转换 ⇒ 只有整行等于记号时才动，句中（`5 - 3`、``）永不误伤。
  */
 export function blockMarkerOf(line: string): BlockMarker | null {
   for (const marker of MARKERS) {
@@ -180,7 +180,7 @@ export function parseMarkdownOutline(text: string): OutlineDraft[] | null {
  *
  * - `name`：**第一个 `# ` 标题**就是页名（导出侧正是这么写的：front-matter 之后跟着 `# 页名`）；
  *   没有 `# ` 就用 front-matter 的 `title`；都没有则为 null（调用方决定退化成什么名）。
- *   **围栏里的 `# ` 不算**（2026-10-10 修：`# 注释` 这种代码行曾被当成页名、还从代码块里被摘掉）。
+ *  **围栏里的 `# ` 不算**（ 修：`# 注释` 这种代码行曾被当成页名、还从代码块里被摘掉）。
  * - `frontMatter.tags` / `properties` / `created` / `modified`：语法还原（键、原文、列表值、时间戳），
  *   类型由调用方按属性注册表去对——解析层不猜类型（导出侧的类型矩阵是那次设计的契约，件已归档，
  *   见 `docs/archive/` 的 13-导出与媒体设计）
@@ -200,7 +200,7 @@ export function parseMarkdownDocument(text: string): {
   let name: string | null = frontMatter.title
   // **第一处  标题**就是页名（我们的导出物里它紧跟在 front-matter 后面；别人写的文档里
   // 也可能先有一段引言再起标题）。**围栏里的不算**——代码注释里的 `# ` 既不是页名，
-  // 更不能从代码块里被摘掉（2026-10-10 互通批修）。它从正文里摘掉，不再变 heading1 块。
+ // 更不能从代码块里被摘掉（ 互通批修）。它从正文里摘掉，不再变 heading1 块。
   const firstIndex = firstHeadingLine(lines)
   if (firstIndex >= 0) {
     name = lines[firstIndex].trimStart().slice(2).trim() || name
@@ -326,7 +326,7 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
     const wasEscaped = unescapeLeadingMarker(raw) !== raw
     const body = wasEscaped ? raw.slice(1) : raw
 
-    // 引用块（2026-10-10 往返修复，台账 D-047）：导出侧**每一行**（含子块、含空行）都带 `> ` 前缀，
+  // 引用块（ 往返修复，台账 D-047）：导出侧**每一行**（含子块、含空行）都带 `> ` 前缀，
     // 所以读回来先**剥前缀、再按普通行继续解析**：子块靠"前缀里的剩余缩进"落进引用块内部
     // （旧实现把 `>   - 子条目` 整行 trim 成 quote 的文字 ⇒ 子块变字面、层级丢）。
     let work = body
@@ -340,7 +340,7 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
         work = rest.trimStart()
       }
     }
-    // **连续的引用行 = 同一个引用块**（2026-10-10 互通批，用户裁决"callout 降级成引用 ＋ 首行原文"的机制）：
+  // **连续的引用行 = 同一个引用块**（ 互通批，用户裁决"callout 降级成引用 ＋ 首行原文"的机制）：
     // 首行是块自己的文字（callout 的 `[!note] 标题` 就在这儿、原样保留），后续行落成**子块**。
     // 不这么合的话，导出时"块间空行"会把 `> [!note] 标题` 与它的正文拆成两段 ⇒ Obsidian 里成了
     // "一个 callout ＋ 一个孤立引用"（首行原文留住了、callout 的归属丢了）。同一引用块里的空行
@@ -371,7 +371,7 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
       }
     }
 
-    // 围栏：**宽度 ≥3、开闭同宽**（2026-10-10 往返修复，台账 D-046）。导出侧 `fenceFor` 会写 4+ 反引号
+  // 围栏：**宽度 ≥3、开闭同宽**（ 往返修复，台账 D-046）。导出侧 `fenceFor` 会写 4+ 反引号
     // （正文里含 ``` 时），旧实现只认刚好三个 ⇒ 那种代码块读回来围栏行变普通行（里面的 `# ` 还会被当标题）。
     const fence = wasEscaped ? null : /^(`{3,})([a-zA-Z0-9+-]*)\s*$/.exec(work)
     if (fence) {
@@ -389,7 +389,7 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
     const hit = wasEscaped ? null : splitBlockMarker(work)
     if (hit) {
       markerSeen = true
-      // `text` 是**反解过的字面**（与纯文字分支同口径，2026-10-08 统一）：`- \*字面\*` 这类
+   // `text` 是**反解过的字面**（与纯文字分支同口径， 统一）：`- \*字面\*` 这类
       // 「记号行 + 转义行内记号」粘回来不再漏反斜杠；行内记号切分照旧走原文（`inlineFragments`
       // 里面先认旗再切——转义的字面不会被读成格式）。
       const rest = hit.rest.trim()

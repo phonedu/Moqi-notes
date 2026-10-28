@@ -9,7 +9,7 @@ import { MobileInsertPanel, type InsertTile } from './MobileFmtBar'
 /**
  * 块操作栏（`10` §6.2 定稿）= 单块选中时的**两行胶囊**；选择栏 = 多选时的**复刻**。
  *
- * 口径（维护者复核通过，`13-两端工具栏重规划` §3.8）：
+ * 口径（维护者复核通过，工具栏规划（已归档） §3.8）：
  * - **两排语义固定 ＋ 每排均分**：上排 = 内容与搬运、下排 = 结构与收尾；
  * - **同一动作只出现一处**：整块格式 / 单块「转换为」/ AI / 创建副本 / 撤销重做 / 折叠菜单项 **全撤**
  *   （各自的家在打字态面板、主条 `✦`、桌面块菜单、主条 `↩↪`、沟槽箭头）；
@@ -43,7 +43,7 @@ export type BlockCapsuleOps = {
   batchTodo: () => void
   /** 批量缩进（每块一笔，同 Tab 的触控替代）。 */
   batchIndent: () => void
-  /** γ2（2026-10-12）：选择模式内**拖整个选区**——落点 + 域层一次事务（`moveBlockGroup`）。 */
+ /** γ2（）：选择模式内**拖整个选区**——落点 + 域层一次事务（`moveBlockGroup`）。 */
   moveGroup: (targetId: string, position: 'before' | 'after' | 'into') => void
 }
 
@@ -144,7 +144,7 @@ export function SelectionBar({ count, ops, onDone, media = true }: {
   media?: boolean
 }) {
   const [insertOpen, setInsertOpen] = useState(false)
-  /* D-101：复制/复制为块引用的**按键瞬时确认态**（用户 2026-10-26：「没有提示的确像是坏了」；
+ /* D-101：复制/复制为块引用的**按键瞬时确认态**（用户 ：「没有提示的确像是坏了」；
      不用通知带——R09-STATE-5 成功不弹，改按键自己说话：图标瞬时 ✓ ＋ 主题色，0.9s 还原。
      剪切不加：成功 = 块消失，界面自证）。 */
   const [copiedKey, setCopiedKey] = useState<string | null>(null)

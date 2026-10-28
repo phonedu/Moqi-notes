@@ -9,7 +9,7 @@ import { anchorOf, type AnchorRect } from './Popover'
 /**
  * 选区与批量（`docs/11` §3.7 / `docs/09` §6.2）。
  *
- * 还债 #2 的模块②：2026-10-04 从 `EditorShell.tsx` 整块搬出来，**行为零变化**（安全网 =
+ * 还债 #2 的模块②： 从 `EditorShell.tsx` 整块搬出来，**行为零变化**（安全网 =
  * `SELECT-1..6` 单测 + `accept:SHELL-SELECT-1/2`：单击选中 / ⌘ 加选计数 / ⇧ 选一整段 /
  * 批量删除一步撤销 / Esc 取消不起事务）。
  *
@@ -63,7 +63,7 @@ export function useBlockSelection(options: BlockSelectionOptions): BlockSelectio
   const rangeAnchorRef = useRef<string | null>(null)
 
   function selectBlock(blockId: string, mode: SelectMode) {
-    // γ3（2026-10-12 裁定）：**页面容器不参与块选区**——容器是选区的**边界**（对它做批量块操作
+  // γ3（ 裁定）：**页面容器不参与块选区**——容器是选区的**边界**（对它做批量块操作
     // 无意义或危险：置为待办 / 缩进 / 剪切 = 删整页内容；页内对容器也没有合法落点 ⇒ 拖拽恒死角）。
     // 一处守卫挡住**所有入口**（左滑滑选 / 模式内点块 / toggle / 全选）——比逐个入口补稳。
     if (store.get(blockId)?.isObject) return
@@ -104,7 +104,7 @@ export function useBlockSelection(options: BlockSelectionOptions): BlockSelectio
   }
 
   /** `ids` 只在**显式传数组**时生效；其余（不传 / 被当 onClick 处理器传进 MouseEvent）一律用当前选区——
-   *  飞条那颗删除就是 `onDelete={deleteSelection}` 直接接线（`2026-10-15` 实测：签名一改就静默失效）。 */
+  * 飞条那颗删除就是 `onDelete={deleteSelection}` 直接接线（`` 实测：签名一改就静默失效）。 */
   function deleteSelection(ids?: unknown) {
     const rootIds = store.deleteSelection(Array.isArray(ids) ? (ids as string[]) : selectedIds)
     if (!rootIds || rootIds.length === 0) return

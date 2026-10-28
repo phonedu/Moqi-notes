@@ -18,7 +18,7 @@ export type SelectionKind = 'text' | 'blocks' | 'none'
  *
  * 依据是平台惯例（`R09-KEY-21`）：有文字选区时 ⌘C / ⌘X / ⌫ 是**文字**的事，块级动作让路；
  * 反过来，块选中态下焦点仍可能在正文容器上（块标记画在 `.doc-col` 里、点把手不改焦点），
- * 所以「焦点在不在正文里」**不能**当判据（2026-10-05 踩过：用 `inEditable` 当守卫，
+ * 所以「焦点在不在正文里」**不能**当判据（ 踩过：用 `inEditable` 当守卫，
  * 块级 ⌘C / ⌘X 完全不触发）。
  */
 export function selectionKindOf(input: { textSelected: boolean; blockCount: number }): SelectionKind {

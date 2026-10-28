@@ -14,7 +14,7 @@ import { Icon } from './Icon'
 import { ensureCaretVisible } from '../editor/touchFocus'
 
 /**
- * 触控编辑层（`10` §6.2 / §6.3，2026-10-11 从 `editorPlugins` 抽出——体量门「按主题拆模块」）：
+ * 触控编辑层（`10` §6.2 / §6.3， 从 `editorPlugins` 抽出——体量门「按主题拆模块」）：
  * 触控编辑态的**事件路由**（可编辑开关 / 只读态双击进编辑 / 编辑态**点另一块 = 光标一步到位**（θ6）/ 点空白退 /
  * 左滑进选择模式（**选中唯一入口**，γ1）/ 选择模式内拖拽（γ2））与
  * **三件浮动面**（键盘上方格式栏 · 选区气泡 · 块操作栏 / 选择栏）的渲染。
@@ -68,7 +68,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
   /** 剪贴板端口注入（D-104）：透传给选区气泡（复制 / 粘贴走宿主能力）。 */
   clipboard: { readText(): Promise<string>; writeText(text: string): Promise<void> }
   onTouchActivate: (blockId: string) => void
-  /** θ6（2026-10-13）：编辑态点另一块——**只**把「编辑块」标记跟过去，不抢焦点、不动光标。 */
+ /** θ6（）：编辑态点另一块——**只**把「编辑块」标记跟过去，不抢焦点、不动光标。 */
   onTouchFollow: (blockId: string) => void
   onTouchBlank: () => void
   onTouchExit: () => void
@@ -89,7 +89,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
   useEffect(() => { selectedIdsRef.current = blockOps.selectedIds }, [blockOps.selectedIds])
   useEffect(() => { moveGroupRef.current = blockOps.moveGroup }, [blockOps.moveGroup])
 
-  // `#8` 焦点可见性**硬保证**（2026-10-12）：块高于可视区时 `block:'nearest'` 只保证块边缘——
+ // `#8` 焦点可见性**硬保证**（）：块高于可视区时 `block:'nearest'` 只保证块边缘——
   // 键盘高度一变（弹起 / 收起 / 切输入法）就按**光标矩形**再把当前行顶进可视区。
   useEffect(() => {
     if (touchCompact && touchEditId !== null) ensureCaretVisible()
@@ -98,7 +98,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
   const activateStable = useStableCallback(onTouchActivate)
   const followStable = useStableCallback(onTouchFollow)
   /* D-098：触控编辑态的**滚动跟随**——此前 followTouchBlock 只改状态、从不滚动，点另一块（θ6）
-     或键盘弹出后页面不动（用户 2026-10-26 报「编辑时页面不随移动」）。三个触发点共用 nearest
+     或键盘弹出后页面不动（用户  报「编辑时页面不随移动」）。三个触发点共用 nearest
      滚动（块已在视口内 = no-op，不抖动）：① 进入/切换编辑块立刻滚一次；② visualViewport resize
      （键盘弹出/收起都触发，.doc-col 底部 padding 已含 --kb-h ⇒ nearest 一定可达键盘上方）；
      ③ 编辑器每次更新（打字/换行把光标顶下去时）。 */
@@ -139,7 +139,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
     document.querySelector('.doc-col')?.classList.toggle('is-select-mode', selectMode && touchCompact && touchEditId !== null)
     return () => observer?.disconnect()
   }, [selectMode, touchCompact, touchEditId])
-  // θ9（2026-10-13 用户走查「多选后取消不掉」）：**选区清空 ⇒ 退出选择模式**——形态阶梯里 0 块没有形态。
+ // θ9（ 用户走查「多选后取消不掉」）：**选区清空 ⇒ 退出选择模式**——形态阶梯里 0 块没有形态。
   // 旧行为：模式留着 ⇒ `.is-select-mode` 还挂在 `.doc-col` 上（圈钮照画、点块仍走 toggle 分支），
   // 「谁点都取消不掉」。这条是**兜底**（删除 / 剪切 / ✓完成 / 点块 等所有清空路径都收口在这里）。
   useEffect(() => { if (selectMode && blockOps.selectedIds.length === 0) setSelectMode(false) }, [selectMode, blockOps.selectedIds]) // eslint-disable-line react-hooks/set-state-in-effect -- 一次性纠正（置 false 后条件即不成立，无级联）；清空路径多且不在本层（删除 / 剪切 / ✓完成），只能在这收口
@@ -165,7 +165,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
   }, [imageBarId])
 
   // 触控编辑态（`10` §6.3）：compact 档且不在编辑态 ⇒ 编辑器**整体只读**（只读态单击无操作、
-  // 双击块进编辑）；编辑态内**点另一块 = 光标一步到位**（θ6，2026-10-13：`mousedown` 不再拦，
+ // 双击块进编辑）；编辑态内**点另一块 = 光标一步到位**（θ6，：`mousedown` 不再拦，
   // 让 Lexical 把光标放到点按处）、点空白 = 退编辑。
   useEffect(() => {
     editor.setEditable(!touchCompact || touchEditId !== null)
@@ -192,7 +192,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
       // **只**在选择模式里拦光标（点块 = 增删选区，不让光标挪动）。编辑态点另一块**不拦**：
       // 让 Lexical 把光标放到点按处 = θ6 的「一步到位」（旧行为是拦掉 ⇒ 要点两下才过去）。
       if (blockId && selectMode) event.preventDefault()
-      // 还得截住冒泡（`D-058`，探针实证 2026-10-11）：正文根的 `onMouseDown` 是 React 合成层
+   // 还得截住冒泡（`D-058`，探针实证 ）：正文根的 `onMouseDown` 是 React 合成层
       // 派发的「点正文退块选中」出口——不截它，选区会在 mousedown 阶段被清空，随后 click 里的
       // toggle 从空集加回，点块只剩「替换式单选」（选中子块后点容器 → 只落成 {容器}）。
       if (blockId && selectMode) event.stopPropagation()
@@ -215,7 +215,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
       const imageId = imageIdOf(event)
       if (imageId) { setImageBarId((current) => (current === imageId ? null : imageId)); return }
       setImageBarId(null)
-      // θ6（2026-10-13 用户走查「点另一块要双击、光标不灵敏」）：编辑态单击另一块 = **光标一步到位**——
+   // θ6（ 用户走查「点另一块要双击、光标不灵敏」）：编辑态单击另一块 = **光标一步到位**——
       // 光标已由 Lexical 落在点按处（`onMouseDown` 不再拦），这里只把「编辑块」标记跟过去。
       // **不调 `activateStable`**：那条会 `focusBlockEnd` 把光标推到块尾，正好毁掉「点哪儿落哪儿」。
       // γ1 不动：**选中**入口仍只剩左滑（点块不入选区）。
@@ -241,7 +241,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
     // 滑到的块顺手选上（备忘录式，进去就能多选）。
     let swipe: { x: number; y: number; blockId: string | null } | null = null
     let swallowed = false
-    // γ2（2026-10-12）：**选择模式内拖整个选区**——按住**已选块**即刻成为候选（不等 400ms：
+  // γ2（）：**选择模式内拖整个选区**——按住**已选块**即刻成为候选（不等 400ms：
     // 「已选才能拖」本身就把歧义除干净），位移 > slop(10px) 才真进拖拽；**按住未选块不进拖拽**（让给滚动）。
     let dragCandidate: { x: number; y: number; ids: string[] } | null = null
     let dragging: { target: { id: string; position: DropPosition } | null } | null = null
@@ -317,7 +317,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
       swipe = null
       swallowed = true
       setSelectMode(true)
-      // θ12（2026-10-13 用户裁定「做块操作时没人会动键盘」）：进选择模式 ⇒ **收键盘**——blur 正文字根，
+   // θ12（ 用户裁定「做块操作时没人会动键盘」）：进选择模式 ⇒ **收键盘**——blur 正文字根，
       // 软键盘随焦点收起（下半屏让给块胶囊 / 选择栏）。退出的三个出口（✓完成 / 点空白 / 点掉最后一块）
       // 走 `blankStable` 的 `focus()`，键盘与格式栏按 `10` 二册 §6.2 回来。
       editor.getRootElement()?.blur()
@@ -351,7 +351,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
     // 根元素由 Lexical 在挂载后提供，用 rootListener 保证监听器总是挂在正确的节点上。
     // 本 effect 会重注册（`selectMode` / `touchEditId` 变），旧挂点摘/加都走这个回调；cleanup 里
     // 再显式摘一次是**防御性对称**（`removeEventListener` 幂等；本版 Lexical 退订会回调 `(null, prev)`，
-    // 读 `lexical/dist/Lexical.dev.js` 核过——2026-10-11 的「退订不回调、监听器泄漏」旧线索已证伪，
+  // 读 `lexical/dist/Lexical.dev.js` 核过—— 的「退订不回调、监听器泄漏」旧线索已证伪，
     // 它不是点块替换式单选的成因，真因见 `onMouseDown` 里的 `D-058` 注）。
     let attached: HTMLElement | null = null
     const detach = (element: HTMLElement) => {
@@ -413,7 +413,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
         </div>
       ) : null}
       {blockOps.selectedIds.length > 0 ? (
-        // **形态阶梯**（`10` 二册 §6.2，2026-10-12 裁定）：左滑是唯一入口；进模式后
+    // **形态阶梯**（`10` 二册 §6.2， 裁定）：左滑是唯一入口；进模式后
         // **恰好 1 块 → 块胶囊（两行制）**、**≥2 块 → 选择栏（单行）**。两栏互斥。
         // 切栏 = 底边对齐 + `--dur-mid` 交叉淡入（`.capsule` 的 `animation`），**不做高度动画**。
         selectMode && blockOps.selectedIds.length > 1 ? (

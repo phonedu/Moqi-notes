@@ -126,7 +126,7 @@ export function useEditorData(deps: EditorDataDeps) {
    */
   const exportPort = useMemo(() => createDefaultExportPort(), [])
 
-  // 媒体三管道 + Markdown 导入 + 嵌入块来源住在 `ui/useMediaImport.ts`（外壳拆分第六刀之一，2026-10-09）——
+ // 媒体三管道 + Markdown 导入 + 嵌入块来源住在 `ui/useMediaImport.ts`（外壳拆分第六刀之一，）——
   // 这里只接线；与编辑器的耦合收成两个能力（光标锚点 / 镜像落盘），那个模块不 import 内核。
   const fileChannel = useMemo(() => createDefaultFileChannelPort(), [])
   /** 文件通道的两个活入口（`T-18`）：选文件复用**拖入的同一条路**（`importDroppedPaths`），选文件夹走 `importFolder`。 */
@@ -174,7 +174,7 @@ export function useEditorData(deps: EditorDataDeps) {
     let alive = true
     void assetPort
       .prepare()
-      // 启动扫一次孤儿资产（2026-10-11）：读不到名册就什么都不删，见 `application/assetSync.ts`。
+   // 启动扫一次孤儿资产（）：读不到名册就什么都不删，见 `application/assetSync.ts`。
       .then(() => cleanupUnreferencedAssets(assetPort, store.read().values()))
       .then(() => assetPort.listNames())
       .then((names) => {
@@ -261,7 +261,7 @@ export function useEditorData(deps: EditorDataDeps) {
     refresh: refreshPinyin,
   })
 
-  // 派生数据住在 `ui/useDerivedData.ts`（外壳拆分第七刀，2026-10-09）——外壳只把输入接进来；
+ // 派生数据住在 `ui/useDerivedData.ts`（外壳拆分第七刀，）——外壳只把输入接进来；
   // 各条目的依赖清单与原实现逐条一致（含 `revision` 这种「靠计数强制重算」的驱动）。
   const {
     trashEntries, libraryCards, visibleCards, recentPages, activePage, activeBlock,
@@ -297,7 +297,7 @@ export function useEditorData(deps: EditorDataDeps) {
   /** 块工具栏的按下态：作用于整块，状态取自被选中的块。 */
   const activeFormatsValue = formatSnapshot.blocks
 
-  // 主 keydown 与 ⌘Z 路由住在 `ui/useEditorShortcuts.ts`（外壳拆分第五刀，2026-10-09）——这里只接线；
+ // 主 keydown 与 ⌘Z 路由住在 `ui/useEditorShortcuts.ts`（外壳拆分第五刀，）——这里只接线；
   // 依赖清单与注册契约（主 keydown 随状态重装 / ⌘Z 只注册一次）在那个文件里原样保留。
   // 触控编辑态（`10` §6.3，compact 档）：动作与窄口都在 `ui/useTouchEdit.ts`，只有名字行落位要真编辑器类型。
   const { touchEditId, activateTouchBlock, followTouchBlock, touchBlankTap, exitTouchEdit } = useTouchEdit({

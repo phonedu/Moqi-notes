@@ -4,7 +4,7 @@ import { isoWeek, localDay, recoveryRows, restoreStamp } from '../../src/applica
 import { BrowserBackupPort } from '../../src/adapters/backup'
 
 /**
- * 数据安全：快照的**命名与保留**（`docs/03` §15.9；用户 2026-10-05 裁决排 0.5 第一项）。
+ * 数据安全：快照的**命名与保留**（`docs/03` §15.9；用户 裁决排 0.5 第一项）。
  *
  * 两侧（Rust / 浏览器通道）各有一份保留策略，语义必须一致：**7 日 + 4 周 + 3 份后悔药**。
  * Rust 那份在 `src-tauri/src/backup.rs` 的 `prune_plan`（单测 `retention_*`）；这份是浏览器侧的镜像，
@@ -30,7 +30,7 @@ const withMockStorage = () => {
 test('BACKUP-NAME-1 日期串按本地时间算：日 = YYYY-MM-DD；ISO 周跨年归到有周四的那一年', () => {
   assert.equal(localDay(new Date(2026, 9, 5)), '2026-10-05', '10 月是 month=9（零基）')
   assert.equal(localDay(new Date(2026, 0, 1)), '2026-01-01')
-  // 2026-01-01 是周四 ⇒ 它那一周（2025-12-29 ~ 2026-01-04）算 2026-W01
+ // 是周四 ⇒ 它那一周（ ~ ）算 2026-W01
   assert.equal(isoWeek(new Date(2026, 0, 1)), '2026-W01')
   assert.equal(isoWeek(new Date(2025, 11, 29)), '2026-W01', '跨年那一周归到有周四的年')
   assert.equal(isoWeek(new Date(2026, 0, 5)), '2026-W02', '下一个周一开始新的一周')

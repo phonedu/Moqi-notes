@@ -8,7 +8,7 @@ import type { SyncStatus } from './types'
 
 /**
  * V2b：同步引擎的接线。**从 `EditorShell.tsx` 抽出来的第一块**（治理还债 #2 的第 1 个模块，
- * 2026-10-04；抽象边界＝「什么时候同步 + 同步完做什么」，界面呈现仍归调用方）。
+ * ；抽象边界＝「什么时候同步 + 同步完做什么」，界面呈现仍归调用方）。
  *
  * 传输是共享目录（`docs/03` §14.2 的 `DirectorySyncPort`）；位置与游标跟着**本机这个库**走
  * （`storage.loadSyncState`），不跟 `ui-prefs` 走——换台机器要重新配，但清了 `ui-prefs` 不该动它。
@@ -54,7 +54,7 @@ export function useSyncEngine(options: {
   registry: () => MetadataRegistry
   /** A1：远端定义并进本机之后写回注册表（调用方负责 `saveMetadata`）。 */
   applyRegistry: (next: MetadataRegistry) => void
-  /** 媒体资产端口（资产随同步：读本机已有磁盘名；`docs/03` §14.2「媒体文件」，2026-10-11）。 */
+ /** 媒体资产端口（资产随同步：读本机已有磁盘名；`docs/03` §14.2「媒体文件」，）。 */
   assetPort: AssetPort
   /** 资产拉回来了（本机多了文件）→ 调用方刷新名册并重建编辑器，「文件缺失」占位变回真图。 */
   onAssetsPulled: () => void
@@ -149,7 +149,7 @@ export function useSyncEngine(options: {
       if (appliedGroups > 0) {
         // **远端改动进了领域，打开着的编辑器不会自己知道**：整篇重建一次（撤销 / 重做走同一条路，
         // 顺带把光标按块内偏移放回原处、把块图落盘）。少了这一步，两台机器同看一页时对方改的内容
-        // 只在库里、正文一动不动；此时在本机继续打字，会把对方那一版覆盖回去（2026-10-03 清单 C 实测）。
+    // 只在库里、正文一动不动；此时在本机继续打字，会把对方那一版覆盖回去（ 清单 C 实测）。
         // 页号显式传 ref：这条路径跑在定时器捕获的陈旧闭包里，闭包里的 `activePageId` 可能还是启动那页。
         reloadFromStore(activePageIdRef.current)
       } else {

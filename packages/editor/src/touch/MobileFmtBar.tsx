@@ -8,10 +8,10 @@ import { Icon, type IconName } from './Icon'
 /**
  * 键盘上方格式栏（`10` §6.3 · 定稿）= 桌面常驻格式栏的移动端。
  *
- * 形态（`13-工具栏线框首稿` §一 · 先整体后局部）：
+ * 形态（工具栏线框（已归档） §一 · 先整体后局部）：
  * - **主条九键**（一行 · 贴键盘顶 46px）：`plus 插入` · `heading 文本` · `type 文字` · `indent 段落`
  *   · `list 列表` · `undo 撤销` · `redo 重做` · `sparkles AI 助手` · `check 完成`。
- *   **九键一律 Lucide 线条图标（20px / 2px 圆头）**，与左滑胶囊 / 选择栏同一套 `Icon`——2026-10-24
+ *  **九键一律 Lucide 线条图标（20px / 2px 圆头）**，与左滑胶囊 / 选择栏同一套 `Icon`——
  *   字阶与图标批：此前用 `＋ / Tт / Aa / ≡ / ☰ / ↩ / ↪ / ✦ / ✓` 字形拼贴，笔画、大小、基线各不相同。
  * - **四张就地面板**（点主条键 → 浮在主条正上方；**键盘不退、选区不丢**；再点同键收起、点其他键切换；
  *   当前值点亮）：`heading` T＋H₁–H₆ · `type` 六枚线条图标（bold / italic / strike / underline /
@@ -82,7 +82,7 @@ const MEDIA_TILES: ReadonlySet<InsertTile> = new Set(['image', 'camera', 'file',
  * **保焦点**（与选区气泡同一条做法，见 `TouchBubble` 的 `onMouseDown={prevent}`）：
  * 真机上点主条 / 面板 / 插入面板的 `<button>` 会先把焦点从正文根抢走 ⇒ 软键盘收起、视口重排
  * （宿主 `adjustResize` + IME inset 让 WebView 变高），点按落在移位后的位置、选区也可能塌掉——
- * 用户 2026-10-16 报的「工具栏没法点、不能操作」就是这条。`mousedown` 取消默认 = 焦点不离开正文，
+ * 用户 报的「工具栏没法点、不能操作」就是这条。`mousedown` 取消默认 = 焦点不离开正文，
  * 键盘不退、选区不丢（`10` §6.3 的「键盘不退、选区不丢」由此兑现）；**click 仍照常派发**。
  */
 const prevent = (event: { preventDefault: () => void }) => event.preventDefault()
@@ -127,7 +127,7 @@ export function MobileFmtBar({ formats, blockKind, openCharSignal = 0, onToggleF
     if (panel === null && !insert) return
     const onDown = (event: PointerEvent) => {
       // **Element 不是 HTMLElement**：图标化后就地面板的按钮里是 `<svg><path>`，用 HTMLElement 判定会把
-      // 点图标当成「点了面板外面」——pointerdown 先把面板关掉，click 永远到不了按钮（2026-10-24 验收
+   // 点图标当成「点了面板外面」——pointerdown 先把面板关掉，click 永远到不了按钮（ 验收
       // 逮到：`Aa` 六格全点不动、面板反而收起）。closest 在 Element 上就有，SVG 也吃。
       const target = event.target instanceof Element ? event.target : null
       if (target?.closest('.mbar, .mbar-panel, .mbar-sheet')) return
