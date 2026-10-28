@@ -21,7 +21,7 @@
     "check:css-order": "node scripts/check-css-order.mjs",
     "check:breakpoints": "node scripts/check-breakpoints.mjs",
     "check:type-scale": "node scripts/check-type-scale.mjs",
-    "check": "pnpm check:theme && pnpm check:theme-usage && pnpm check:css-order && pnpm check:breakpoints && pnpm check:type-scale && pnpm check:size && pnpm check:copy && pnpm typecheck && pnpm verify-version && pnpm test && pnpm check:coverage",
+    "check": "pnpm check:theme && pnpm check:theme-usage && pnpm check:css-order && pnpm check:breakpoints && pnpm check:type-scale && pnpm check:size && pnpm check:copy && pnpm typecheck && pnpm verify-version && pnpm test && pnpm check:privacy && pnpm check:coverage",
     "accept": "node scripts/accept-editor.mjs",
     "visual-smoke": "node scripts/visual-smoke.mjs",
     "readings:device": "node scripts/device-readings.mjs",
@@ -29,7 +29,8 @@
     "check:size": "node scripts/check-code-size.mjs",
     "check:copy": "node scripts/check-copy.mjs",
     "check:coverage": "node scripts/check-coverage.mjs",
-    "check:audit": "pnpm audit --audit-level=high"
+    "check:audit": "pnpm audit --audit-level=high",
+    "check:privacy": "node scripts/check-privacy.mjs"
   },
   "dependencies": {
     "@lexical/react": "0.51.0",
