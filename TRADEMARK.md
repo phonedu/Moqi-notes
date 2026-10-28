@@ -1,10 +1,10 @@
 # 商标与名称使用
 
-墨契 / Moqi 名称与 Logo 是本项目维护者的产品标识。仓库代码许可证（AGPL-3.0-or-later，见 [LICENSE](LICENSE)）授予你使用、修改、再分发代码的权利，**不授予任何商标权**。
+墨契 / Moqi 名称与 Logo 是本项目维护者的产品标识。仓库代码许可证（应用 AGPL-3.0-or-later 见 [app/LICENSE](app/LICENSE)；编辑器包 MPL-2.0 见 [packages/editor/LICENSE](packages/editor/LICENSE)）授予你使用、修改、再分发代码的权利，**不授予任何商标权**。
 
 ## 可以
 
-- 在遵守 AGPL 的前提下使用、修改、再分发本项目代码；
+- 在遵守对应许可证（应用 AGPL / 编辑器包 MPL-2.0）的前提下使用、修改、再分发本项目代码；
 - 在文章、评测、教程中提及「墨契 / Moqi」并链接官方仓库；
 - 个人或组织内部使用与自建。
 

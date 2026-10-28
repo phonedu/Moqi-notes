@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
  * **Markdown 行引擎的唯一所有者**（`09-桌面端交互规范` §6.12 `R09-MD-3` 的那张行首表）——
  * **行内记号**那一半住在 `mdInline.ts`、**front-matter** 在 `mdFrontMatter.ts`、

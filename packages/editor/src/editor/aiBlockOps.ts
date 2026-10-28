@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 import { HISTORIC_TAG, type LexicalEditor } from 'lexical'
 import type { AiMeta, Block } from '../domain/block'
 import { $createBlockNode, $findBlockNode } from './blockNode'

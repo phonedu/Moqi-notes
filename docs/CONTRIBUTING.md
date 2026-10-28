@@ -5,7 +5,7 @@
 ## 法律面（DCO + 再许可授权）
 
 - 提交请带 `Signed-off-by: 你的名字 <邮箱>`（`git commit -s`）——声明你有权按本项目许可贡献这段代码
-- 你 contribution 的版权归你，但按 AGPL-3.0-or-later 进入项目，并同时授予维护者**随项目换许可证 / 商业再分发**的权利（不转移版权、不签 CLA）
+- 你 contribution 的版权归你，但按**所在部分的许可证**进入项目（应用 = AGPL-3.0-or-later / 编辑器包 = MPL-2.0），并同时授予维护者**随项目换许可证 / 商业再分发**的权利（不转移版权、不签 CLA）
 
 ## 工程面
 
@@ -27,4 +27,4 @@ pnpm -C app tauri dev        # 真桌面窗口
 
 ## 不接受
 
-闭源衍生贡献、绕过 AGPL 的商用授权请求（见 [TRADEMARK](../TRADEMARK.md) 与 LICENSE 的再许可条款）。
+闭源衍生贡献、绕过许可证的商用授权请求（见 [TRADEMARK](../TRADEMARK.md) 与 LICENSE 的再许可条款）。

@@ -6,7 +6,7 @@
 
 - **桌面**（Windows）与 **Android** 一套交互两种形态
 - **编辑器内核**独立成包（`@moqi/editor`），宿主契约 + 触控交互层全在包内
-- 许可证 **AGPL-3.0-or-later**；文档 CC BY-SA 4.0
+- 许可证：应用 **AGPL-3.0-or-later** · 编辑器包 **MPL-2.0**（闭源应用也能以依赖方式使用）· 文档 CC BY-SA 4.0
 
 ## 当前状态
 
@@ -49,4 +49,4 @@ pnpm -C app tauri android build --debug -t aarch64 --apk   # Android（需 SDK/N
 
 ## 许可
 
-代码 [AGPL-3.0-or-later](LICENSE) · 文档与设计资产 [CC BY-SA 4.0](LICENSE-DOCS) · 「墨契 / Moqi」名称与 Logo 见 [TRADEMARK](TRADEMARK.md)
+应用 [AGPL-3.0-or-later](app/LICENSE) · 编辑器包 [MPL-2.0](packages/editor/LICENSE) · 文档与设计资产 [CC BY-SA 4.0](LICENSE-DOCS) · 「墨契 / Moqi」名称与 Logo 见 [TRADEMARK](TRADEMARK.md)

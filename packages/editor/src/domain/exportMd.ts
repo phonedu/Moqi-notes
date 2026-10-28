@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
  * Markdown 导出（设计全文 13-导出与媒体设计（已归档）；规则 `09-桌面端交互规范` §6.4 `R09-EXPORT-1…6`）。
  *

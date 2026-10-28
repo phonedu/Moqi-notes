@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
  * **引用的读回半边**（`\`……` 的两个语法族 + 媒体引用的落地）——2026-10-10 随「Obsidian 互通」批
  * 从 `mdSyntax.ts` 拆册（体量门 + 名实归位：行引擎与引用还原各是一个知识）。

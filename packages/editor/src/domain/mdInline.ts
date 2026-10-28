@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
  * **行内记号的唯一所有者**（`09-桌面端交互规范` §6.12 `R09-MD-3` 的第二段）：成对表 / 转义 / 反解 / 切片段。
  *

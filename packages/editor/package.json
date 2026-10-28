@@ -14,7 +14,7 @@
   "sideEffects": [
     "*.css"
   ],
-  "license": "AGPL-3.0-or-later",
+  "license": "MPL-2.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {

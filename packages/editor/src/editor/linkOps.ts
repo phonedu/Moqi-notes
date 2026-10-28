@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 import { $createRangeSelection, $createTextNode, $setSelection, HISTORIC_TAG } from 'lexical'
 import type { LexicalEditor, LexicalNode } from './editorTypes'
 import type { Block } from '../domain/block'

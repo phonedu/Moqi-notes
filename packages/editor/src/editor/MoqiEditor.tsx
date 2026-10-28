@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react'
 import { createTextBlock, type Block, type BlockMap } from '../domain/block'
 import { blocksFromEditorState, editorNodes, loadBlocksIntoEditor } from './blockLexicalAdapter'

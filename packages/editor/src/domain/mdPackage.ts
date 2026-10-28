@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
  * **导入包的条目分拣**（`13-数据区重规划` §2 场景 E / 第 13 项）：拖入 `.zip` 时，
  * 「哪些条目是可读的 Markdown、哪些要如实报数、这个包是不是**备份包**」的判据只此一份——

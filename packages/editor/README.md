@@ -64,4 +64,4 @@ pnpm typecheck   # tsc --noEmit
 pnpm build       # 产物 dist/index.mjs + dist/types（react / react-dom / lexical external）
 ```
 
-许可：AGPL-3.0-or-later（见 `LICENSE`）。
+许可：MPL-2.0（见 `LICENSE`）——文件级 copyleft：改本包的文件须公开改动；以依赖方式用在你自己的项目（含闭源应用）不受限。

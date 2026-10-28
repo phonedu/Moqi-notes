@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
  * **front-matter 的唯一所有者**（YAML 子集的读半边；导出侧写在 `exportMd.ts` 的 `frontMatterLines`）。
  *

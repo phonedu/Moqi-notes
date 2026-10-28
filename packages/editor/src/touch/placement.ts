@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /***
  * 工具栏落点数学（M7 从壳 `ui/blockAnchor` 抽进包）：`textSelectionRectOf`（文字选区取窄矩形，
  * 三条不出守卫：缺失 / 收拢 / 两端不在根内 / 退化矩形）与 `toolbarPlacement`（文字条与块条

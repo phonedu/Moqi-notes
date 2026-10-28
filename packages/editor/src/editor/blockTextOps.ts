@@ -1,3 +1,6 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
  * 块级**键盘写入**的编排（2026-10-10 从外壳搬出——`06` §6「外壳新代码免入」；**住 `editor/` 是因为它直接碰内核**：
  * `ui/` 不许直接 import `lexical`（`tests/logic/import-boundaries.test.ts` ③ 的冻结名单只许变短），
