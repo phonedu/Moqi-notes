@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
- * 可选能力开关（M5，`13-编辑器模块化` §3/§4）。
+ * 可选能力开关（M5，`编辑器模块化（已归档）` §3/§4）。
  *
  * 口径（§3）：AI 助手、图片/附件/嵌入、反链区、页面属性是**可选能力**——
  * 默认关闭时对应按钮不出现；不许用假按钮或空实现冒充。

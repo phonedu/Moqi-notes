@@ -56,7 +56,7 @@ export type PropertyEditorCallbacks = {
   onAddTag: (name: string) => void
   onRemoveTag: (tagId: string) => void
   /**
-   * 「筛这一列」（`13-属性区重规划` §7.1-A3）：值 chip / 标签 chip 的**右键菜单**——把页面库筛选
+   * 「筛这一列」（`属性区重规划（已归档）` §7.1-A3）：值 chip / 标签 chip 的**右键菜单**——把页面库筛选
    * 拨到这个属性=这个值（再点同一值 = 取消）。可选：移动端展开面板暂不接（随 F/G）。
    */
   onFilterOption?: (defId: string, optionId: string) => void
@@ -106,7 +106,7 @@ export function PropertyRows({
         </div>
       </div>
 
-      {/* 一张表、零分区（`13-属性区重规划` §0-2/§0-7「对外一律叫属性」）：默认字段与用户属性同列；
+      {/* 一张表、零分区（`属性区重规划（已归档）` §0-2/§0-7「对外一律叫属性」）：默认字段与用户属性同列；
           空态不再有文案——**页面没有属性就不渲染属性面**（§0-11，由调用方保证）。 */}
       {custom.map((row) => (
         <CustomRow
@@ -251,7 +251,7 @@ function FieldMenu({ label, onRemove }: { label: string; onRemove: () => void })
 }
 
 /**
- * 标签取用选择器（`13-属性区重规划` §5-12， 已裁）：搜索 / 创建 + **全量**标签
+ * 标签取用选择器（`属性区重规划（已归档）` §5-12， 已裁）：搜索 / 创建 + **全量**标签
  * （各自「用在 N 页」）；点一条 = 本页加上、已在本页的再点 = 去掉，**多选不关窗**；
  * 输入即建走 `ensureTagDef`（按名复用同一定义，不产生同名两份）。
  */

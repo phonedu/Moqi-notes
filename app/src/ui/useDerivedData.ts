@@ -167,7 +167,7 @@ export function useDerivedData(inputs: DerivedDataInputs) {
     return buildPropertyRows(activePage, registry)
   }, [activePage, registry])
 
-  /** 标签用量读数（`13-属性区重规划` §5-12）：全量标签 ＋「用在 N 页」——取用选择器的数据源。 */
+  /** 标签用量读数（`属性区重规划（已归档）` §5-12）：全量标签 ＋「用在 N 页」——取用选择器的数据源。 */
   const tagUsage = useMemo(() => tagUsages(snapshot.values(), registry.tags), [snapshot, registry])
 
   /** 属性库用量读数（§3.6「用在 N 页」/ §3.2 删除影响清单）：每个定义 `{ pages, values }`。 */

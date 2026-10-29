@@ -4655,7 +4655,7 @@ check('RADIUS-1 输入框一律控件档外观（8px 圆角 + 实线令牌描边
   { radiusDialog, radiusFocus, radiusSearch })
 
 // ---------- 正文列上边距（ 用户裁决；`R09-EDIT-4`、台账 `D-022`）----------
-// ** 按新形态重定**（`13-属性区重规划` §0-1/§6 连锁②：摘要条不再常驻）：
+// ** 按新形态重定**（`属性区重规划（已归档）` §0-1/§6 连锁②：摘要条不再常驻）：
 // **没有属性面 → 40px**（原型口径，正文顶在窗口栏下，没有钉住条要避）；**有属性面 → 16px**
 // （D-022 的收窄推导的前提回来了：16px + 容器块外边距 ≈ 27px < 40）。判据两个数字一起看：
 // ① 计算上内边距；② 实测量到的空白 < 40px——只断言 ① 会漏掉「块自身外边距被调大」这类回归。
@@ -4825,7 +4825,7 @@ check('R09-PROP-5 / R09-PADD-1…3 属性行新形态：解剖 = 类型图标 + 
   && dupHint.problem === '已有同名属性' && dupHint.goDisabled === true && dupCleared.problem === null,
   { anatomyClosed, dialogShell, typeMenu, created, hovered, rowMenu, propertyRowNames, dialogAgain, dupHint, dupCleared })
 
-// ---------- 「从本页删除」＝本页不显示、值保留（`13-属性区重规划` §0-10， 裁决）----------
+// ---------- 「从本页删除」＝本页不显示、值保留（`属性区重规划（已归档）` §0-10， 裁决）----------
 // 承接上一段的现场（「验收属性二」在、面板展开、弹层已关）：删 → 行消失 + 值还在 → 加回来即恢复。
 const keepBefore = await page.evaluate(() => {
   const b = JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]')
@@ -4863,7 +4863,7 @@ check('PROPS-KEEP-1 「从本页删除」＝本页不再显示、**值保留**�
   && keepBack.row === true && !keepBack.hidden.includes(keepBefore.defId) && keepBack.props.includes(keepBefore.defId),
   { keepBefore, keepAfter, keepBack })
 
-// ---------- 标签取用选择器（`13-属性区重规划` §5-12， 已裁）----------
+// ---------- 标签取用选择器（`属性区重规划（已归档）` §5-12， 已裁）----------
 // 场景承接：面板展开、标签行在（⋯「属性」入口直落）。入口 = 「＋ 添加标签」胶囊（旧输入框不在）；
 // 点开 = 搜索 / 创建 + 全量 + 「用在 N 页」；输入即建 → 本页上标签；再点同一条 = 去掉（切换）、多选不关窗。
 const tagPill = await page.evaluate(() => {
@@ -5149,7 +5149,7 @@ check('R09-SET-5b 属性库（θ4 续）：页头「共 N 条」· 搜索行筛�
   && (searchEmptyState ?? '').includes('没有匹配'),
   { headMeta, afterDrag, optDlg, optsNow, searchHits, searchEmptyState })
 
-// ---------- 属性库：用量读数 + 删除两步（`13-属性区重规划` §3.6 / §3.2；θ4 后读数搬进展开态）----------
+// ---------- 属性库：用量读数 + 删除两步（`属性区重规划（已归档）` §3.6 / §3.2；θ4 后读数搬进展开态）----------
 // 仍在「属性」页（上一段停在这里，行 = 阶段 / 测试属性）。
 const usageCells = []
 for (const name of await rowNames()) {

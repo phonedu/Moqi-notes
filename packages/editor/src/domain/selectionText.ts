@@ -16,7 +16,7 @@ import { dedupeSelection } from './selectionOps'
  *   贴回编辑器则由 `((` / `[[` 那条输入通路认领（识别路径见实施计划 T8 的 MD 输入层）。
  *
  * **有意不是 Markdown 导出格式**：导出（front-matter / 标题层级 / 链接写法）是 V3 的另一件事，
- * 落地时两者应当共用同一个序列化器——登记在`13-编辑器重规划` T6 ⑤，
+ * 落地时两者应当共用同一个序列化器——登记在`编辑器重规划（已归档）` T6 ⑤，
  * 到那时本文件要么成为它的底层、要么被它取代，不许各写一套。
  */
 export type SelectionTextMode = 'plain' | 'ref'

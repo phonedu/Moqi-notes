@@ -34,7 +34,7 @@ export type LibraryCard = {
   created: number
   modified: number
   tagIds: string[]
-  /** 属性值（原 V2c 的窄形状只带 optionId；`13-属性区重规划` §7.1-A4 起带**全量值**——按属性排序要用）。 */
+  /** 属性值（原 V2c 的窄形状只带 optionId；`属性区重规划（已归档）` §7.1-A4 起带**全量值**——按属性排序要用）。 */
   properties: PropertyValue[]
 }
 
@@ -59,7 +59,7 @@ export type PropertyRow =
   | { kind: 'custom'; def: PropertyDef; value: PropertyValue | undefined }
   | { kind: 'tags'; tags: { id: string; name: string }[] }
   /**
-   * 默认字段「**时间**」（`13-属性区重规划` §0-12 已裁）：**一行**，值 = 页面创建时间（`created`）、
+   * 默认字段「**时间**」（`属性区重规划（已归档）` §0-12 已裁）：**一行**，值 = 页面创建时间（`created`）、
    * **用户可改**；`modified` 系统维护、不进面板（旧的「编辑时间」行随之退场）。
    * 行的显示集合键沿用 `sys:created`——存量 `propertyShown/hidden` 里的它照旧生效。
    */

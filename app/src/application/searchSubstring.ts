@@ -3,7 +3,7 @@ import { cachedPinyinIndex, isPinyinQuery, pinyinMatches, pinyinSourceText } fro
 import { SEARCH_LIMIT, type SearchFilter, type SearchHit } from './search'
 
 /**
- * A2（`13-属性区重规划` §7.1-A2）：一条属性值的**显示文本**——与 Rust 侧
+ * A2（`属性区重规划（已归档）` §7.1-A2）：一条属性值的**显示文本**——与 Rust 侧
  * `storage_model.rs` 的 `property_display_text` / `apply_search_text` **同一套口径**
  * （`SEARCH-PARITY-1`）：定义缺失退回裸值（select 退回 `optionId`）、显示值为空整条跳过。
  */

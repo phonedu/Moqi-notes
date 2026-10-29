@@ -32,7 +32,7 @@ export function usePropertyEditor({
 }: Deps): {
   /** 面板（`Property.tsx` 两处同构）认的那组回调。 */
   propertyCallbacks: PropertyEditorCallbacks
-  /** 设置页「全局属性管理」用的写入口（**停用已取消**，`13-属性区重规划` §0-4：状态收敛为 在用 / 已删除）。 */
+  /** 设置页「全局属性管理」用的写入口（**停用已取消**，`属性区重规划（已归档）` §0-4：状态收敛为 在用 / 已删除）。 */
   createProperty: (name: string, type: PropertyType) => void
   /** 添加弹窗「建并添加」：建定义 ＋ 本页写初始取值 ＋ 记「最近使用」（关弹窗归弹窗自己）。 */
   createAndAddProperty: (name: string, type: PropertyType) => void
@@ -62,7 +62,7 @@ export function usePropertyEditor({
   }
 
   /**
-   * 添加弹窗的「**建并添加**」（`13-属性区重规划` §0-3）：建定义 → 本页写入初始取值 → 记「最近使用」。
+   * 添加弹窗的「**建并添加**」（`属性区重规划（已归档）` §0-3）：建定义 → 本页写入初始取值 → 记「最近使用」。
    * 判据与 `createProperty` 同一套（失败 toast 说清问题）；取值那一笔走 `updatePage`（一次事务一个落盘名单）。
    * 关弹窗不在这里——弹窗自己的 submit 建完即关（点了即加即关）。
    */
@@ -92,7 +92,7 @@ export function usePropertyEditor({
   }
 
   /**
-   * 「时间」行的值（`13-属性区重规划` §0-12 已裁）：改的是页面的 `created`（`YYYY-MM-DD` 本地日）。
+   * 「时间」行的值（`属性区重规划（已归档）` §0-12 已裁）：改的是页面的 `created`（`YYYY-MM-DD` 本地日）。
    * `modified` 系统维护、不从这里写；一次事务、一个落盘名单（与其它页级字段同一条通路）。
    */
   function setCreated(value: string) {
@@ -187,7 +187,7 @@ export function usePropertyEditor({
   }
 
   /**
-  * 「添加属性」（`13-属性区重规划` §0-1/§0-2/§0-3/§0-9， 裁决）：
+  * 「添加属性」（`属性区重规划（已归档）` §0-1/§0-2/§0-3/§0-9， 裁决）：
    * 默认字段（标签 / 创建时间 / 编辑时间）→ 进 `propertyShown` 即出现（没有值可写）；
    * 用户属性 → 出一档 `propertyHidden`（从本页删过的再加回来）＋ 写初始值（既有行为）。
    * 两侧都**不做限制**：已添加再点 = 幂等。
@@ -219,7 +219,7 @@ export function usePropertyEditor({
   }
 
   /**
-   * 删除用户属性（`13-属性区重规划` §3.2「删除（仅用户建的）」）：① **一块事务**清全库取值与显示集合
+   * 删除用户属性（`属性区重规划（已归档）` §3.2「删除（仅用户建的）」）：① **一块事务**清全库取值与显示集合
    * （可 ⌘Z 撤销——沾到的块每个一条 update 操作；软删除页也清，不留悬空引用）→ ② 删定义。
    * 影响清单（用在 N 页 / 共 M 个值）由调用方在确认框里先给（判据 = `domain.propertyUsages` 同一读数）。
    */

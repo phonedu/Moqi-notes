@@ -66,7 +66,7 @@ export function MoreMenu({ anchor, onClose, refOpen, onToggleRef, showRefPanel =
   onExport: () => void
   starred: boolean
   onToggleStar: () => void
- /** 「属性」入口（`13-属性区重规划` §0-1， 裁决：摘要条不再常驻，入口回到 ⋯）。 */
+ /** 「属性」入口（`属性区重规划（已归档）` §0-1， 裁决：摘要条不再常驻，入口回到 ⋯）。 */
   onOpenProperties: () => void
 }) {
   const run = (action: () => void) => () => { onClose(); action() }

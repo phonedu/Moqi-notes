@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url'
 /**
  * 结构边界门（编辑器重规划 · 步 1， 成门）。
  *
- * 为什么要有它：`13-编辑器重规划`§2.2 把「内核可替换」列为明文约束，
+ * 为什么要有它：`编辑器重规划（已归档）`§2.2 把「内核可替换」列为明文约束，
  * 而约束只有在**有执行者**时才算约束——这份测试就是那三条的第一批执行者。
  * 现状全部成立，规则**只许收紧、不许放宽**：
  *
@@ -77,7 +77,7 @@ test('领域层不许 import 编辑器内核，也不许向上引用 editor/ 或
       }
     }
   }
-  assert.deepEqual(offenders, [], `领域层出现了越界引用（「13-编辑器重规划」§2.2 约束 1）：\n${offenders.join('\n')}`)
+  assert.deepEqual(offenders, [], `领域层出现了越界引用（「编辑器重规划（已归档）」§2.2 约束 1）：\n${offenders.join('\n')}`)
 })
 
 test('editor/ 不许反向引用 ui/（方向单向：ui → editor → domain）', () => {
@@ -87,7 +87,7 @@ test('editor/ 不许反向引用 ui/（方向单向：ui → editor → domain�
       if (referencesLayer(specifier, 'ui')) offenders.push(`${file} → ${specifier}`)
     }
   }
-  assert.deepEqual(offenders, [], `editor/ 反向引用了 ui/（「13-编辑器重规划」§2.2 约束 2）：\n${offenders.join('\n')}`)
+  assert.deepEqual(offenders, [], `editor/ 反向引用了 ui/（「编辑器重规划（已归档）」§2.2 约束 2）：\n${offenders.join('\n')}`)
 })
 
 test('编辑器包（domain/ 与 editor/）不依赖合成根 / 适配器 / 平台 API（M3/M4）', () => {

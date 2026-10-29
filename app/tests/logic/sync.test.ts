@@ -96,7 +96,7 @@ class Device {
 const port = (io: SyncFileIo, deviceId: string, directory = 'shared') =>
   new DirectorySyncPort(io, () => directory, async () => deviceId)
 
-// ---------- A1：定义随同步走（`13-属性区重规划` §7.1-A1，）----------
+// ---------- A1：定义随同步走（`属性区重规划（已归档）` §7.1-A1，）----------
 /** 一条属性定义：同一个 id、不同时刻的版本（合并口径 = 同 id 取 `modified` 大的整条）。 */
 const propDef = (id: string, name: string, modified: number): PropertyDef =>
   ({ id, name, type: 'select', created: 1000, modified })

@@ -470,7 +470,7 @@ body.is-focus .prop-wrap { display: none; }
 /* ============ 7. 属性钉住区（摘要条 + 原位展开面板） ============ */
 /* 属性摘要条分界线删除（v3 §二-B「属性栏的全部线」） */
 .prop-wrap { flex-shrink: 0; background: var(--panel); }
-/* 与正文列**同一条轴**（`13-属性区重规划` §3.3，）：摘要条与展开面板的内容都收进
+/* 与正文列**同一条轴**（`属性区重规划（已归档）` §3.3，）：摘要条与展开面板的内容都收进
    `.doc-inner` 那条轴——两侧内边距照 `.doc-col` 的 56px，内容 `max-width: var(--colw)` 居中。
    面板不再铺满编辑栏（用户第 ① 条不满意的正解）；chevron 因此落在正文列右缘。 */
 .prop-brief, .prop-edit { padding-left: 56px; padding-right: 56px; }
@@ -512,7 +512,7 @@ body.is-focus .prop-wrap { display: none; }
 .pe-row { display: flex; align-items: center; gap: 14px; padding: 7px 4px; min-height: 38px; border-radius: var(--r-ctrl); transition: background var(--dur-fast); }
 .pe-row:hover { background: var(--panel-2); }
 .pe-type { display: flex; align-items: center; flex-shrink: 0; margin-right: -8px; color: var(--text-3); }
-/* 名称栏 60px → **96px 起步且长名换行不截断**（`13-属性区重规划` §3.3，）。
+/* 名称栏 60px → **96px 起步且长名换行不截断**（`属性区重规划（已归档）` §3.3，）。
    为什么仍是定宽而不是「按最长名自适应」：自适应会让每行的值区左缘参差，而「值区左缘统一基准线」
    是这条修订的另一半——两利相权取基准线（定宽 + 换行两头都占住；名字极长时换行，不留省略号）。 */
 .pe-k { width: 96px; min-width: 96px; flex-shrink: 0; color: var(--text-2); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); font-weight: 500; white-space: normal; overflow-wrap: anywhere; }
@@ -542,7 +542,7 @@ body.is-focus .prop-wrap { display: none; }
 }
 .pe-tag .x { display: flex; color: var(--accent-text); opacity: .75; }
 .pe-tag .x:hover { opacity: 1; }
-/* 标签取用选择器（`13-属性区重规划` §5-12）：入口是虚线胶囊；弹层里一列标签 ＋「用在 N 页」读数。 */
+/* 标签取用选择器（`属性区重规划（已归档）` §5-12）：入口是虚线胶囊；弹层里一列标签 ＋「用在 N 页」读数。 */
 .pe-tagadd { height: 26px; padding: 0 10px; border: 1px dashed var(--border-2); border-radius: var(--r-pill); color: var(--text-2); font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
 .pe-tagadd:hover { background: var(--hover); color: var(--text); }
 .tp-search { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-bottom: 1px solid var(--border); color: var(--text-3); }
@@ -640,7 +640,7 @@ body.is-focus .prop-wrap { display: none; }
   font-size: var(--type-caption1-size); line-height: var(--type-caption1-line);
 }
 .pe-input:focus, .pe-select:focus { border-color: var(--accent); outline: none; }
-/* 改名失败就地说一句（`13-属性区重规划` §0-6：成功不弹通知、失败就地提示）——最多一行、超出省略，全文在 title。 */
+/* 改名失败就地说一句（`属性区重规划（已归档）` §0-6：成功不弹通知、失败就地提示）——最多一行、超出省略，全文在 title。 */
 .pe-problem {
   min-width: 0;
   max-width: 260px;
@@ -657,7 +657,7 @@ body.is-focus .prop-wrap { display: none; }
    （`R09-EDIT-4`），两条叠起来名字行上方的空白就有 51px（40 上边距 + 容器块自身 11.29 外边距，
    实测工具量得）。收窄到 16px 后同一处为 27px。 */
 /* 密度放宽一档（v3 §六）：左右外边距 +20% → 56px；上边距 16px 是用户裁决值（`R09-EDIT-4`）不动。 */
-/* 上边距两态（`13-属性区重规划` §6 连锁②，）：**有属性摘条 16px**（那是 D-022 的原推导）；
+/* 上边距两态（`属性区重规划（已归档）` §6 连锁②，）：**有属性摘条 16px**（那是 D-022 的原推导）；
    没有属性面时回到原型口径 40px（正文顶在窗口栏下）。由外壳按「本页有没有属性面」挂 `is-with-brief`。 */
 .doc-col { flex: 1; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 16px 56px calc(120px + var(--kb-h, 0px)); position: relative; } /* 底部预留 + 键盘高（`#8`：光标能被滚到键盘上方）；顶部 40→16（D-095：顶栏到标题视距 65px 太远，用户  报） */
 .doc-col.is-with-brief { padding-top: 16px; }

@@ -26,7 +26,7 @@ const anchor = { top: 40, left: 20, right: 60, bottom: 60, width: 40, height: 20
 const rows: PropertyRow[] = [
   { kind: 'custom', def: { id: 'def-status', name: '状态', type: 'select', options: [{ id: 'o1', label: '进行中' }], created: 1, modified: 1 }, value: { defId: 'def-status', type: 'select', optionId: 'o1' } },
   { kind: 'tags', tags: [{ id: 't1', name: '副业' }] },
-  // 「时间」= 一行（`13-属性区重规划` §0-12）：值 = created、可改；`modified` 不进面板。
+  // 「时间」= 一行（`属性区重规划（已归档）` §0-12）：值 = created、可改；`modified` 不进面板。
   { kind: 'time', timestamp: 1_700_000_000_000 },
 ]
 
@@ -249,7 +249,7 @@ test('关于页显示真实版本号与更新日志，当前版本默认展开�
   assert.doesNotMatch(markup, /`/, '更新日志按纯文本显示，不带 Markdown 行内代码标记')
 })
 
-test('属性面板（`13-属性区重规划` §0-2/§0-7/§0-10）：一张表零分区、零注释文字、默认字段行也能「从本页删除」', () => {
+test('属性面板（`属性区重规划（已归档）` §0-2/§0-7/§0-10）：一张表零分区、零注释文字、默认字段行也能「从本页删除」', () => {
   const markup = renderToStaticMarkup(
     <PropertyRows rows={rows} onOpenAddProperty={() => undefined} {...callbacks()} />,
   )

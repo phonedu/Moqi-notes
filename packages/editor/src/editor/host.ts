@@ -20,7 +20,7 @@ export type EditorClipboardPort = {
 }
 
 /**
- * 编辑器宿主契约（`13-编辑器模块化` §4）：
+ * 编辑器宿主契约（`编辑器模块化（已归档）` §4）：
  * 文档存储是必需的，其余能力按可选端口接；编辑器不直接 import `composition` / `adapters`。
  */
 export type EditorHost = {

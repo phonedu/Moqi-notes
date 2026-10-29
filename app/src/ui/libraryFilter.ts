@@ -24,7 +24,7 @@ export type TagMode = 'any' | 'include' | 'exclude'
 export type TimeField = 'modified' | 'created'
 export type TimeRange = 'any' | 'today' | 'week' | 'month' | 'thisMonth' | 'thisYear'
 export type BacklinkFilter = 'any' | 'has' | 'none'
-/** 排序档：三个固有字段 ＋ **按某个属性**（`13-属性区重规划` §7.1-A4「排序扩一档」）。 */
+/** 排序档：三个固有字段 ＋ **按某个属性**（`属性区重规划（已归档）` §7.1-A4「排序扩一档」）。 */
 export type SortField = 'modified' | 'created' | 'title' | 'property'
 export type SortDirection = 'desc' | 'asc'
 
@@ -176,7 +176,7 @@ export function applyLibraryFilter(cards: LibraryCard[], filter: LibraryFilter, 
 }
 
 /**
- * 高级筛选区要画的属性行（`13-属性区重规划` §7.1-A4）：**全部属性**——单选型给选项 chips ＋「未设置」，
+ * 高级筛选区要画的属性行（`属性区重规划（已归档）` §7.1-A4）：**全部属性**——单选型给选项 chips ＋「未设置」，
  * 其余类型（文本 / 数字 / 日期 / 勾选）给「未设置」（原来只列单选型，文本/数字/日期的条件无从表达）。
  */
 export function filterableProperties(defs: PropertyDef[]): PropertyDef[] {
@@ -184,7 +184,7 @@ export function filterableProperties(defs: PropertyDef[]): PropertyDef[] {
 }
 
 /**
- * 「筛这一列」（`13-属性区重规划` §7.1-A3）：值 / 标签 chip 右键菜单拨出的那个条件——把这一组拨到
+ * 「筛这一列」（`属性区重规划（已归档）` §7.1-A3）：值 / 标签 chip 右键菜单拨出的那个条件——把这一组拨到
  * **defId = optionId**；再拨同一个值 = **撤掉整组**（与侧栏点同一个标签 = 取消，同一个做法）。
  */
 export function pickPropertyOption(filter: LibraryFilter, defId: string, optionId: string): LibraryFilter {

@@ -95,7 +95,7 @@ export function resolveTagName(tagId: string, registry: MetadataRegistry): strin
 }
 
 /**
- * **默认字段**（内部术语；界面一律只出现「属性」，不出现分类名——`13-属性区重规划` §0-7）。
+ * **默认字段**（内部术语；界面一律只出现「属性」，不出现分类名——`属性区重规划（已归档）` §0-7）。
  * 标签 / 时间的数据住在 Block 自身（`tags` / `created`），**不在 registry**；
  * 这里只给一套稳定 id 与对外显示名，供「添加属性」列表与面板行共用（图标映射在 UI 侧）。
  * 星标**不在其列**（§0-8 已裁：归「更多」菜单，不进属性面）。
@@ -116,7 +116,7 @@ export function isDefaultField(id: string): boolean {
 }
 
 /**
- * 属性面板里一行**该不该显示**——`13-属性区重规划` 的四条裁决收成一句
+ * 属性面板里一行**该不该显示**——`属性区重规划（已归档）` 的四条裁决收成一句
  * （§0-1/§0-2 默认属性要加才出现 · §0-3 添加不设限 · §0-10「从本页删除」= 不显示、值保留）：
  *
  * **`(键 ∈ propertyShown ∨ 有值) ∧ 键 ∉ propertyHidden`**
@@ -131,7 +131,7 @@ export function propertyRowVisible(input: { id: string; hasValue: boolean; shown
 }
 
 /**
- * 属性的**用量读数**（`13-属性区重规划` §3.6「用在 N 页」/ §3.2 删除影响清单）：每个定义一份
+ * 属性的**用量读数**（`属性区重规划（已归档）` §3.6「用在 N 页」/ §3.2 删除影响清单）：每个定义一份
  * `{ pages, values }`——`values` = 全库未删除页面里的值条目数（`checkbox false` 算一条）；
  * `pages` = 有值条目、或只在 `propertyShown` 里挂着的页面数（口径与面板行出现规则同源，§0-1）。
  */
@@ -228,7 +228,7 @@ export function renamePropertyDef(defId: string, name: string, registry: Metadat
 }
 
 /**
- * 删属性定义（`13-属性区重规划` §3.2 删除第 ② 步；**仅用户建的**——默认字段不在 registry，天然不可删，§0-2）。
+ * 删属性定义（`属性区重规划（已归档）` §3.2 删除第 ② 步；**仅用户建的**——默认字段不在 registry，天然不可删，§0-2）。
  * 页面上的取值与显示集合由调用方先清（第 ① 步＝一块块级事务、可 ⌘Z 撤销）；这里只动注册表。
  */
 export function deletePropertyDef(defId: string, registry: MetadataRegistry): MetadataRegistry | null {
@@ -359,7 +359,7 @@ export function movePropertyDef(defId: string, toIndex: number, registry: Metada
 }
 
 /**
- * 标签的**用量读数**（`13-属性区重规划` §5-12 / §3.6「用在 N 页」）：**全量**标签（含 0 用的——
+ * 标签的**用量读数**（`属性区重规划（已归档）` §5-12 / §3.6「用在 N 页」）：**全量**标签（含 0 用的——
  * 选择器要能复用未用的定义）＋ 未删除页面的计数。纯读数，不改数据；取用选择器与属性库共用同一口径。
  */
 export function tagUsages(blocks: Iterable<Block>, tags: TagDef[]): { id: string; name: string; count: number }[] {

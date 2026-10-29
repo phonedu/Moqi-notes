@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
 /**
- * `@moqi/editor` 公开面（`13-编辑器模块化` §4）：
+ * `@moqi/editor` 公开面（`编辑器模块化（已归档）` §4）：
  * 宿主只从这里拿编辑器；`./domain/*`、`./editor/*` 子路径给墨契壳内部接线用（迁移期）。
  */
 export { MoqiEditor, type MoqiEditorProps } from './editor/MoqiEditor'

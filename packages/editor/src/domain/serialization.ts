@@ -11,7 +11,7 @@ export function normalizeBlock(block: Block): Block {
   if (typeof block.pinned !== 'boolean') block.pinned = false
   if (typeof block.starred !== 'boolean') block.starred = false
   if (!Array.isArray(block.tags)) block.tags = []
- // 属性面板的本页两档（`13-属性区重规划` §0-1/§0-3/§0-10，）：旧库缺字段 = 空 = 现有行为。
+ // 属性面板的本页两档（`属性区重规划（已归档）` §0-1/§0-3/§0-10，）：旧库缺字段 = 空 = 现有行为。
   if (!Array.isArray(block.propertyShown)) block.propertyShown = []
   if (!Array.isArray(block.propertyHidden)) block.propertyHidden = []
   if (!Array.isArray(block.properties)) block.properties = []

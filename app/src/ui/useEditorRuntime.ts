@@ -234,7 +234,7 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
     historyStep, pageColumnVisible,
   } = data
   // ---------- 属性编辑 ----------
-  // 写入口（建 / 改名 / 改选项 / 挂载 / 取值 / 标签；**停用已取消**——`13-属性区重规划` §0-4）
+  // 写入口（建 / 改名 / 改选项 / 挂载 / 取值 / 标签；**停用已取消**——`属性区重规划（已归档）` §0-4）
  // 住在 `ui/usePropertyEditor.ts`——这里只接线（外壳拆分第四刀，）。
   const { propertyCallbacks, createProperty, createAndAddProperty, deleteProperty, handleRenameProperty, handleAddPropertyOption, mountProperty, handleRenamePropertyOption, handleRemovePropertyOption, handleMovePropertyOption, handleMoveProperty, nameProblemText } = usePropertyEditor({
     registry, updateRegistry, store, activePageId, prefs, updatePrefs, persist, notify, closeDialog,

@@ -108,7 +108,7 @@ test('CONTRACT-SYNC-1 变更记录的键集合快照：跨设备写出去的那�
 })
 
 /**
- * M3：编辑器的宿主契约（`13-编辑器模块化` §4）。
+ * M3：编辑器的宿主契约（`编辑器模块化（已归档）` §4）。
  * 文档存储是编辑器唯一必需能力；内存宿主用于裸 React 页面与 demo，必须只读写快照、不碰 Tauri。
  */
 type EditorHostShape = Assert<Equals<keyof EditorHost, 'storage' | 'clipboard' | 'assets' | 'navigate' | 'theme'>>

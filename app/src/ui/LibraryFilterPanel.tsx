@@ -152,7 +152,7 @@ export function LibraryFilterPanel({ anchor, filter, resultCount, totalCount, ta
               {item.label}
             </button>
           ))}
-          {/* 按属性（`13-属性区重规划` §7.1-A4「排序扩一档」）：选一个属性当排序键；
+          {/* 按属性（`属性区重规划（已归档）` §7.1-A4「排序扩一档」）：选一个属性当排序键；
               未设置的页面不论升降都排最后（判据在 `libraryFilter` 的 `applyLibraryFilter`）。 */}
           {filterableProperties(properties).length > 0 ? (
             <div className="fp-row" style={{ padding: '6px 0 0' }}>

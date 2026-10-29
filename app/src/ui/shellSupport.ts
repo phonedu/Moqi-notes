@@ -75,7 +75,7 @@ export function initialValueFor(def: PropertyDef): PropertyValue {
 
 /**
  * 属性行模型（摘要条原位展开）：用户属性 = 本页已挂载的定义；默认字段（标签 / 创建时间 / 编辑时间）
- * 是**可添加项**（`13-属性区重规划` §0-1/§0-2， 裁决）——行显示规则收在领域纯函数
+ * 是**可添加项**（`属性区重规划（已归档）` §0-1/§0-2， 裁决）——行显示规则收在领域纯函数
  * `propertyRowVisible`：**`(键 ∈ propertyShown ∨ 有值) ∧ 键 ∉ propertyHidden`**。
  * 没有可见行 ⇒ 页面没有属性面（§0-11：有属性才出现）。
  */

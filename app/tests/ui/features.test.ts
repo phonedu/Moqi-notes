@@ -5,7 +5,7 @@ import { AVAILABLE_INSERT_ITEMS, INSERT_ITEMS, MEDIA_INSERT_KINDS, insertItemsFo
 import { filterItems, slashItems } from '../../src/ui/SlashMenu'
 
 /**
- * M5 可选能力（`13-编辑器模块化`）：判据只住在包（`editor/features.ts`）与单一数据源
+ * M5 可选能力（`编辑器模块化（已归档）`）：判据只住在包（`editor/features.ts`）与单一数据源
  * （`menuItems.ts`），各入口（＋插入 ▾ / 斜杠 / 移动面板 / 飞条 / 顶栏 ✦ / 搜索问 AI）消费同一份。
  * 这里钉住三件事：缺省全关、显式覆盖、媒体项从所有插入入口一起消失。
  */

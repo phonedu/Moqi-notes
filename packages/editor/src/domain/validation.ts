@@ -73,7 +73,7 @@ export function validateBlockShape(block: Block): ValidationIssue[] {
       }
     }
   }
-  // 属性面板的本页两档（`13-属性区重规划` §0-1/§0-3/§0-10）：**可缺省**（旧数据由
+  // 属性面板的本页两档（`属性区重规划（已归档）` §0-1/§0-3/§0-10）：**可缺省**（旧数据由
   // `serialization.normalizeBlock` 补成 `[]`）；一旦出现就必须是数组。不设 required 码的理由：
   // 历史上手写的块（测试种子 / 导入草稿）不带这两个字段，报 required 会把它们全判成形状错。
   if (block.propertyShown !== undefined && !Array.isArray(block.propertyShown)) issues.push({ code: 'property-shown-invalid', blockId: block.entityId, message: 'propertyShown 必须是数组' })
