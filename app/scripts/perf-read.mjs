@@ -537,7 +537,7 @@ async function windowSweep(call, exePid) {
       sidebar: (() => { const el = document.querySelector('.sidebar'); if (!el) return '缺'; const s = getComputedStyle(el); const r = el.getBoundingClientRect(); return { 类: el.className, display: s.display, position: s.position, 宽: Math.round(r.width), 位移: Math.round(r.left) } })(),
       pageCol: (() => { const el = document.querySelector('.pagecol'); if (!el) return '缺'; const s = getComputedStyle(el); const r = el.getBoundingClientRect(); return { 类: el.className, display: s.display, 宽: Math.round(r.width) } })(),
       fsBody: getComputedStyle(document.documentElement).getPropertyValue('--fs-e').trim(),
-      // 卡片内段落几何（**只说明几何**：D-044 那种「两行画在同一行」的绘画重叠几何量不出来——
+      // 卡片内段落几何（**只说明几何**：D-044 那种「两行画在同一行」的图形重叠几何量不出来——
       // 判断要看同档的 2× 特写 card-＜宽＞.png）。
       card: (() => {
         const card = document.querySelector('.lcard, .scard')

@@ -13,7 +13,7 @@ import type { TagSummary } from './types'
  *
  * 本版**只做真实可用的筛选**：关键词 + `#标签`（chips 来自标签注册表）。`R09-SEARCH-2` 里
  * `状态:进行中` / `时间:本周` 两条 chips 与语法提示**留到筛选面板那一步**（同源条件）——
- * 界面不承诺没有执行者的语法（`通用AI协作开发规范.md` §4.1 的合入底线）。
+ * 界面不承诺没有执行者的语法。
  */
 export function SearchOverlay({ searchPort, tags, pageNameOf, onJump, onAskAi, onClose }: {
   searchPort: SearchPort

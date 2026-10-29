@@ -146,7 +146,7 @@ export class OpenAICompatibleAIPort implements AIPort {
 }
 
 /**
- * 七条系统提示词（`AiAction` → 文本）。唯一真源 = 本文件的 `SYSTEM_PROMPTS`（公开仓库不维护镜像文档；对照版见 docs/PROMPTS.md）。
+ * 七条系统提示词（`AiAction` → 文本）。唯一真源 = 本文件的 `SYSTEM_PROMPTS`（对照版见 docs/PROMPTS.md）。
  *
  * 共同口径：**只输出正文**、不写「以下是…」这类前言、不加标题与说明——
  * 结果会直接落成块，多一句前言就多一段要用户手动删的字。

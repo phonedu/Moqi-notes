@@ -134,7 +134,7 @@ CI 在每次 push 时跑同样的门禁（[.github/workflows/ci.yml](.github/wor
 
 ## 文档
 
-[功能与概念](docs/FEATURES.md) · [上手指南](docs/USER-GUIDE.md) · [数据与备份](docs/DATA.md) · [迁移](docs/MIGRATION.md) · [架构](docs/ARCHITECTURE.md) · [路线图](docs/ROADMAP.md) · [AI 提示词](docs/PROMPTS.md) · [编辑器规则编号](docs/design/EDITOR-RULES.md) · [FAQ](docs/FAQ.md) · [安全](docs/SECURITY.md) · [贡献](CONTRIBUTING.md) · [更新日志](CHANGELOG.md)
+[功能与概念](docs/FEATURES.md) · [上手指南](docs/USER-GUIDE.md) · [数据与备份](docs/DATA.md) · [迁移](docs/MIGRATION.md) · [架构](docs/ARCHITECTURE.md) · [路线图](docs/ROADMAP.md) · [AI 提示词](docs/PROMPTS.md) · [FAQ](docs/FAQ.md) · [安全](docs/SECURITY.md) · [贡献](CONTRIBUTING.md) · [更新日志](CHANGELOG.md)
 
 ## 参与贡献
 

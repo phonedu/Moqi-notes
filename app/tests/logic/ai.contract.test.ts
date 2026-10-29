@@ -399,7 +399,7 @@ test('D-019: parseItems —— 行首加粗 / 小数 / 日期不得被当成列�
   assert.deepEqual(parseItems('summary', '**加粗**\n原文'), ['**加粗**\n原文'])
 })
 
-// 提示词的唯一真源 = 下方 `SYSTEM_PROMPTS`（公开仓库不维护镜像文档）。
+// 提示词的唯一真源 = 下方 `SYSTEM_PROMPTS`。
 test('D-094: AI 请求失败时透传服务端原文并按状态码给可操作指引（模型名写错不再只报裸状态码）', async () => {
   const calls: Array<{ url: string; init: RequestInit }> = []
   const fetchImpl = (async (input: RequestInfo | URL, init?: RequestInit) => {
