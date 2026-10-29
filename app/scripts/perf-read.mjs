@@ -49,10 +49,31 @@ import { tmpdir } from 'node:os'
 const require = createRequire(import.meta.url)
 const resolveWs = () => {
   try { return require('ws') } catch { /* 往下找 */ }
-  const pnpmDir = join(process.cwd(), 'node_modules', '.pnpm')
-  const dir = readdirSync(pnpmDir).filter((name) => name.startsWith('ws@')).sort().pop()
-  if (!dir) throw new Error('找不到 ws（pnpm 布局里应有 ws@*）')
-  return require(join(pnpmDir, dir, 'node_modules', 'ws'))
+  // workspace 布局下 .pnpm 在仓库根；新版 playwright-core 不再外挂 ws，两处都可能是空的
+  for (const base of [process.cwd(), join(process.cwd(), '..')]) {
+    const pnpmDir = join(base, 'node_modules', '.pnpm')
+    if (existsSync(pnpmDir)) {
+      const dir = readdirSync(pnpmDir).filter((name) => name.startsWith('ws@')).sort().pop()
+      if (dir) return require(join(pnpmDir, dir, 'node_modules', 'ws'))
+    }
+  }
+  // Node ≥22 内置 WebSocket（EventTarget）兜底：包成脚本用的 EventEmitter 形状（on/off/once/send/close）
+  if (typeof globalThis.WebSocket === 'function') {
+    const { EventEmitter } = require('node:events')
+    return class WsShim extends EventEmitter {
+      constructor(url) {
+        super()
+        const inner = new globalThis.WebSocket(url)
+        inner.addEventListener('open', () => this.emit('open'))
+        inner.addEventListener('message', (event) => this.emit('message', Buffer.from(event.data)))
+        inner.addEventListener('error', (event) => this.emit('error', event))
+        inner.addEventListener('close', () => this.emit('close'))
+        this.close = () => inner.close()
+        this.send = (data) => inner.send(data)
+      }
+    }
+  }
+  throw new Error('找不到 ws（pnpm 布局或 Node ≥22 内置 WebSocket 应有其一）')
 }
 const WebSocket = resolveWs()
 
@@ -99,11 +120,11 @@ async function ensureAssetsServer() {
     return '5173 上的既有产物服务（外部启动）'
   }
   if (!existsSync(join(process.cwd(), 'dist', 'index.html'))) { console.error('缺 dist/index.html（先 pnpm build）'); process.exit(5) }
-  preview = spawn(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', ['exec', 'vite', 'preview', '--port', '5173', '--strictPort'], { stdio: 'ignore' })
+  preview = spawn(process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm', ['exec', 'vite', 'preview', '--port', '5173', '--strictPort'], { stdio: 'ignore', shell: process.platform === 'win32' })
   for (let i = 0; i < 64; i += 1) {
     const ok = await fetch(DEV_URL, { signal: AbortSignal.timeout(2000) }).then(() => true).catch(() => false)
     if (ok) return '自起 vite preview（5173，产物包）'
-    await sleep(250)
+    await new Promise((resolve) => setTimeout(resolve, 250)) /* 就地等待：此处先于模块级 sleep 声明执行 */
   }
   throw new Error('vite preview 起不来（5173 被占？）')
 }
