@@ -158,8 +158,7 @@ pub fn assets_exchange(
             continue;
         }
         if from.is_file() {
-            fs::create_dir_all(assets_dir)
-                .map_err(|error| format!("无法创建资产目录: {error}"))?;
+            fs::create_dir_all(assets_dir).map_err(|error| format!("无法创建资产目录: {error}"))?;
             match fs::copy(&from, &to) {
                 Ok(_) => report.pulled.push(name.clone()),
                 Err(_) => continue,
@@ -267,7 +266,7 @@ mod tests {
         assert_eq!(files[0].device_id, "dev-b");
     }
 
-  /// 资产随同步（）：推 / 拉 / 缺 / 只增不减 / 非法名跳过，五条一起钉住。
+    /// 资产随同步（）：推 / 拉 / 缺 / 只增不减 / 非法名跳过，五条一起钉住。
     #[test]
     fn assets_exchange_pushes_pulls_and_reports_missing() {
         let dir = temp_dir("assets");
@@ -288,8 +287,14 @@ mod tests {
         )
         .unwrap();
         assert_eq!(report.pushed, vec!["mine.png".to_owned()]);
-        assert_eq!(fs::read(shared.join("assets").join("mine.png")).unwrap(), vec![1, 2, 3]);
-        assert_eq!(fs::read(shared.join("assets").join("theirs.png")).unwrap(), vec![9]);
+        assert_eq!(
+            fs::read(shared.join("assets").join("mine.png")).unwrap(),
+            vec![1, 2, 3]
+        );
+        assert_eq!(
+            fs::read(shared.join("assets").join("theirs.png")).unwrap(),
+            vec![9]
+        );
 
         // 拉：共享有、本机缺 → 复制回来；两处都没有 → missing
         let local2 = dir.join("local2");
@@ -306,7 +311,13 @@ mod tests {
         assert_eq!(fs::read(local2.join("mine.png")).unwrap(), vec![1, 2, 3]);
 
         // 本机已有 → 既不拉也不缺
-        let report = assets_exchange(&local, &shared.to_string_lossy(), &[], &["mine.png".to_owned()]).unwrap();
+        let report = assets_exchange(
+            &local,
+            &shared.to_string_lossy(),
+            &[],
+            &["mine.png".to_owned()],
+        )
+        .unwrap();
         assert!(report.pulled.is_empty() && report.missing.is_empty());
 
         // 非法名一律跳过（不写文件、不报错）；空目录 = 未配置，返回空回执

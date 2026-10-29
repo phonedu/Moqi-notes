@@ -86,7 +86,7 @@ fn load_blocks(app: AppHandle) -> Result<Vec<String>, String> {
     let store =
         SqliteBlockStore::open(path).map_err(|error| format!("打开 SQLite 失败: {error}"))?;
     // 带上回收站里的块（`list_all`）：回收站列表与「30 天到期清理」都从载入的块里找
-  // （ 清单 C 实测：只载入存活块会让回收站重启后变空、到期清理永不触发）。
+    // （ 清单 C 实测：只载入存活块会让回收站重启后变空、到期清理永不触发）。
     store
         .list_all_json()
         .map_err(|error| format!("读取 Block 失败: {error}"))
@@ -361,7 +361,11 @@ async fn list_backup_packages(app: AppHandle) -> Result<Vec<backup::PackageInfoO
 
 /// 从备份包恢复（场景 B 闭环）：校验包内库 → 先留「恢复前」→ 换库 + 落 assets → 快照滚动。
 #[tauri::command]
-async fn restore_backup_package(app: AppHandle, name: String, stamp: String) -> Result<backup::PackageRestoreOut, String> {
+async fn restore_backup_package(
+    app: AppHandle,
+    name: String,
+    stamp: String,
+) -> Result<backup::PackageRestoreOut, String> {
     let path = database_path(&app)?;
     tauri::async_runtime::spawn_blocking(move || backup::restore_from_package(&path, &name, &stamp))
         .await
@@ -538,7 +542,7 @@ pub fn run() {
         .setup(|app| {
             // 资产协议（asset protocol）：图片 / 附件在**桌面窗口里**的显示地址是
             // `convertFileSrc(<数据目录>/assets/<磁盘名>)`——协议默认 `enable: false` 且 scope 为空，
-      // 不在这里放行，WebView 会把地址拒掉：图块画灰/破图、灯箱显示裂图（用户 实测）。
+            // 不在这里放行，WebView 会把地址拒掉：图块画灰/破图、灯箱显示裂图（用户 实测）。
             // **必须在运行时放行**：数据目录可被 `MOQI_DATA_DIR` 改写，写死在 tauri.conf 的 scope 里盖不住。
             use tauri::Manager;
             if let Ok(db) = database_path(app.handle()) {

@@ -367,7 +367,12 @@ pub fn list_packages(db: &Path) -> Result<Vec<PackageInfoOut>, String> {
     for entry in fs::read_dir(&dir).map_err(|error| format!("读导出目录失败: {error}"))? {
         let entry = entry.map_err(|error| format!("读导出目录失败: {error}"))?;
         let path = entry.path();
-        if !path.extension().and_then(|value| value.to_str()).map(|value| value.eq_ignore_ascii_case("zip")).unwrap_or(false) {
+        if !path
+            .extension()
+            .and_then(|value| value.to_str())
+            .map(|value| value.eq_ignore_ascii_case("zip"))
+            .unwrap_or(false)
+        {
             continue;
         }
         let file = match fs::File::open(&path) {
@@ -378,10 +383,16 @@ pub fn list_packages(db: &Path) -> Result<Vec<PackageInfoOut>, String> {
             Ok(archive) => archive,
             Err(_) => continue,
         };
-        if !archive.file_names().flatten().any(|name| name == "project-b.sqlite3") {
+        if !archive
+            .file_names()
+            .flatten()
+            .any(|name| name == "project-b.sqlite3")
+        {
             continue;
         }
-        let meta = entry.metadata().map_err(|error| format!("读文件信息失败: {error}"))?;
+        let meta = entry
+            .metadata()
+            .map_err(|error| format!("读文件信息失败: {error}"))?;
         let modified_ms = meta
             .modified()
             .ok()
@@ -389,7 +400,10 @@ pub fn list_packages(db: &Path) -> Result<Vec<PackageInfoOut>, String> {
             .map(|duration| duration.as_millis() as i64)
             .unwrap_or(0);
         out.push(PackageInfoOut {
-            name: path.file_name().map(|value| value.to_string_lossy().to_string()).unwrap_or_default(),
+            name: path
+                .file_name()
+                .map(|value| value.to_string_lossy().to_string())
+                .unwrap_or_default(),
             size_bytes: meta.len(),
             modified_ms,
         });
@@ -400,7 +414,11 @@ pub fn list_packages(db: &Path) -> Result<Vec<PackageInfoOut>, String> {
 
 /// 从备份包恢复（场景 B「换机器」闭环）：**校验** → 先留「恢复前」→ 换库 → `assets/` 落回 → 快照滚动。
 /// 校验三条：包内有根级库、库是 SQLite（魔数）、库里有 `blocks` 表——错一条都拒（宁可不恢复）。
-pub fn restore_from_package(db: &Path, name: &str, stamp: &str) -> Result<PackageRestoreOut, String> {
+pub fn restore_from_package(
+    db: &Path,
+    name: &str,
+    stamp: &str,
+) -> Result<PackageRestoreOut, String> {
     let clean = name.trim();
     if clean.is_empty() || clean.contains('/') || clean.contains('\\') || clean.contains("..") {
         return Err("备份包名非法".to_owned());
@@ -413,29 +431,46 @@ pub fn restore_from_package(db: &Path, name: &str, stamp: &str) -> Result<Packag
     let mut assets_landed = 0usize;
     {
         let file = fs::File::open(&package).map_err(|error| format!("打不开备份包：{error}"))?;
-        let mut archive = zip::ZipArchive::new(file).map_err(|error| format!("这不是一个能读的 .zip：{error}"))?;
+        let mut archive = zip::ZipArchive::new(file)
+            .map_err(|error| format!("这不是一个能读的 .zip：{error}"))?;
         {
-            let mut entry = archive
-                .by_name("project-b.sqlite3")
-                .map_err(|_| "包里没有根级 project-b.sqlite3——不像整库备份包（Markdown 包请走「导入」）".to_owned())?;
-            let mut out = fs::File::create(&staging).map_err(|error| format!("写临时文件失败：{error}"))?;
-            std::io::copy(&mut entry, &mut out).map_err(|error| format!("解出库文件失败：{error}"))?;
+            let mut entry = archive.by_name("project-b.sqlite3").map_err(|_| {
+                "包里没有根级 project-b.sqlite3——不像整库备份包（Markdown 包请走「导入」）"
+                    .to_owned()
+            })?;
+            let mut out =
+                fs::File::create(&staging).map_err(|error| format!("写临时文件失败：{error}"))?;
+            std::io::copy(&mut entry, &mut out)
+                .map_err(|error| format!("解出库文件失败：{error}"))?;
         }
         if let Err(error) = validate_package_database(&staging) {
             let _ = fs::remove_file(&staging);
             return Err(error);
         }
         let asset_dir = crate::assets::assets_dir(db)?;
-        let names: Vec<String> = archive.file_names().flatten().filter(|name| name.starts_with("assets/")).map(|name| name.to_string()).collect();
+        let names: Vec<String> = archive
+            .file_names()
+            .flatten()
+            .filter(|name| name.starts_with("assets/"))
+            .map(|name| name.to_string())
+            .collect();
         for entry_name in names {
             let remainder = entry_name.trim_start_matches("assets/").to_owned();
-            if remainder.is_empty() || remainder.contains('/') || remainder.contains('\\') || remainder.contains("..") {
+            if remainder.is_empty()
+                || remainder.contains('/')
+                || remainder.contains('\\')
+                || remainder.contains("..")
+            {
                 continue;
             }
-            let mut entry = archive.by_name(&entry_name).map_err(|error| format!("读包内资产失败：{error}"))?;
+            let mut entry = archive
+                .by_name(&entry_name)
+                .map_err(|error| format!("读包内资产失败：{error}"))?;
             let mut bytes = Vec::new();
-            std::io::copy(&mut entry, &mut bytes).map_err(|error| format!("读包内资产失败：{error}"))?;
-            fs::write(asset_dir.join(&remainder), &bytes).map_err(|error| format!("落资产失败：{error}"))?;
+            std::io::copy(&mut entry, &mut bytes)
+                .map_err(|error| format!("读包内资产失败：{error}"))?;
+            fs::write(asset_dir.join(&remainder), &bytes)
+                .map_err(|error| format!("落资产失败：{error}"))?;
             assets_landed += 1;
         }
     }
@@ -443,7 +478,10 @@ pub fn restore_from_package(db: &Path, name: &str, stamp: &str) -> Result<Packag
     swap_in_database(db, &staging)?;
     let _ = fs::remove_file(&staging);
     let _ = prune_snapshots(&snapshots_dir(db));
-    Ok(PackageRestoreOut { regret, assets: assets_landed })
+    Ok(PackageRestoreOut {
+        regret,
+        assets: assets_landed,
+    })
 }
 
 /// 校验包内库：SQLite 魔数 + 有 `blocks` 表（形状对不上宁可拒——恢复是覆盖性动作）。
@@ -454,7 +492,11 @@ fn validate_package_database(path: &Path) -> Result<(), String> {
     }
     let conn = Connection::open(path).map_err(|error| format!("打开包内库失败：{error}"))?;
     let count: i64 = conn
-        .query_row("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='blocks'", [], |row| row.get(0))
+        .query_row(
+            "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='blocks'",
+            [],
+            |row| row.get(0),
+        )
         .map_err(|error| format!("检查包内库失败：{error}"))?;
     if count != 1 {
         return Err("包内库的形状不对（没有 blocks 表）——不是本应用的整库备份".to_owned());
@@ -608,7 +650,7 @@ mod tests {
     fn export_database_and_snapshot_produce_openable_files() {
         let temp = TempDir::new("export");
         seed(&temp.db(), 2);
-    // 整库导出是 **zip 包**（ 修订）：库文件 + assets/ 一起走，否则「一键带走」丢图。
+        // 整库导出是 **zip 包**（ 修订）：库文件 + assets/ 一起走，否则「一键带走」丢图。
         crate::assets::write_asset(&temp.db(), "a1b2c3.png", &[0x89, 0x50, 0x4e, 0x47])
             .expect("写资产");
         create_snapshot(&temp.db(), "2026-10-04", "2026-W40").expect("建快照");
@@ -632,7 +674,14 @@ mod tests {
         let file = fs::File::open(&whole).expect("打开导出包");
         let mut archive = zip::ZipArchive::new(file).expect("读出包结构");
         let mut names: Vec<String> = (0..archive.len())
-            .map(|index| archive.by_index(index).expect("取条目").name().expect("条目名").to_string())
+            .map(|index| {
+                archive
+                    .by_index(index)
+                    .expect("取条目")
+                    .name()
+                    .expect("条目名")
+                    .to_string()
+            })
             .collect();
         names.sort();
         assert_eq!(
@@ -662,7 +711,7 @@ mod tests {
         assert_eq!(count(&one), 2);
     }
 
-  /// 边界电池④（）：恢复前必须清掉主库旁的 `-wal` / `-shm`——`VACUUM INTO` 产物是
+    /// 边界电池④（）：恢复前必须清掉主库旁的 `-wal` / `-shm`——`VACUUM INTO` 产物是
     /// 自包含的，留着旧 WAL 会让 SQLite 拿它去「补」新库。这里塞两个**垃圾旁文件**模拟崩溃残留：
     /// 恢复要照常成功、旁文件被清掉、回来的是快照那一刻的内容。
     #[test]
@@ -693,7 +742,8 @@ mod tests {
     fn restore_from_package_roundtrip_and_refusals() {
         let temp = TempDir::new("package");
         seed(&temp.db(), 3);
-        crate::assets::write_asset(&temp.db(), "pic-1.png", &[0x89, 0x50, 0x4e, 0x47]).expect("写资产");
+        crate::assets::write_asset(&temp.db(), "pic-1.png", &[0x89, 0x50, 0x4e, 0x47])
+            .expect("写资产");
         let (package, _) = export_database(&temp.db(), "墨契-备份-x").expect("导出整库");
         let name = package.file_name().unwrap().to_string_lossy().to_string();
 
@@ -706,10 +756,17 @@ mod tests {
         fs::write(&plain, b"# hi").expect("写 md");
         crate::export::write_zip_package(
             &stray,
-            &[crate::export::ZipEntry::File { path: "a.md".to_owned(), from: plain }],
+            &[crate::export::ZipEntry::File {
+                path: "a.md".to_owned(),
+                from: plain,
+            }],
         )
         .expect("打一个普通 zip");
-        assert_eq!(list_packages(&temp.db()).expect("再列").len(), 1, "没有根级库的 zip 不算备份包");
+        assert_eq!(
+            list_packages(&temp.db()).expect("再列").len(),
+            1,
+            "没有根级库的 zip 不算备份包"
+        );
 
         // 恢复：库里先多写两块 → 恢复回包里那一刻（3 块）+ 后悔药（5 块）+ 资产落回。
         seed(&temp.db(), 5);
@@ -720,15 +777,24 @@ mod tests {
         let regret = snapshots_dir(&temp.db()).join(&report.regret);
         assert!(regret.exists(), "恢复前必须先留后悔药");
         assert_eq!(count(&regret), 5, "后悔药里是恢复前的样子");
-        assert!(crate::assets::assets_dir(&temp.db()).expect("资产目录").join("pic-1.png").exists());
+        assert!(crate::assets::assets_dir(&temp.db())
+            .expect("资产目录")
+            .join("pic-1.png")
+            .exists());
 
         // 拒绝面：不存在的包 / 普通 zip（无库）/ 坏 zip / 逃逸名。
         assert!(restore_from_package(&temp.db(), "没有这个.zip", "s").is_err());
-        assert!(restore_from_package(&temp.db(), "随手包.zip", "s").is_err(), "Markdown 包不算备份包");
+        assert!(
+            restore_from_package(&temp.db(), "随手包.zip", "s").is_err(),
+            "Markdown 包不算备份包"
+        );
         let garbage = exports_dir(&temp.db()).join("garbage.zip");
         fs::write(&garbage, b"not a zip at all").expect("写垃圾");
         assert!(restore_from_package(&temp.db(), "garbage.zip", "s").is_err());
         assert!(restore_from_package(&temp.db(), "../逃逸.zip", "s").is_err());
-        assert!(list_packages(&temp.db()).expect("名单").iter().all(|entry| entry.name != "garbage.zip"));
+        assert!(list_packages(&temp.db())
+            .expect("名单")
+            .iter()
+            .all(|entry| entry.name != "garbage.zip"));
     }
 }

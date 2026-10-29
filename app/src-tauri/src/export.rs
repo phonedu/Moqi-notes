@@ -162,25 +162,39 @@ fn exports_dir(db: &Path) -> Result<PathBuf, String> {
 /// 图片**不在这里读**：每篇 `.md` 连同它的 `dir` 交给既有的 `importMarkdownDocument`（`dir` 分支按相对名找图）。
 pub fn list_markdown_files(dir: &str) -> Result<Vec<String>, String> {
     fn walk(current: &std::path::Path, out: &mut Vec<String>) -> Result<(), String> {
-        for entry in std::fs::read_dir(current).map_err(|error| format!("打不开目录：{error}"))? {
+        for entry in std::fs::read_dir(current).map_err(|error| format!("打不开目录：{error}"))?
+        {
             let entry = entry.map_err(|error| format!("读目录失败：{error}"))?;
             let path = entry.path();
             if path.is_dir() {
                 // 跳过隐藏目录（.git / .obsidian 这类：进去只会捞到配置，不是笔记）。
-                let hidden = path.file_name().and_then(|name| name.to_str()).is_some_and(|name| name.starts_with('.'));
-                if !hidden { walk(&path, out)?; }
+                let hidden = path
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .is_some_and(|name| name.starts_with('.'));
+                if !hidden {
+                    walk(&path, out)?;
+                }
                 continue;
             }
-            let ext = path.extension().and_then(|value| value.to_str()).unwrap_or("").to_lowercase();
+            let ext = path
+                .extension()
+                .and_then(|value| value.to_str())
+                .unwrap_or("")
+                .to_lowercase();
             if matches!(ext.as_str(), "md" | "markdown") {
-                if out.len() >= 500 { return Err("目录里的 .md 超过 500 篇——请分批导入".into()) }
+                if out.len() >= 500 {
+                    return Err("目录里的 .md 超过 500 篇——请分批导入".into());
+                }
                 out.push(path.to_string_lossy().into_owned());
             }
         }
         Ok(())
     }
     let root = std::path::Path::new(dir.trim());
-    if !root.is_dir() { return Err("这条路径不是目录".into()) }
+    if !root.is_dir() {
+        return Err("这条路径不是目录".into());
+    }
     let mut files = Vec::new();
     walk(root, &mut files)?;
     files.sort();
@@ -243,14 +257,18 @@ pub fn read_zip_entries(path: &str) -> Result<ZipEntriesOut, String> {
         return Err("导入包太大（超过 64 MB）——请先拆成几份".to_owned());
     }
     let file = fs::File::open(clean).map_err(|error| format!("打不开这个文件：{error}"))?;
-    let mut archive = zip::ZipArchive::new(file).map_err(|error| format!("这不是一个能读的 .zip：{error}"))?;
+    let mut archive =
+        zip::ZipArchive::new(file).map_err(|error| format!("这不是一个能读的 .zip：{error}"))?;
     let mut entries = Vec::new();
     let mut skipped = 0usize;
     for index in 0..archive.len() {
         let mut entry = archive
             .by_index(index)
             .map_err(|error| format!("读包内条目失败：{error}"))?;
-        let name = entry.name().map_err(|error| format!("读包内条目名失败：{error}"))?.to_string();
+        let name = entry
+            .name()
+            .map_err(|error| format!("读包内条目名失败：{error}"))?
+            .to_string();
         if entry.is_dir() {
             continue;
         }
@@ -259,7 +277,8 @@ pub fn read_zip_entries(path: &str) -> Result<ZipEntriesOut, String> {
             continue;
         }
         let mut bytes = Vec::with_capacity(entry.size() as usize);
-        std::io::copy(&mut entry, &mut bytes).map_err(|error| format!("读包内条目失败（{name}）：{error}"))?;
+        std::io::copy(&mut entry, &mut bytes)
+            .map_err(|error| format!("读包内条目失败（{name}）：{error}"))?;
         entries.push(ZipEntryOut {
             name,
             base64: base64::engine::general_purpose::STANDARD.encode(&bytes),
@@ -415,12 +434,25 @@ mod tests {
         let listed = list_markdown_files(temp.0.to_str().expect("路径是 utf8")).expect("列举成功");
         let names: Vec<String> = listed
             .iter()
-            .map(|path| Path::new(path).file_name().and_then(|value| value.to_str()).unwrap_or("").to_string())
+            .map(|path| {
+                Path::new(path)
+                    .file_name()
+                    .and_then(|value| value.to_str())
+                    .unwrap_or("")
+                    .to_string()
+            })
             .collect();
-        assert_eq!(names, vec!["a.markdown", "b.md", "c.md"], "只收 md/markdown、递归、有序、跳过隐藏目录");
+        assert_eq!(
+            names,
+            vec!["a.markdown", "b.md", "c.md"],
+            "只收 md/markdown、递归、有序、跳过隐藏目录"
+        );
 
         let file_path = temp.0.join("b.md");
-        assert!(list_markdown_files(file_path.to_str().expect("utf8")).is_err(), "给的是文件不是目录 ⇒ 如实报错");
+        assert!(
+            list_markdown_files(file_path.to_str().expect("utf8")).is_err(),
+            "给的是文件不是目录 ⇒ 如实报错"
+        );
     }
 
     #[test]
@@ -475,7 +507,14 @@ mod tests {
         let reader = fs::File::open(&out.path).expect("打开 zip");
         let mut archive = zip::ZipArchive::new(reader).expect("解析 zip");
         let mut names: Vec<String> = (0..archive.len())
-            .map(|index| archive.by_index(index).expect("条目").name().expect("条目名").to_string())
+            .map(|index| {
+                archive
+                    .by_index(index)
+                    .expect("条目")
+                    .name()
+                    .expect("条目名")
+                    .to_string()
+            })
             .collect();
         names.sort();
         assert_eq!(names, vec!["乙页.md".to_owned(), "甲页.md".to_owned()]);
@@ -604,7 +643,7 @@ mod tests {
         );
     }
 
-  /// IPC 形状（ 审计）：前端 `TauriExportPort.write` 送的是 **camelCase** JSON
+    /// IPC 形状（ 审计）：前端 `TauriExportPort.write` 送的是 **camelCase** JSON
     /// （`artifactName` / `assets[].from|to`），命令入参必须按同一套命名反序列化。这类接口此前
     /// 从没被端到端跑过（`05` W1 记着「真窗口的导出 → 拖回导入没跑过」），四个结构体又都缺
     /// `rename_all` ⇒ **桌面端 Markdown 导出必挂**（missing field `artifact_name`）。这条用例把
@@ -617,7 +656,8 @@ mod tests {
             "files": [{ "path": "甲页.md", "content": "# 甲页\n" }],
             "assets": [{ "from": "a1b2c3.png", "to": "assets/截图.png" }],
         });
-        let parsed: ExportWriteIn = serde_json::from_value(payload).expect("前端形状必须能反序列化");
+        let parsed: ExportWriteIn =
+            serde_json::from_value(payload).expect("前端形状必须能反序列化");
         assert_eq!(parsed.artifact_name, "甲页.md");
         assert_eq!(parsed.assets.len(), 1);
 
@@ -627,6 +667,9 @@ mod tests {
             entries: 1,
         };
         let value = serde_json::to_value(out).expect("序列化");
-        assert_eq!(value["sizeBytes"], 1, "回执按 camelCase 出（界面读 sizeBytes）");
+        assert_eq!(
+            value["sizeBytes"], 1,
+            "回执按 camelCase 出（界面读 sizeBytes）"
+        );
     }
 }

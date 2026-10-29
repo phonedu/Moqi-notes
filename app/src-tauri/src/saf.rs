@@ -126,7 +126,8 @@ mod tests {
     #[test]
     fn content_uris_take_the_url_branch_and_plain_paths_do_not() {
         assert!(matches!(
-            file_path_of("content://com.android.providers.downloads.documents/document/12").unwrap(),
+            file_path_of("content://com.android.providers.downloads.documents/document/12")
+                .unwrap(),
             FilePath::Url(_)
         ));
         assert!(matches!(
@@ -144,11 +145,26 @@ mod tests {
     fn write_options_do_not_read() {
         // `OpenOptions` 只派生 `Deserialize`（字段私有、没有 Serialize）⇒ 用 `Debug` 断言
         // ——它带 `#[derive(Debug)]`，是我们这边能稳定读到的形状。
-        let write = format!("{:?}", options(json!({ "read": false, "write": true, "truncate": true })).unwrap());
-        assert!(write.contains("read: false"), "写方向不带读位（Android 模式才会落到 wt）：{write}");
-        assert!(write.contains("write: true") && write.contains("truncate: true"), "{write}");
+        let write = format!(
+            "{:?}",
+            options(json!({ "read": false, "write": true, "truncate": true })).unwrap()
+        );
+        assert!(
+            write.contains("read: false"),
+            "写方向不带读位（Android 模式才会落到 wt）：{write}"
+        );
+        assert!(
+            write.contains("write: true") && write.contains("truncate: true"),
+            "{write}"
+        );
         let read = format!("{:?}", options(json!({ "read": true })).unwrap());
-        assert!(read.contains("write: false") && read.contains("truncate: false"), "{read}");
-        assert!(options(json!({ "read": "不是布尔" })).is_err(), "坏参数要如实报错");
+        assert!(
+            read.contains("write: false") && read.contains("truncate: false"),
+            "{read}"
+        );
+        assert!(
+            options(json!({ "read": "不是布尔" })).is_err(),
+            "坏参数要如实报错"
+        );
     }
 }

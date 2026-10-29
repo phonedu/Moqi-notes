@@ -218,7 +218,7 @@ fn make_perf_fixture() {
         container["objectName"] = json!(name);
 
         // **每页一批**：走产品自己的批量落库路径（`commit_batch`）——单块逐条提交各带一次
-    // fsync，5000 块在 Windows 上要 ~18 分钟（ 首跑实测），批量后是分钟级。
+        // fsync，5000 块在 Windows 上要 ~18 分钟（ 首跑实测），批量后是分钟级。
         let mut batch: Vec<StoredBlock> = Vec::with_capacity(PER_PAGE);
         batch.push(StoredBlock::from_block_json(&container.to_string()).expect("容器入库形状"));
         for block in &blocks {
