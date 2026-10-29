@@ -1,6 +1,6 @@
 [package]
 name = "moqi-project-b-native"
-version = "0.6.1"
+version = "0.6.2"
 edition = "2021"
 license = "AGPL-3.0-or-later"
 
@@ -25,7 +25,7 @@ tauri-plugin-opener = "2"
 #（`NotAllowedError: Write permission denied`）⇒ 原生 `ClipboardManager` 走这个插件。
 tauri-plugin-clipboard-manager = "2.5.0"
 # Markdown 导出打包（`13-导出与媒体设计` §7）：压缩在 Rust 侧做，TS 不引打包库。
-zip = { version = "8", default-features = false, features = ["deflate"] }
+zip = { version = "9.0.5", default-features = false, features = ["deflate"] }
 # 资产字节走 base64（`13-媒体设计` §3 的哑写；不预先优化成原始字节通道）。
 base64 = "0.22"
 

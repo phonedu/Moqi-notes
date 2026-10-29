@@ -378,7 +378,7 @@ pub fn list_packages(db: &Path) -> Result<Vec<PackageInfoOut>, String> {
             Ok(archive) => archive,
             Err(_) => continue,
         };
-        if !archive.file_names().any(|name| name == "project-b.sqlite3") {
+        if !archive.file_names().flatten().any(|name| name == "project-b.sqlite3") {
             continue;
         }
         let meta = entry.metadata().map_err(|error| format!("读文件信息失败: {error}"))?;
@@ -426,7 +426,7 @@ pub fn restore_from_package(db: &Path, name: &str, stamp: &str) -> Result<Packag
             return Err(error);
         }
         let asset_dir = crate::assets::assets_dir(db)?;
-        let names: Vec<String> = archive.file_names().filter(|name| name.starts_with("assets/")).map(|name| name.to_owned()).collect();
+        let names: Vec<String> = archive.file_names().flatten().filter(|name| name.starts_with("assets/")).map(|name| name.to_string()).collect();
         for entry_name in names {
             let remainder = entry_name.trim_start_matches("assets/").to_owned();
             if remainder.is_empty() || remainder.contains('/') || remainder.contains('\\') || remainder.contains("..") {
@@ -632,7 +632,7 @@ mod tests {
         let file = fs::File::open(&whole).expect("打开导出包");
         let mut archive = zip::ZipArchive::new(file).expect("读出包结构");
         let mut names: Vec<String> = (0..archive.len())
-            .map(|index| archive.by_index(index).expect("取条目").name().to_owned())
+            .map(|index| archive.by_index(index).expect("取条目").name().expect("条目名").to_string())
             .collect();
         names.sort();
         assert_eq!(

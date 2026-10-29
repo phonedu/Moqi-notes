@@ -250,7 +250,7 @@ pub fn read_zip_entries(path: &str) -> Result<ZipEntriesOut, String> {
         let mut entry = archive
             .by_index(index)
             .map_err(|error| format!("读包内条目失败：{error}"))?;
-        let name = entry.name().to_owned();
+        let name = entry.name().map_err(|error| format!("读包内条目名失败：{error}"))?.to_string();
         if entry.is_dir() {
             continue;
         }
@@ -475,7 +475,7 @@ mod tests {
         let reader = fs::File::open(&out.path).expect("打开 zip");
         let mut archive = zip::ZipArchive::new(reader).expect("解析 zip");
         let mut names: Vec<String> = (0..archive.len())
-            .map(|index| archive.by_index(index).expect("条目").name().to_owned())
+            .map(|index| archive.by_index(index).expect("条目").name().expect("条目名").to_string())
             .collect();
         names.sort();
         assert_eq!(names, vec!["乙页.md".to_owned(), "甲页.md".to_owned()]);
