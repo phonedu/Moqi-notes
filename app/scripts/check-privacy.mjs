@@ -13,7 +13,6 @@ import { fileURLToPath } from 'node:url'
 const repoRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const tracked = execSync('git ls-files -z', { cwd: repoRoot }).toString().split('\x00').filter(Boolean)
 const SKIP = /(^|\/)(node_modules|dist|coverage|release-assets|\.git)(\/|$)/
-const TEXT = /\.(ts|tsx|mjs|cjs|js|json|md|css|html|yml|yaml|kts|rs|toml|txt|xml|svg|cfg|properties|sh|bat|ps1)$/
 
 // 违禁模式 = 命中即红。**公开仓不内置私人词表**：精确内部称呼 / 设备 / 账号
 // 走 `MOQI_PRIVACY_EXTRA`（JSON: [{ "re": "...", "why": "..." }]），由私有 pre-push / CI secret 注入。
@@ -42,22 +41,33 @@ const DOCREF = /docs\/(0[0135679]|1[0-9])[-（]/
 const errors = []
 const warns = []
 for (const rel of tracked) {
-  if (SKIP.test(rel) || !TEXT.test(rel)) continue
-  // 闸门脚本自身带路径示例（含 C:\Users\x\ 化名），只豁免它；其他文件（含 AGENTS）一律扫
-  if (rel === 'app/scripts/check-privacy.mjs') continue
+  if (SKIP.test(rel)) continue
   const full = join(repoRoot, rel)
   if (!existsSync(full)) continue
+  let raw
+  try { raw = readFileSync(full) } catch { continue }
+  if (raw.includes(0)) continue
   let s = ''
-  try { s = readFileSync(full, 'utf8') } catch { continue }
+  try { s = raw.toString('utf8') } catch { continue }
   for (const { re, why } of FORBIDDEN) {
-    const m = s.match(re)
+    const m = rel.match(re) ?? s.match(re)
     if (m) errors.push(`${rel} → 「${m[0]}」（${why}）`)
   }
   if (DOCREF.test(s)) warns.push(rel)
 }
+// 历史扫描：提交过、后来删掉的内容也不许留在公开历史里（tag 另查；HEAD 覆盖 main 主线）。
+// 通用盘符（D/E 盘）不扫历史——测试 fixture 用合成落点，不是本机路径；
+// 历史只查真正的私人面：私有仓根 / 用户目录 / 邮箱域 / 局域网 / MOQI_PRIVACY_EXTRA。
+const HISTORY_FORBIDDEN = FORBIDDEN.filter(({ why }) => why !== '本机盘符绝对路径')
+const history = execSync('git log -p HEAD --pretty=format:', { cwd: repoRoot, maxBuffer: 64 * 1024 * 1024 }).toString()
+for (const { re, why } of HISTORY_FORBIDDEN) {
+  const m = history.match(re)
+  if (m) errors.push(`历史 → 「${m[0]}」（${why}）`)
+}
+
 if (errors.length) {
   console.error('隐私闸门：命中 ' + errors.length + ' 处，禁止推送——')
   console.error(errors.slice(0, 20).map((x) => '  ' + x).join('\n'))
   process.exit(1)
 }
-console.log(`隐私闸门：${tracked.length} 个追踪文件扫描零命中 ✓（内部文档引用提示 ${warns.length} 个文件，属有意保留的编号体系，落点 docs/design/EDITOR-RULES.md）`)
+console.log(`隐私闸门：${tracked.length} 个追踪文件 + 提交历史扫描零命中 ✓（内部文档引用提示 ${warns.length} 个文件，属有意保留的编号体系，落点 docs/design/EDITOR-RULES.md）`)
