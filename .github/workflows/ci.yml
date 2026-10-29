@@ -34,16 +34,19 @@ jobs:
         run: pnpm -C app build
 
   rust:
-    name: Rust（clippy / 测试）
+    name: Rust（fmt / clippy / 测试）
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
-          components: clippy
+          components: clippy, rustfmt
       - uses: swatinem/rust-cache@v2
         with:
           workspaces: app/src-tauri
+      - name: cargo fmt --check
+        working-directory: app/src-tauri
+        run: cargo fmt --check
       - name: cargo clippy
         working-directory: app/src-tauri
         run: cargo clippy --all-targets -- -D warnings
