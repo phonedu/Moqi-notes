@@ -7991,7 +7991,8 @@ await sleep(400)
 await page.evaluate(() => { [...document.querySelectorAll('button')].find((b) => (b.getAttribute('aria-label') ?? '').startsWith('页面列表（⌘⇧'))?.click() })
 await sleep(500)
 check('MOBILE-DRAWER-1 浮层形态收口（`10` §2.3 / §4.5 · 4b-③）：360 下侧栏抽屉 = 80%（max 300px）宽、250ms 滑出、关着 = 离屏（translateX(-100%)，不再靠 margin 抽走）；AI 助手面板 = 重面板 88%、引用预览 = 72%、都贴底；桌面档面板回右栏常驻（无高度档）',
-  drawerRest2.w === drawerRest2.expectW && drawerRest2.transition === '0.25s' && drawerRest2.transform !== 'none' && drawerRest2.transform.includes('-')
+  /* transition 两项是预期形状：10-28 抽屉修复把关闭态改成 `transform 250ms ease, visibility 0s`（延迟隐藏，box-shadow 不再渗左缘），computed = `0.25s, 0s` */
+  drawerRest2.w === drawerRest2.expectW && drawerRest2.transition === '0.25s, 0s' && drawerRest2.transform !== 'none' && drawerRest2.transform.includes('-')
   && drawerOpen3.w === drawerRest2.expectW && drawerOpen3.left === 0 && drawerOpen3.transform === 'none'
   && drawerClosed3.transform !== 'none' && drawerClosed3.transform.includes('-')
   && aiPanelGeo.open === true && aiPanelGeo.maxH === '88%' && aiPanelGeo.h !== null && aiPanelGeo.h <= aiPanelGeo.capH + 1 && aiPanelGeo.bottom === 0
