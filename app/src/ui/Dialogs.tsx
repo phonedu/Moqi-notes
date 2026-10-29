@@ -52,7 +52,9 @@ export function Dialog({ title, subtitle, small = false, onClose, children, foot
     }
     document.addEventListener('keydown', onKeyDown, true)
     return () => document.removeEventListener('keydown', onKeyDown, true)
-  }, [])   // 只在挂载时聚焦一次 + 绑一次键盘（Esc / Tab 环）；onClose 经 closeRef 取最新
+    // 只在挂载时聚焦一次 + 绑一次键盘（Esc / Tab 环）；onClose 经 closeRef 取最新——刻意的 mount-once。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div className="mask" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>

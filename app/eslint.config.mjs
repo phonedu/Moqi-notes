@@ -4,7 +4,8 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    ignores: ['dist/**', 'node_modules/**', 'src-tauri/target/**'],
+    // `scripts/.xx.mjs` = 本会话/本机的临时探针（gitignore，不入库）——不参与门禁。
+    ignores: ['dist/**', 'node_modules/**', 'src-tauri/target/**', 'scripts/.*'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -61,6 +62,8 @@ export default tseslint.config(
         Buffer: 'readonly',
         // 2026-10-08（真机读数工具 `scripts/device-read.mjs`）：Node 侧取 WebView 的 /json 目标表。
         fetch: 'readonly',
+        // 2026-10-29：附件用例在 Node 进程里造 1×1 PNG 样本用；Node ≥16 有全局 atob。
+        atob: 'readonly',
       },
     },
   },

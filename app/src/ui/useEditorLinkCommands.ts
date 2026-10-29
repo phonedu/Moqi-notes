@@ -1,12 +1,11 @@
 import type { MutableRefObject } from 'react'
 import type { LexicalEditor } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
-import type { Block, RefKind } from '@moqi/editor'
+import type { RefKind } from '@moqi/editor'
 import { owningPageId } from '@moqi/editor'
 import type { RefTrigger } from '@moqi/editor'
 import { applyExternalLinkInEditor, focusBlockInEditor, insertReferenceInEditor } from '@moqi/editor'
 import { loadBlocksIntoEditor } from '@moqi/editor'
-import { findBlockNode } from './BlockTools'
 import { inTauriShell } from './windowChrome'
 import type { ViewKind } from './types'
 

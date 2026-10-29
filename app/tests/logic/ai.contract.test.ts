@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { createTextBlock, textContent, type Block } from '@moqi/editor'
 import { DomainStore } from '../../src/application/store'
 import { AiService } from '../../src/application/aiService'
-import { OpenAICompatibleAIPort, StubAIPort, parseItems, SYSTEM_PROMPTS } from '../../src/adapters/ai'
+import { OpenAICompatibleAIPort, StubAIPort, parseItems } from '../../src/adapters/ai'
 import { validateBlockGraph } from '@moqi/editor'
 import { aiSourceLabel, aiSourcePlan, resolveAiAnchor } from '@moqi/editor'
 

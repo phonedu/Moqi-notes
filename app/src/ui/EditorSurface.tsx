@@ -56,6 +56,13 @@ export interface EditorSurfaceModel {
   onContextMenu: (event: ReactMouseEvent<HTMLDivElement>) => void
 }
 
+// 指令必须单行才解析得了——豁免依据见下一条块注释。
+/* eslint-disable react-hooks/refs */
+/*
+ * —— model 对象按 M7 模块化架构穿引 editor ref 与 DOM 句柄（docColRef / contentElement），
+ * 编译器类规则见到含 ref 字段的对象就把整个 model 当 ref：本文件 JSX 里 39 处 model.* 全数误伤
+ * （含 noticeSlot / pageStats 这类纯值）。渲染期没有 .current 读取；contentRef={{ current: … }}
+ * 的伪 ref 形态如要重构（改直传 prop），随领域批/外壳批另开小批，不在 lint 清欠里夹带。 */
 /**
  * 编辑列（模块化 M1.5b）：把正文、装饰层、AI 行和编辑态浮层收进一个组件。
  *

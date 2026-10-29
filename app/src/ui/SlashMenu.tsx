@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react'
 import { useBlockAnchor } from './blockAnchor'
 import { useSlashMenu } from '@moqi/editor'
 import type { LexicalEditor, TextFormatType } from '@moqi/editor'

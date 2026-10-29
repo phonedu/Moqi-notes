@@ -84,7 +84,6 @@ for (const rel of tracked) {
     if (rel.includes(term) || s.includes(term)) errors.push(`${rel} → 「${term}」`)
   }
 
-  const lines = s.split('\n')
   for (const { id, re } of RATCHET) {
     re.lastIndex = 0
     let m

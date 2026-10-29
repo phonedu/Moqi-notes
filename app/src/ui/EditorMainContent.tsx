@@ -17,7 +17,7 @@ import { SettingsHost } from './SettingsHost'
 import { EditorPlugins } from './editorPlugins'
 import { pickPropertyOption } from './libraryFilter'
 import { blockTypeName } from './menuItems'
-import { formatRelative, insertDateText } from './format'
+import { insertDateText } from './format'
 
 /** 编辑区主内容（模块化 M1.7）：编辑列 + 页面列 + 设置宿主 + Lexical 插件宿主。 */
 export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {

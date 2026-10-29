@@ -1,4 +1,4 @@
-import { usePeekEditor, type PeekTarget } from '@moqi/editor'
+import { usePeekEditor } from '@moqi/editor'
 import { Icon } from '@moqi/editor'
 
 export type PeekContent = {

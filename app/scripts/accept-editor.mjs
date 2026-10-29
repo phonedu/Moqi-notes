@@ -1460,10 +1460,6 @@ const chromeCounts = async () => page.evaluate(() => {
   return { inWbar, inView }
 })
 const editorChrome = await chromeCounts()
-const goView = async (label) => {
-  await page.evaluate((text) => { const el = [...document.querySelectorAll("button, a")].find((x) => (x.textContent ?? "").trim() === text); if (el) el.click() }, label)
-  await sleep(900)
-}
 const viewChecks = []
 viewChecks.push({ view: "编辑器", ...editorChrome })
 viewChecks.push({ view: "回收站", ...(await (async () => {

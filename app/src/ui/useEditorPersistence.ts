@@ -3,7 +3,7 @@ import type { EditorState, LexicalEditor } from '@moqi/editor'
 import { createTextBlock, type Block, type BlockMap, type MetadataRegistry } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
 import { OrderedPersistQueue } from '../application/persistQueue'
-import { touchedBlockIds, type Operation, type Transaction } from '@moqi/editor'
+import { touchedBlockIds, type Transaction } from '@moqi/editor'
 import { editorBaseOf, reloadEditorFromStore, syncEditorChanges as syncEditorChangesInEditor } from '@moqi/editor'
 import type { AssetPort, TransactionStoragePort } from '../composition'
 import { useSyncEngine } from './useSyncEngine'
@@ -45,6 +45,8 @@ export function useEditorPersistence(deps: PersistenceDeps) {
   const pendingPersistRef = useRef<{ version: number; blocks: Map<string, Block>; purged: string[]; transactions: Transaction[] } | null>(null)
   const changeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const pendingEnterRef = useRef<Map<string, Block>>(new Map())
+  // storage 不进工厂；列进 deps = 「换存储端口时丢弃在手队列」的刻意语义（新端口不带旧积压）。
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const persistQueue = useMemo(() => new OrderedPersistQueue(), [storage])
 
   const { syncState, syncStatus, deviceIdLabel, deviceId: resolveDeviceId, isSyncConfigured, setSyncDirectory, runSyncOnce, scheduleSync } = useSyncEngine({
@@ -74,6 +76,8 @@ export function useEditorPersistence(deps: PersistenceDeps) {
     const baseIndex = container.children.length
     store.apply({
       id: crypto.randomUUID(),
+      // adoptRootContent 是事件回调（收编根级正文时才执行），时间戳在调用时采样——不在渲染期跑。
+      // eslint-disable-next-line react-hooks/purity
       timestamp: Date.now(),
       source: 'user',
       operations: fresh.map((item, index) => ({

@@ -1,10 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
 import type { LexicalEditor } from '@moqi/editor'
 import type { RefKind } from '@moqi/editor'
 import { parseRefQuery, type RefCandidate, type RefTrigger } from '@moqi/editor'
 import { useBlockAnchor } from './blockAnchor'
 import { useReferenceMenu } from '@moqi/editor'
-import { menuRows, type MenuRow } from '@moqi/editor'
+import { menuRows } from '@moqi/editor'
 import type { Suggestion } from '@moqi/editor'
 
 /**

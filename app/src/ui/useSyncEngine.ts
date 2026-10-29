@@ -109,6 +109,8 @@ export function useSyncEngine(options: {
       setSyncStatus({ kind: 'syncing', done: 0, total: 1 })
       void runSyncOnce()
     })
+    // 挂载只跑一次：runSyncOnce 读 ref 取最新，不依赖其身份；列进 deps 会重复加载同步状态。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storage])
 
   useEffect(() => {

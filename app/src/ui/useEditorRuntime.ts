@@ -1,9 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect } from 'react'
 import type { LexicalEditor } from '@moqi/editor'
 import { textContent, type Block, type BlockType } from '@moqi/editor'
 import { clipboardPort, type TransactionStoragePort } from '../composition'
-import { createTextBlock } from '@moqi/editor'
-import { loadBlocksIntoEditor } from '@moqi/editor'
 import { insertDateText } from './format'
 import { insertRoute, type InsertKind } from './menuItems'
 import { pathOf, propertyValueLabel } from './shellSupport'
@@ -23,7 +21,6 @@ import { useEditorInlineActions } from './useEditorInlineActions'
 import { useEditorData } from './useEditorData'
 import { usePropertyEditor } from './usePropertyEditor'
 import { useFloatingAnchor } from './blockAnchor'
-import { useUndoRouting } from './useEditorShortcuts'
 
 /**
  * 墨契编辑器的运行时组装（模块化 M1.7）。
@@ -34,19 +31,18 @@ import { useUndoRouting } from './useEditorShortcuts'
 export function useEditorRuntime(initialBlocks: Block[], storage: TransactionStoragePort, repairNotice?: string | null) {
   const core = useEditorState(initialBlocks, storage, repairNotice)
   const {
-    store, snapshot, view, setView, settingsSection, setSettingsSection, settingsLevel, setSettingsLevel,
-    settingsOpen, setSettingsOpen, exportChoice, setExportChoice, prefs, setPrefs, saveState, setSaveState,
-    revision, setRevision, activePageId, setActivePageId, activePageIdRef, activeBlockId, setActiveBlockId,
-    registry, setRegistry, registryRef, libraryFilter, setLibraryFilter, toggleTagFilter, toggleStarFilter,
-    refPanelOpen, setRefPanelOpen, aiPanelOpen, setAiPanelOpen, briefOpen, setBriefOpen,
-    menu, dialog, openMenu, closeMenu, openDialog, closeDialog, notify, band,
-    focusMode, setFocusMode, findQuery, setFindQuery, includeDeleted, setIncludeDeleted,
-    drawerOpen, setDrawerOpen, narrow, compact, wideEnoughForColumn, sidebarShown,
-    contentElement, setContentElement, aiConfig, setAiConfig,
-    editorRef, docColRef, captureEditor, editorRoot, startResize, refreshPinyinRef, undoOwnerRef,
-    assetPort, assetsReady, setAssetsReady, assetNames, setAssetNames, closingRef,
-    closeDrawer, openSidePanel, openDrawerOverlay, toggleSidebar, togglePageList, updatePrefs, patchPrefs,
-    initialConfig, updateRegistry, openSettingsView, closeSettingsView, openExportPage,
+    store, snapshot, view, setView, 
+    settingsOpen, prefs, setSaveState,
+    revision, setRevision, activePageId, setActivePageId, activePageIdRef, activeBlockId, 
+    registry, libraryFilter, setLibraryFilter, 
+    setRefPanelOpen, setAiPanelOpen, setBriefOpen,
+    menu, closeMenu, openDialog, closeDialog, notify, 
+    setFocusMode, 
+    wideEnoughForColumn, 
+    editorRef, editorRoot, refreshPinyinRef, undoOwnerRef,
+    assetPort, setAssetNames, closingRef,
+    closeDrawer, updatePrefs, 
+    updateRegistry, 
   } = core
 
   const persistence = useEditorPersistence({
@@ -55,9 +51,8 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
     refreshPinyin: (blocks) => refreshPinyinRef.current(blocks),
   })
   const {
-    persist, onChange, syncEditorChanges, reloadFromStore, flushPendingPersist, cancelPendingPersist,
-    adoptRootContent, pendingEnterRef, editorBase,
-    syncState, syncStatus, deviceIdLabel, resolveDeviceId, isSyncConfigured, setSyncDirectory, runSyncOnce, scheduleSync,
+    persist, syncEditorChanges, reloadFromStore, flushPendingPersist, 
+    pendingEnterRef, editorBase,
   } = persistence
   /**
    * 还债 #2 模块②：选区与批量（`ui/useBlockSelection.ts`）。这里只管注入依赖与派发
@@ -66,19 +61,17 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
   const selection = useBlockSelection({
     store, activePageId, reloadFromStore, notify, surfaceRevision: revision, editorRoot,
   })
-  const { selectedIds, selectBlock, exitSelection, copySelection, deleteSelection, copySelectionToClipboard, cutSelection, selectionRect } = selection
+  const { selectedIds, exitSelection, deleteSelection } = selection
   const blockCommands = useEditorBlockCommands({
     store, editorRef, selectedIds, activeBlockId, activePageId, persist, syncEditorChanges, reloadFromStore, pendingEnterRef, editorBase,
   })
   const {
-    onEnter, outlineMove, toggleCollapse, convertCurrentBlock, replaceBlockText, toggleChecked, caretRangeInBlock,
-    handleMove, moveBlocksStep, moveBlockStepById, insertSibling, insertBlockOfType,
-    flushPendingEnter, nameRowFacts,
+    convertCurrentBlock, replaceBlockText, caretRangeInBlock,
+    insertBlockOfType,
   } = blockCommands
   const linkCommands = useEditorLinkCommands({
     store, editorRef, activePageId, persist, syncEditorChanges, caretRangeInBlock, notify, openDialog, setView, setActivePageId, exitSelection,
   })
-  const { openExternalLinkDialog, applyExternalLink, openExternalUrl, insertReference, jumpToBlock } = linkCommands
   /** 用户请求关闭：按规则决定「先问」还是「落盘后关」。 */
   function requestClose() {
     const action = closeAction({ closing: closingRef.current, generating: generatingRef.current })
@@ -207,31 +200,27 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
     setRefPanelOpen, setAiPanelOpen, setBriefOpen, setFocusMode, exitSelection, deleteSelection, closeDrawer,
     openDialog, notify, clipboardPort,
   })
-  const {
-    createPage, openPage, togglePin, toggleStar, requestDeleteSelection, duplicatePage, copyLink,
-    renameTag, mergeTag, removeTagFromAll,
-  } = pageActions
+  void pageActions // 返回值此处不直接取用（各行为经外壳组件按需回调）；保留调用以维持内部接线
   const inlineActions = useEditorInlineActions({
     store, editorRef, persist, syncEditorChanges, caretRangeInBlock, convertCurrentBlock, replaceBlockText, pickInsert, openDialog,
   })
-  const { handleSlashCommand, toggleInlineFormat, convertSelectionToLink, isLinkConvert, clearLinkConvert } = inlineActions
   const data = useEditorData({
     ...core, ...persistence, ...selection, ...blockCommands, ...linkCommands, ...pageActions, ...inlineActions,
     initialBlocks, repairNotice,
   })
   const {
-    sidebarStats, openPurgeDialog, purgePages, movePageToTrash, restorePage,
-    aiReady, aiState, aiAnswers, aiQuestions, hasGeneratingAiBlock, generatingRef,
-    caretBlockInPage, cancelAi, runAi, askAi, insertAnswerAsBlock, acceptAiBlock, discardAiBlock,
-    tagSummaries, searchPort, backupPort, exportPort, fileChannel, fileOps,
-    insertMediaBlock, importDroppedPaths, importFolder, importDroppedFiles, insertEmbedPlaceholder, applyEmbedSource, clearEmbedSource, pickMediaFile,
-    runExportFromPage, exportTagChoices, runMarkdownExport, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary,
-    searchScope, setSearchScope, askTargetMode, setAskTargetMode, indexStatus,
-    trashEntries, libraryCards, visibleCards, recentPages, activePage, activeBlock,
-    aiGridGates, outlineEntries, findHits, propertyRows, tagUsage, propertyUsage,
-    backlinkCards, outgoingCards, pageStats, filterCount, activeLibraryTagId,
-    formatSnapshot, activeFormatsValue, touchEditId, activateTouchBlock, followTouchBlock, touchBlankTap, exitTouchEdit,
-    historyStep, pageColumnVisible,
+    
+    generatingRef,
+    
+    
+    insertEmbedPlaceholder, pickMediaFile,
+    
+    
+    activePage, activeBlock,
+    
+    
+    
+    
   } = data
   // ---------- 属性编辑 ----------
   // 写入口（建 / 改名 / 改选项 / 挂载 / 取值 / 标签；**停用已取消**——`属性区重规划（已归档）` §0-4）

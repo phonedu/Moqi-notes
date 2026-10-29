@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import type { MutableRefObject } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { TextFormatType } from '@moqi/editor'
 import { buildSidebarStats } from '@moqi/editor'
-import type { Block, MetadataRegistry } from '@moqi/editor'
+import type { Block } from '@moqi/editor'
 import type { SearchIndexStatus } from '../application/search'
 import { cleanupUnreferencedAssets } from '../application/assetSync'
 import { createDefaultBackupPort, createDefaultExportPort, createDefaultFileChannelPort, createDefaultSearchPort } from '../composition'
@@ -17,14 +16,11 @@ import { useUndoRouting } from './useEditorShortcuts'
 import { usePinyinBackfill } from './usePinyinBackfill'
 import { useTrashActions } from './useTrashActions'
 import { useTouchEdit } from '@moqi/editor'
-import { useFloatingAnchor } from './blockAnchor'
 import { activeFilterCount } from './libraryFilter'
 import { currentBlockId } from '@moqi/editor'
 import { focusNameRow } from '@moqi/editor'
 import { sameFormats } from './shellSupport'
-import { formatDate } from './format'
 import { readFormatSnapshot } from '@moqi/editor'
-import { loadAiConfig } from './uiPrefs'
 import type { useEditorState } from './useEditorState'
 import type { useEditorPersistence } from './useEditorPersistence'
 import type { useEditorBlockCommands } from '@moqi/editor'
@@ -52,7 +48,7 @@ export type EditorDataDeps = Core & Persistence & Blocks & Links & Pages & Inlin
  */
 export function useEditorData(deps: EditorDataDeps) {
   const {
-    store, snapshot, revision, registry, prefs, libraryFilter, activePageId, activeBlockId, activePageIdRef,
+    store, snapshot, revision, registry, prefs, libraryFilter, activePageId, activeBlockId, 
     selectedIds, setView, setActivePageId, setRefPanelOpen, setAiPanelOpen, setBriefOpen, setFocusMode,
     openDialog, closeDialog, notify, persist, reloadFromStore, flushPendingPersist, cancelPendingPersist,
     replaceBlockText, moveBlocksStep, requestDeleteSelection, copySelectionToClipboard, cutSelection,
@@ -103,8 +99,11 @@ export function useEditorData(deps: EditorDataDeps) {
    * **引用要稳定**（⌘K 面板的检索 effect 依赖它），所以快照通过 ref 现读——不然每敲一个字都会重挂。
    */
   const snapshotRef = useRef(snapshot)
-  snapshotRef.current = snapshot
-  const searchPort = useMemo(() => createDefaultSearchPort(() => snapshotRef.current, () => registryRef.current), [])
+  // 镜像 Latest 值到 ref：渲染期写 ref 违反并发语义，挪到提交后（消费方都是事件/回调时点，读法不变）。
+  useEffect(() => { snapshotRef.current = snapshot })
+  // .current 在检索回调里才读（不在渲染期）；经 ref 现读是**刻意**的端口稳定设计（⌘K 的 effect 依赖它）。
+  // eslint-disable-next-line react-hooks/refs
+  const searchPort = useMemo(() => createDefaultSearchPort(() => snapshotRef.current, () => registryRef.current), [registryRef, snapshotRef])
 
   /**
    * 0.5 数据安全（`03` §15.9）：**本地快照**（自动、同盘）× **整库导出**（手动、可带走）×
@@ -166,7 +165,8 @@ export function useEditorData(deps: EditorDataDeps) {
   const { exportTagChoices, runMarkdownExport, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary } = useDataActions({
     store, registry, searchPort, backupPort, exportPort, assetPort, fileChannel, initialBlocks, settingsOpen, notify, closeDialog, cancelPendingPersist,
   })
-  refreshPinyinRef.current = refreshPinyin
+  // 同 snapshotRef：镜像挪到提交后。
+  useEffect(() => { refreshPinyinRef.current = refreshPinyin })
 
   // 资产端口：开局问一次目录 + 读一次已有文件名（判「文件缺失」）；就绪后重建一次编辑器，
   // 好让媒体块把显示地址挂上（装饰层读端口，不在渲染时问）。
@@ -185,6 +185,8 @@ export function useEditorData(deps: EditorDataDeps) {
       })
       .catch(() => undefined)
     return () => { alive = false }
+    // 刻意只跟 assetPort 走：重挂会重复问目录、重扫孤儿资产（setter 恒稳）。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assetPort])
 
   // 桌面拖入：Tauri 的拖放事件给**路径**（Windows 上 HTML5 drop 拿不到文件）。
@@ -196,7 +198,7 @@ export function useEditorData(deps: EditorDataDeps) {
       .then((unlisten) => { if (alive) stop = unlisten; else unlisten() })
       .catch(() => undefined)
     return () => { alive = false; stop?.() }
-  }, [assetPort])
+  }, [assetPort, importDroppedPaths])
 
   // 浏览器预览拖入：HTML5 drop 给的是**字节**（与上面的桌面路径各管一段）。
   useEffect(() => {
@@ -218,7 +220,8 @@ export function useEditorData(deps: EditorDataDeps) {
       document.removeEventListener('dragover', onDragOver)
       document.removeEventListener('drop', onDrop)
     }
-  }, [])
+  // 监听器闭包真读 importDroppedFiles：身份变化时重挂重注（卸载函数已正确清理）。
+  }, [importDroppedFiles])
 
   /**
    * V2c 有来源问答：这一次提问的范围（来自 ⌘K 检索命中的块）。null = 基于本篇（默认）。
@@ -292,7 +295,8 @@ export function useEditorData(deps: EditorDataDeps) {
     }
     read()
     return editor.registerUpdateListener(() => { read() })
-  }, [selectedIds])
+    // editorRef 是 ref：身份恒稳，列进 deps 满足规则（零行为变化）。
+  }, [editorRef, selectedIds])
 
   /** 块工具栏的按下态：作用于整块，状态取自被选中的块。 */
   const activeFormatsValue = formatSnapshot.blocks

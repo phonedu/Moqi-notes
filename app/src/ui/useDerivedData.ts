@@ -8,7 +8,7 @@ import { aiPanelGate, type AiPanelGate } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
 import { AI_UI_OPS } from './aiMenu'
 import { applyLibraryFilter, type LibraryFilter } from './libraryFilter'
-import { buildPropertyRows, pathOf, propertyValueLabel } from './shellSupport'
+import { buildPropertyRows, pathOf } from './shellSupport'
 import { formatDate, formatDayMonth, formatDeletedAgo, formatRelative, remainingDays } from './format'
 import type { BacklinkCard } from './Backlinks'
 import type { RefCard } from './Panels'
@@ -36,7 +36,7 @@ export type DerivedDataInputs = {
 }
 
 export function useDerivedData(inputs: DerivedDataInputs) {
-  const { store, revision, snapshot, registry, prefs, libraryFilter, selectedIds, activeBlockId, activePageId, findQuery, includeDeleted } = inputs
+  const { store, revision, snapshot, registry, libraryFilter, selectedIds, activeBlockId, activePageId, findQuery, includeDeleted } = inputs
 
   const trashEntries = useMemo<TrashEntry[]>(() => store.deletedRoots().map((block) => ({
     id: block.entityId,
@@ -45,6 +45,8 @@ export function useDerivedData(inputs: DerivedDataInputs) {
     remainingDays: remainingDays(block.deletedAt ?? block.modified),
     childCount: block.children.length,
     backlinkCount: store.backlinks(block.entityId, true).length,
+    // revision 不被回调体读取，但它是可变 store 的失效键：缺了它这份 memo 永不重算（陈旧 UI）——刻意保留。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   })), [store, revision])
 
   const libraryCards = useMemo<LibraryCard[]>(() => {
@@ -83,12 +85,16 @@ export function useDerivedData(inputs: DerivedDataInputs) {
       })
     }
     return cards
+    // store 同上：稳定可变对象，与 snapshot 同列是失效语义的一部分——刻意保留
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snapshot, store])
 
   /**
    * V2c：筛选后的卡片（`09-桌面端UI规范` §4.2）。**命中判据在 `ui/libraryFilter.ts`**（纯函数，有单测）——
    * 这里只把条件喂给它。侧栏标签点击与筛选面板改的是同一份条件（`R09-FILT-7`）。
    */
+  // Date.now() 是刻意的采样：判「最近」的截止时间随输入变化时刷新，不追求逐帧准确（真使其响应时间流动要另立触发点）。
+  // eslint-disable-next-line react-hooks/purity
   const visibleCards = useMemo(() => applyLibraryFilter(libraryCards, libraryFilter, Date.now(), registry.properties), [libraryCards, libraryFilter, registry])
 
   /**

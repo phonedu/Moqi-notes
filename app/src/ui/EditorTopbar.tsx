@@ -27,7 +27,6 @@ export function EditorTopbar({
   compact, saveError, canEnterEdit, blockTypeLabel,
   onBackToLibrary, onEnterEdit, onOpenBlockType, onOpenInsert, onOpenFind, onOpenOutline, onOpenAi, onOpenMore, showAi,
 }: EditorTopbarProps) {
-  const aiVisible = showAi !== false
   return (
     <div className="topbar">
       {compact ? (

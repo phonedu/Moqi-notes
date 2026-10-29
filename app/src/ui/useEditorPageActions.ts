@@ -1,17 +1,12 @@
 import type { MutableRefObject } from 'react'
 import type { LexicalEditor } from '@moqi/editor'
-import { createTextBlock, orderedRootIds, textContent, type BlockMap, type MetadataRegistry } from '@moqi/editor'
+import { createTextBlock, orderedRootIds, type BlockMap, type MetadataRegistry } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
 import type { Operation } from '@moqi/editor'
 import { availableCopyName } from '@moqi/editor'
 import { planBlockDelete } from './deleteGuard'
 import { listColumnOnOpen } from './panelLayout'
 import { loadBlocksIntoEditor } from '@moqi/editor'
-import { propertyValueLabel } from './shellSupport'
-import { refLabel } from '@moqi/editor'
-import { summarizeBlock } from '@moqi/editor'
-import { formatRelative } from './format'
-import type { PeekContent } from './Peek'
 import type { ClipboardPort } from '../application/clipboard'
 import type { LibraryFilter } from './libraryFilter'
 import type { DialogState } from './useOverlays'
@@ -52,7 +47,7 @@ export type PageActionDeps = {
  */
 export function useEditorPageActions(deps: PageActionDeps) {
   const {
-    store, editorRef, activePageId, snapshot, registry, libraryFilter, prefs, wideEnoughForColumn, selectedIds,
+    store, editorRef, registry, libraryFilter, prefs, wideEnoughForColumn, selectedIds,
     persist, updateRegistry, updatePrefs, setLibraryFilter, setView, setActivePageId,
     setRefPanelOpen, setAiPanelOpen, setBriefOpen, setFocusMode, exitSelection, deleteSelection, closeDrawer,
     openDialog, notify, clipboardPort,

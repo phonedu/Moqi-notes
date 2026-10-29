@@ -66,7 +66,7 @@ test('EXPORT-ASSET-1 导出的资产链贯通：计划带 existingAssets → 搬
     },
   }, '字段名按 camelCase（Rust 侧 rename_all = "camelCase" 对得上；`ipc_payload_uses_camel_case_field_names` 是对面的同一半）')
   // ③ 落点那条路（`T-18`）：给了绝对路径 ⇒ 随 plan 透传给 Rust（同一写入口，不另开通路）
-  const picked = stubInvoke({ write_markdown_export: { path: 'X:\export-target\甲页.md', sizeBytes: 9, entries: 1 } })
-  await new TauriExportPort(picked.invoke).write(exportWriteOf(plan), 'X:\export-target\甲页.md')
-  assert.equal((picked.calls[0]!.args as { plan: { targetPath: string | null } }).plan.targetPath, 'X:\export-target\甲页.md', '另存为的落点透传到 plan.targetPath')
+  const picked = stubInvoke({ write_markdown_export: { path: 'X:\\export-target\\甲页.md', sizeBytes: 9, entries: 1 } })
+  await new TauriExportPort(picked.invoke).write(exportWriteOf(plan), 'X:\\export-target\\甲页.md')
+  assert.equal((picked.calls[0]!.args as { plan: { targetPath: string | null } }).plan.targetPath, 'X:\\export-target\\甲页.md', '另存为的落点透传到 plan.targetPath')
 })

@@ -253,7 +253,8 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
     signatureRef.current = signature
     setMarkers(next)
     setCards(cards)
-  }, [contentRef, embedView, onPickEmbedSource])
+    // assetUrl / compact / onOpenMedia 是真读值：补齐让媒体块落址与档位切换后重测（signature 去重防重渲染）。
+  }, [contentRef, embedView, onPickEmbedSource, assetUrl, compact, onOpenMedia])
 
   const schedule = useCallback(() => {
     if (frameRef.current !== null) return
