@@ -1,0 +1,17 @@
+{
+  "note": "公开面闸门基线：只许下降。新增注释请写自包含说明（为什么这样做、约束是什么），不要引用仓库外的编号或文档；要下调基线时跑 node app/scripts/check-public-face.mjs --count 更新本文件。",
+  "generated": "2026-10-29",
+  "counts": {
+    "D": 222,
+    "R09": 707,
+    "R04": 98,
+    "docs_ref": 378,
+    "section_ref": 933,
+    "ledger": 66,
+    "verdict": 92,
+    "acceptance": 90,
+    "stage": 35,
+    "prototype": 69,
+    "design_draft": 6
+  }
+}

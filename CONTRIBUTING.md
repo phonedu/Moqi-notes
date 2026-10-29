@@ -33,6 +33,7 @@ cargo clippy --all-targets -- -D warnings
 2. 修复类改动尽量带上测试（`app/tests/`）或验收项（`app/scripts/accept-editor.mjs`）。
 3. 提交信息用一行主题写清「改了什么、为什么」。
 4. 每个提交需要 DCO 签名：`git commit -s`（生成 `Signed-off-by: 你的名字 <邮箱>`）。
+5. 代码注释写自包含的说明：为什么这样做、约束是什么；不要引用本仓库之外的编号或文档。`pnpm -C app check:public-face` 会拦住新增的追溯编号和外部流程词。
 
 ### 评审约定
 
