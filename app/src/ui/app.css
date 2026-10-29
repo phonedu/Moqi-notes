@@ -122,6 +122,7 @@ svg { color: inherit; }
   background: var(--accent-hover);
   color: var(--ink-t);
   box-shadow: 0 2px 6px rgba(0, 0, 0, .10); /* 紧凑档（用户 2026-10-28 拍板）：FAB 灰晕收小，替代 --shadow-lg 的 48px 大晕 */
+}
 /* 原生栏以下的主体（侧栏 + 主区）：原来的 .app 横排搬到这里，抽屉因此天然从原生栏下方开始。 */
 .app-body { flex: 1; display: flex; min-height: 0; position: relative; }
 /* overflow:hidden 不是装饰：关闭态的右侧面板用 translateX(100%) 停在视口外侧，
