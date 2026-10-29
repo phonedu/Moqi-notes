@@ -32,6 +32,8 @@ jobs:
           MOQI_PRIVACY_EXTRA: ${{ secrets.MOQI_PRIVACY_EXTRA }}
       - name: 产品构建（tsc + vite——check 不编译产品 CSS，语法错在此拦下）
         run: pnpm -C app build
+      - name: 产品 Lint（eslint 不在 check 链里，单列一道）
+        run: pnpm -C app lint
 
   rust:
     name: Rust（fmt / clippy / 测试）
