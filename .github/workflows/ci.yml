@@ -28,6 +28,8 @@ jobs:
           pnpm -C packages/editor build
       - name: 产品门禁（typecheck / 测试 / 主题与排版检查 / 覆盖率）
         run: pnpm -C app check
+        env:
+          MOQI_PRIVACY_EXTRA: ${{ secrets.MOQI_PRIVACY_EXTRA }}
 
   rust:
     name: Rust（clippy / 测试）
