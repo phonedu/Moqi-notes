@@ -34,8 +34,8 @@ const errors = []
 const warns = []
 for (const rel of tracked) {
   if (SKIP.test(rel) || !TEXT.test(rel)) continue
-  // 规则书豁免：本脚本与 AGENTS.md 自身必然写着违禁模式清单（如同刑法包含罪名）——不自扫
-  if (rel === 'app/scripts/check-privacy.mjs' || rel === 'AGENTS.md') continue
+  // 规则书豁免：本脚本自身必然写着违禁模式清单（如同刑法包含罪名）——不自扫；AGENTS.md 不再豁免
+  if (rel === 'app/scripts/check-privacy.mjs') continue
   const full = join(repoRoot, rel)
   if (!existsSync(full)) continue
   let s = ''
