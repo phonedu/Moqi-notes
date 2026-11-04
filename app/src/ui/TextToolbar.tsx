@@ -10,13 +10,16 @@ import type { AiAction } from '@moqi/editor'
 
 type ToolbarState = { rect: { top: number; left: number; right: number; bottom: number; width: number; height: number } }
 
-const FORMAT_BUTTONS: { format: TextFormatType; icon: IconName; label: string }[] = [
+const FORMAT_BUTTONS: { format: TextFormatType; icon?: IconName; glyph?: string; label: string }[] = [
   { format: 'bold', icon: 'bold', label: '加粗选中文字（⌘B）' },
   { format: 'italic', icon: 'italic', label: '斜体选中文字（⌘I）' },
   { format: 'underline', icon: 'underline', label: '下划线（⌘U）' },
   { format: 'strikethrough', icon: 'strike', label: '删除线（⌘⇧S）' },
   { format: 'code', icon: 'inline-code', label: '行内代码' },
   { format: 'highlight', icon: 'highlight', label: '高亮（⌘⇧H）' },
+  // 上标 / 下标（0.7 T-11）：Lexical 原生格式位；图标用字面字形（Icon 集暂无 sup/sub 专用形）。
+  { format: 'superscript', glyph: 'x²', label: '上标' },
+  { format: 'subscript', glyph: 'x₂', label: '下标' },
 ]
 
 /**
@@ -122,7 +125,7 @@ export function TextToolbarPlugin({ enabled, formats, onToggleFormat, onConvertL
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => applyFormat(button.format)}
           >
-            <Icon name={button.icon} size={17} decorative />
+            {button.icon ? <Icon name={button.icon} size={17} decorative /> : <span style={{ fontSize: 13, fontWeight: 500 }}>{button.glyph}</span>}
           </button>
         ))}
         <span className="div" />
