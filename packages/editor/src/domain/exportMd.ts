@@ -280,6 +280,13 @@ function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): s
       own.push(`${indent}${fenceHead}`, ...raw.split('\n').map((line) => `${indent}${line}`), `${indent}${fence}`)
       break
     }
+    case 'table':
+    case 'math': {
+      // **原文逐字节**：源码块的内容就是导入时的原始行——零转义、零重排（逐字节判据）。
+      const src = block.content.map((fragment) => fragment.v ?? '').join('')
+      own.push(...src.split('\n').map((line) => `${indent}${line}`))
+      break
+    }
     case 'quote': {
       const inner = [`${indent}${text}`.trimEnd(), ...emitChildren(block, level + 1, ctx)]
       // 引用块每一行（含子块、含空行）都带前缀，否则嵌套内容会从引用里掉出来

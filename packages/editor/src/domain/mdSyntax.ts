@@ -388,6 +388,41 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
       push(lineDepth, { type: 'code', text: code.join('\n'), lang: fence[2] || undefined, children: [] }, index)
       continue
     }
+    // 表格（Markdown 互通）：**连续的 `|` 行且第二行是分隔行**（`| --- |`，至少两个连字符）→ 整表一个
+    // `table` 源码块——原文逐行保留（含分隔行），导出**逐字节**写回；表内不做任何行内解析。
+    if (!wasEscaped && /^\s*\|.*\|\s*$/.test(work)) {
+      const sep = rawLines[index + 1] ?? ''
+      if (/\|/.test(sep) && /-{2,}/.test(sep)) {
+        const rows: string[] = [rawLines[index], sep]
+        let cursor = index + 2
+        while (cursor < rawLines.length && /^\s*\|/.test(rawLines[cursor])) {
+          rows.push(rawLines[cursor])
+          cursor += 1
+        }
+        push(lineDepth, { type: 'table', text: rows.join('\n'), children: [] }, cursor - 1)
+        index = cursor - 1
+        continue
+      }
+    }
+    // 块级公式：`$$` 开行 → `$$` 收行，**含定界行原文整体保留**（逐字节）；行内 `$x$` 与单行 `$$x$$` 不收集后续行。
+    if (!wasEscaped && /^\s*\$\$/.test(work)) {
+      const rows: string[] = []
+      let cursor = index
+      if (!/\$\$.*\$\$/.test(work)) {
+        rows.push(rawLines[index])
+        cursor = index + 1
+        while (cursor < rawLines.length && !/^\s*\$\$/.test(rawLines[cursor])) {
+          rows.push(rawLines[cursor])
+          cursor += 1
+        }
+        if (cursor < rawLines.length) rows.push(rawLines[cursor])
+      } else {
+        rows.push(rawLines[index])
+      }
+      push(lineDepth, { type: 'math', text: rows.join('\n'), children: [] }, cursor)
+      index = cursor
+      continue
+    }
     const hit = wasEscaped ? null : splitBlockMarker(work)
     if (hit) {
       markerSeen = true

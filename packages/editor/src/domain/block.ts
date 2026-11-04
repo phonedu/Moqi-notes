@@ -14,6 +14,8 @@ export type BlockType =
   | 'quote'
   | 'code'
   | 'divider'
+  | /** 源码块（Markdown 互通）：整块原文、两态都按源码排版、导出逐字节。 */ 'table'
+  | 'math'
   | 'todo'
   /** 媒体（13-媒体设计（已归档） §2；A 族只插不转）：图片 / 附件 / 嵌入。 */
   | 'image'

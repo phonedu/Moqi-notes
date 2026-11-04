@@ -700,6 +700,24 @@ test('MD-LANG: 围栏 info string 进 lang 草稿字段', () => {
   assert.equal(doc.roots[0].type, 'code')
   assert.equal(doc.roots[0].lang, 'js')
 })
+test('MD-TABLE: 表格进 table 源码块草稿（原文逐行）', () => {
+  const doc = parseMarkdownDocument('| a | b |\n| --- | --- |\n| 1 | 2 |\n')
+  assert.equal(doc.roots.length, 1)
+  assert.equal(doc.roots[0].type, 'table')
+  assert.equal(doc.roots[0].text, '| a | b |\n| --- | --- |\n| 1 | 2 |')
+})
+test('MD-FORMULA: 块级公式进 math 源码块草稿（含定界行）', () => {
+  const doc = parseMarkdownDocument('$$\nE = mc^2\n$$\n')
+  assert.equal(doc.roots.length, 1)
+  assert.equal(doc.roots[0].type, 'math')
+  assert.equal(doc.roots[0].text, '$$\nE = mc^2\n$$')
+})
+test('MD-FORMULA: 单行 $$x$$ 不吞噬后续行', () => {
+  const doc = parseMarkdownDocument('$$E = mc^2$$\n后面的正文\n')
+  assert.equal(doc.roots[0].type, 'math')
+  assert.equal(doc.roots[0].text, '$$E = mc^2$$')
+  assert.equal(doc.roots[1].text, '后面的正文')
+})
 test('MD-LANG: 无语言围栏不产生 lang', () => {
   const doc = parseMarkdownDocument('```\nplain\n```\n')
   assert.equal(doc.roots[0].type, 'code')

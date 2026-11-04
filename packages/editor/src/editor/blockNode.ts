@@ -559,6 +559,8 @@ function tagForBlockType(type: BlockType): keyof HTMLElementTagNameMap {
     case 'heading6': return 'h6'
     case 'quote': return 'blockquote'
     case 'code': return 'pre'
+    case 'table': return 'pre'
+    case 'math': return 'pre'
     case 'divider': return 'div'
     default: return 'p'
   }
