@@ -19,11 +19,16 @@
 import type { ContentFragment } from './block'
 
 /** 行内成对格式表（`R09-MD-3` 的第二段）——输入层「成对闭合时转换」与粘贴共用同一份。 */
-export type InlineMark = 'bold' | 'italic' | 'strike' | 'code' | 'highlight'
+export type InlineMark = 'bold' | 'italic' | 'strike' | 'code' | 'highlight' | 'sup' | 'sub' | 'comment'
 
 export const INLINE_PATTERNS: Array<{ pattern: RegExp; mark: InlineMark }> = [
   { pattern: /\*\*([^*\n]+)\*\*/, mark: 'bold' },
   { pattern: /~~([^~\n]+)~~/, mark: 'strike' },
+  // 下标 `~x~` 排在删除线后面：`~~x~~` 的删除线命中索引更靠前，天然先赢（索引序择优，与表序无关）。
+  { pattern: /~([^~\n]+)~/, mark: 'sub' },
+  // 上标 `^x^` 与行内注释 `%%x%%`（Markdown 互通）：注释在应用内不显示（渲染层隐字）。
+  { pattern: /\^([^\^\n]+)\^/, mark: 'sup' },
+  { pattern: /%%([^%\n]+)%%/, mark: 'comment' },
   { pattern: /==([^=\n]+)==/, mark: 'highlight' },
   { pattern: /`([^`\n]+)`/, mark: 'code' },
   { pattern: /\*([^*\n]+)\*/, mark: 'italic' },
@@ -46,7 +51,7 @@ const READBACK_ALL_PATTERNS: ReadbackPattern[] = [...INLINE_PATTERNS, ...READBAC
 /** 行内记号的字面转义：`*` `~` `=` `` ` `` 前面加 `\`（导出用；只对**看起来成对**的才加，见 `escapeInlineMarkers`）。 */
 function escapeInlineMarker(marker: string): string {
   // 下划线那条读回规则认的是 `<u>` / `</u>` 这两个标签——把标签的 `<` 转义掉即可；正文里的裸 `<` 不碰。
-  return marker.replace(/[*~=`]/g, (char) => `\\${char}`).replace(/<(\/?u)>/g, '\\<$1>')
+  return marker.replace(/[*~=`^%]/g, (char) => `\\${char}`).replace(/<(\/?u)>/g, '\\<$1>')
 }
 
 /**
@@ -55,7 +60,7 @@ function escapeInlineMarker(marker: string): string {
  * （ 属性测试 `PROP-MD-1` 抓到，台账 `D-061`；导出侧同批改为双写字面反斜杠）。
  */
 export function unescapeInline(text: string): string {
-  return text.replace(/\\([\\*~=<`])/g, '$1')
+  return text.replace(/\\([\\*~=<`^%])/g, '$1')
 }
 
 /**

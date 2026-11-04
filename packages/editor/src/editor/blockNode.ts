@@ -566,7 +566,12 @@ function tagForBlockType(type: BlockType): keyof HTMLElementTagNameMap {
 
 export function applyMarks(node: TextNode, marks: Mark[] | undefined): void {
   for (const mark of marks ?? []) {
-    if (mark.type === 'bold' || mark.type === 'italic' || mark.type === 'underline' || mark.type === 'code' || mark.type === 'strike' || mark.type === 'highlight') {
+    if (mark.type === 'sup' || mark.type === 'sub') {
+      node.toggleFormat(mark.type === 'sup' ? 'superscript' : 'subscript')
+    } else if (mark.type === 'comment') {
+      // 行内注释（`%%..%%`）：**隐字**（透明色）——不可见但占位，选中区间以选区高亮示其范围；光标可穿行编辑。
+      node.setStyle('color: transparent')
+    } else if (mark.type === 'bold' || mark.type === 'italic' || mark.type === 'underline' || mark.type === 'code' || mark.type === 'strike' || mark.type === 'highlight') {
       node.toggleFormat(mark.type === 'strike' ? 'strikethrough' : mark.type)
     } else if (mark.type === 'color' && typeof mark.attrs?.color === 'string') {
       node.setStyle(`color: ${mark.attrs.color}`)
@@ -576,11 +581,16 @@ export function applyMarks(node: TextNode, marks: Mark[] | undefined): void {
 
 export function marksFromTextNode(node: TextNode): Mark[] {
   const marks: Mark[] = []
-  for (const type of ['bold', 'italic', 'underline', 'code', 'strikethrough', 'highlight'] as const) {
-    if (node.hasFormat(type)) marks.push({ type: type === 'strikethrough' ? 'strike' : type })
+  for (const type of ['bold', 'italic', 'underline', 'code', 'strikethrough', 'highlight', 'superscript', 'subscript'] as const) {
+    if (node.hasFormat(type)) marks.push({ type: type === 'strikethrough' ? 'strike' : type === 'superscript' ? 'sup' : type === 'subscript' ? 'sub' : type })
   }
   const style = node.getStyle()
-  const match = /(?:^|;)\s*color:\s*([^;]+)/i.exec(style)
-  if (match) marks.push({ type: 'color', attrs: { color: match[1].trim() } })
+  // 透明色 = 行内注释（`%%..%%` 的隐字渲染）——读回为 comment mark，与 color mark 区分（取色器无透明色）。
+  if (/color:\s*transparent/i.test(style)) {
+    marks.push({ type: 'comment' })
+  } else {
+    const match = /(?:^|;)\s*color:\s*([^;]+)/i.exec(style)
+    if (match) marks.push({ type: 'color', attrs: { color: match[1].trim() } })
+  }
   return marks
 }

@@ -1,7 +1,7 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
-import { INLINE_PATTERNS } from '../domain/mdInline'
+import { INLINE_PATTERNS, type InlineMark } from '../domain/mdInline'
 import { blockMarkerOf, type BlockMarker } from '../domain/mdSyntax'
 import type { TextFormatType } from 'lexical'
 /**
@@ -174,21 +174,28 @@ export function decideBlockMarkerTrigger(text: string): BlockMarker | null {
  * 否则 null。触发层据此把记号从正文里抹掉、只留内层并上格式（同一 update ⇒ 一个撤销步）。
  */
 /** 行内记号的 mark → Lexical 的格式位（触发层照着落，映射只有这一份）。 */
-export const INLINE_TEXT_FORMAT: Record<'bold' | 'italic' | 'strike' | 'code' | 'highlight', TextFormatType> = {
+export const INLINE_TEXT_FORMAT: Record<'bold' | 'italic' | 'strike' | 'code' | 'highlight' | 'sup' | 'sub' | 'comment', TextFormatType | null> = {
   bold: 'bold',
   italic: 'italic',
   strike: 'strikethrough',
+  sup: 'superscript',
+  sub: 'subscript',
+  // 注释没有 Lexical 格式位——触发层走 setStyle 隐字（null = 特判）。
+  comment: null,
   code: 'code',
   highlight: 'highlight',
 }
 
 /** 定界符与它该有的连跑长度（`**` 是 2、`*` 是 1……）——用来挡住 `**粗*` 被 1 个 `*` 的斜体规则吃掉。 */
-const INLINE_DELIMS: Array<{ mark: 'bold' | 'italic' | 'strike' | 'code' | 'highlight'; char: string; run: number }> = [
+const INLINE_DELIMS: Array<{ mark: 'bold' | 'italic' | 'strike' | 'code' | 'highlight' | 'sup' | 'sub' | 'comment'; char: string; run: number }> = [
   { mark: 'bold', char: '*', run: 2 },
   { mark: 'italic', char: '*', run: 1 },
   { mark: 'strike', char: '~', run: 2 },
+  { mark: 'sub', char: '~', run: 1 },
   { mark: 'highlight', char: '=', run: 2 },
   { mark: 'code', char: '`', run: 1 },
+  { mark: 'sup', char: '^', run: 1 },
+  { mark: 'comment', char: '%', run: 2 },
 ]
 
 function runLength(text: string, index: number, char: string, direction: -1 | 1): number {
@@ -201,7 +208,7 @@ function runLength(text: string, index: number, char: string, direction: -1 | 1)
   return count
 }
 
-export function decideInlinePairTrigger(text: string): { mark: 'bold' | 'italic' | 'strike' | 'code' | 'highlight'; inner: string; index: number; length: number } | null {
+export function decideInlinePairTrigger(text: string): { mark: InlineMark; inner: string; index: number; length: number } | null {
   for (const { pattern, mark } of INLINE_PATTERNS) {
     const match = pattern.exec(text)
     if (!match || match.index + match[0].length !== text.length) continue

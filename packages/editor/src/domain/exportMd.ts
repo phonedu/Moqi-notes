@@ -211,6 +211,8 @@ function applyMarks(text: string, marks: Mark[] | undefined): string {
   if (!marks || marks.length === 0) return text
   const has = (type: Mark['type']) => marks.some((mark) => mark.type === type)
   let out = text
+  if (has('sup')) out = `^${out}^`
+  if (has('sub')) out = `~${out}~`
   if (has('underline')) out = `<u>${out}</u>`
   if (has('highlight')) out = `==${out}==`
   if (has('strike')) out = `~~${out}~~`
@@ -220,6 +222,8 @@ function applyMarks(text: string, marks: Mark[] | undefined): string {
     const fence = fenceFor(out, 1)
     out = fence.length > 1 ? `${fence} ${out} ${fence}` : `${fence}${out}${fence}`
   }
+  // 注释最外层：整段（含其内嵌格式）都不显示。
+  if (has('comment')) out = `%%${out}%%`
   return out
 }
 

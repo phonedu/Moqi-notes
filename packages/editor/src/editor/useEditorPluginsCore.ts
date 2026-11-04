@@ -422,7 +422,9 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
         const format = INLINE_TEXT_FORMAT[pairTrigger.mark]
         const originalFormat = node.getFormat()
         node.setTextContent(pairTrigger.inner)
-        if (!node.hasFormat(format)) node.toggleFormat(format)
+        // 注释没有格式位：落隐字样式（渲染层读透明色读回 comment mark）。
+        if (format === null) node.setStyle('color: transparent')
+        else if (!node.hasFormat(format)) node.toggleFormat(format)
         if (prefix.length > 0) {
           const before = $createTextNode(prefix)
           before.setFormat(originalFormat)

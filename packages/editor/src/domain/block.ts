@@ -30,7 +30,7 @@ export function isListType(type: BlockType): boolean {
 
 export type Mark = {
   /** `highlight` = 行内高亮（`R09-TXBAR-10` 的 `.tx-h`）；它在 Lexical 里是 format 位，不是 style（台账 D-011）。 */
-  type: 'bold' | 'italic' | 'underline' | 'code' | 'color' | 'strike' | 'highlight'
+  type: 'bold' | 'italic' | 'underline' | 'code' | 'color' | 'strike' | 'highlight' | 'sup' | 'sub' | 'comment'
   attrs?: Record<string, unknown>
 }
 
