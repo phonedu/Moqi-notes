@@ -678,6 +678,8 @@ body.is-focus .doc-col { padding-top: 40px; }
 .editor-content {
   position: relative;
   outline: none;
+  /* 光标色钉死主题文字色：注释片段是透明色，光标停在它边界若继承透明就会隐形（真窗口走查实测）。 */
+  caret-color: var(--text);
   /* θ7：正文列左内距 = **一个变量**（名字行与正文块共用；`--doc-pad-l` 在 ≤700 归零——触控档没有把手/＋，这段结构留白在百占位）。
      它对应 `.moqi-block` 左侧的结构留白（为固定尺寸的把手与 ＋ 让位）。 */
   --doc-pad-l: 10px;
