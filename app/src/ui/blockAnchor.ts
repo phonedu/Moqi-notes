@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
-import { blockElementById } from './BlockTools'
+import { useEffect, useRef, useState , type KeyboardEvent as ReactKeyboardEvent} from 'react'
 import { anchorOf, type AnchorRect } from './Popover'
 
 /**
@@ -214,3 +213,44 @@ type Rect = RectT
 export {
   textSelectionRectOf, toolbarPlacement, type Rect, type ToolbarAnchorKind,
 } from '@moqi/editor'
+
+export type BlockRect = { top: number; left: number; right: number; bottom: number; height: number; width: number }
+
+export function rectOf(element: Element): BlockRect {
+  const rect = element.getBoundingClientRect()
+  return { top: rect.top, left: rect.left, right: rect.right, bottom: rect.bottom, height: rect.height, width: rect.width }
+}
+
+export function blockElementById(root: HTMLElement | null, blockId: string): HTMLElement | null {
+  if (!root) return null
+  for (const element of root.querySelectorAll<HTMLElement>('.moqi-block[data-entity-id]')) {
+    if (element.dataset.entityId === blockId) return element
+  }
+  return null
+}
+
+/**
+ * 浮动工具栏的键盘闭环（docs/08 §4 / docs/09 §十一）：方向键在按钮间移动焦点，
+ * Home/End 跳到首尾，Esc 关闭并把焦点交回调用方（通常是正文）。
+ * 鼠标打开时不抢焦点——编辑器里抢焦点会打断光标与输入法，所以这里保证的是「一旦聚焦就完全可用」。
+ */
+export function toolbarKeyDown(event: ReactKeyboardEvent<HTMLDivElement>, onEscape?: () => void): void {
+  if (event.key === 'Escape') {
+    if (!onEscape) return
+    event.preventDefault()
+    event.stopPropagation()
+    onEscape()
+    return
+  }
+  if (!['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) return
+  const items = [...event.currentTarget.querySelectorAll<HTMLButtonElement>('button:not([disabled])')]
+  if (items.length === 0) return
+  event.preventDefault()
+  const current = items.indexOf(document.activeElement as HTMLButtonElement)
+  let next = current < 0 ? 0 : current
+  if (event.key === 'ArrowRight') next = current < 0 ? 0 : (current + 1) % items.length
+  else if (event.key === 'ArrowLeft') next = current <= 0 ? items.length - 1 : current - 1
+  else if (event.key === 'Home') next = 0
+  else next = items.length - 1
+  items[next]?.focus()
+}

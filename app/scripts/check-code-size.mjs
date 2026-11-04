@@ -19,9 +19,7 @@ import { join, relative } from 'node:path'
 const APP = process.cwd() // app/（照 check-docs-refs.mjs 的写法：脚本从 app/ 跑）
 const RED_LINE = 600
 /** 例外名单（只许变短；拆完划掉）。 */
-const EXCEPTIONS = {
-  'src/ui/BlockTools.tsx': 792,
-}
+const EXCEPTIONS = {} // BlockTools.tsx 曾挂 792（只许变短）；2026-11-04 波 2 前置拆分（AiBlockBars / BlockFlybar 独立文件）后 463 行 ≤ 600，例外划掉
 /**
  * 修复通道（`06` §6；条目从 启用）：缺陷修复需要在超线文件里加行、加了会让体量门变红时挂「在案」——
  * 顶线 = 挂案时实测（只许变短）、写明理由与归位时点；门按在案放行并每次打印在案清单；
