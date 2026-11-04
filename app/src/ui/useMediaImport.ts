@@ -278,8 +278,11 @@ export function useMediaImport({
         nextRegistry = created.registry
       }
       // checkbox 的值是裸 `true` / `false`（导出侧写的），`coercePropertyValue` 要的是布尔。
-      const value = coercePropertyValue(def, def.type === 'checkbox' ? item.raw === 'true' : item.raw)
-      if (value) values.push(value)
+      // 属性多值（互通 C 批）：`item.list` 的每项各自落一条（同 def 多条，导出侧写回流序列）。
+      for (const entry of item.list ?? [def.type === 'checkbox' ? item.raw.toLowerCase() : item.raw]) {
+        const value = coercePropertyValue(def, def.type === 'checkbox' ? entry === 'true' : entry)
+        if (value) values.push(value)
+      }
     }
     if (nextRegistry !== registry) updateRegistry(nextRegistry)
 

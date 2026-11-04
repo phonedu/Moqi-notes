@@ -447,11 +447,19 @@ function frontMatterLines(page: Block, ctx: Ctx): string[] {
     if (!tags.includes(name)) tags.push(name)
   }
   if (tags.length > 0) lines.push(`tags: [${tags.map((name) => yamlQuote(name)).join(', ')}]`)
+  // 同 def 多条 = **属性多值**（互通 C 批）：写 YAML 流序列 `[a, b]`，读回侧拆回多条。
+  const byDef = new Map<string, typeof page.properties>()
   for (const value of page.properties) {
-    const def = ctx.registry.properties.find((item) => item.id === value.defId)
-    const rendered = renderPropertyValue(value, def)
-    if (rendered === null) continue
-    lines.push(`${yamlQuote(uniqueKey(def?.name ?? value.defId, ctx))}: ${rendered}`)
+    const list = byDef.get(value.defId) ?? []
+    list.push(value)
+    byDef.set(value.defId, list)
+  }
+  for (const entries of byDef.values()) {
+    const def = ctx.registry.properties.find((item) => item.id === entries[0].defId)
+    const rendered = entries.map((value) => renderPropertyValue(value, def)).filter((item) => item !== null)
+    if (rendered.length === 0) continue
+    const key = yamlQuote(uniqueKey(def?.name ?? entries[0].defId, ctx))
+    lines.push(rendered.length > 1 ? `${key}: [${rendered.join(', ')}]` : `${key}: ${rendered[0]}`)
   }
   if (lines.length === 0) return []
   return ['---', ...lines, `created: ${isoLocal(page.created)}`, `modified: ${isoLocal(page.modified)}`, '---', '']
