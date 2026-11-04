@@ -114,6 +114,8 @@ export function unescapeLeadingMarker(line: string): string {
 export type OutlineDraft = {
   type: BlockType
   checked?: boolean
+  /** 代码块的围栏 info string 首词（围栏导入时捕获；只在 `code` 草稿上有）。 */
+  lang?: string
   /** 纯文本（没有行内记号时用它建一个文本片段）。 */
   text: string
   /** 行内成对记号切出来的片段（有记号时用它；没有则留空按 `text` 建）。 */
@@ -383,7 +385,7 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
         code.push(stripColumns(rawLines[index], indentCols))
         index += 1
       }
-      push(lineDepth, { type: 'code', text: code.join('\n'), children: [] }, index)
+      push(lineDepth, { type: 'code', text: code.join('\n'), lang: fence[2] || undefined, children: [] }, index)
       continue
     }
     const hit = wasEscaped ? null : splitBlockMarker(work)

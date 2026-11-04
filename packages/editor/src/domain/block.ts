@@ -167,6 +167,8 @@ export type Block = {
   position: number
   collapsed: boolean
   checked: boolean
+  /** 代码块的围栏 info string 首词（只用于 `code` 块）：导入保留、导出原样写回、无语言不写标记——Markdown 互通的一部分。 */
+  lang?: string
   deleted: boolean
   deletedAt: number | null
   prevParent: string | null

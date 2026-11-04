@@ -323,6 +323,7 @@ export function insertOutlineAfter(
     const id = newId()
     const block = createTextBlock({ entityId: id, blockUid: newId(), text: draft.text, parent: parentForDraft, now })
     block.type = draft.type
+    if (draft.lang) block.lang = draft.lang
     block.checked = draft.checked ?? false
     block.position = at
     if (draft.type === 'divider') block.content = []

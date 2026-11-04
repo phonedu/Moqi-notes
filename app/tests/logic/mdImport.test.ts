@@ -692,3 +692,16 @@ test('IMPORT-TAG-1 行内标签采集：判据照 Obsidian（行首/空白起、
   collectInlineTags(drafts)
   assert.equal(JSON.stringify(drafts), before, '采集是纯读——草稿树一字不动')
 })
+// ---------------------------------------------------------------------------
+// Markdown 互通：代码围栏 `lang` 不再丢失——导入捕获 info string、无语言不产生字段。
+test('MD-LANG: 围栏 info string 进 lang 草稿字段', () => {
+  const doc = parseMarkdownDocument('```js\nconst a = 1\n```\n')
+  assert.equal(doc.roots.length, 1)
+  assert.equal(doc.roots[0].type, 'code')
+  assert.equal(doc.roots[0].lang, 'js')
+})
+test('MD-LANG: 无语言围栏不产生 lang', () => {
+  const doc = parseMarkdownDocument('```\nplain\n```\n')
+  assert.equal(doc.roots[0].type, 'code')
+  assert.equal(doc.roots[0].lang, undefined)
+})

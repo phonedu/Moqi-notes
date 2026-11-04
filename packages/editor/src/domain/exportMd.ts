@@ -271,7 +271,9 @@ function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): s
       // 台账 `D-059`）。围栏长度也按**原文**算（转义会改变反引号连续段的长度）。
       const raw = block.content.map((fragment) => fragment.v ?? '').join('')
       const fence = fenceFor(raw, 3)
-      own.push(`${indent}${fence}`, ...raw.split('\n').map((line) => `${indent}${line}`), `${indent}${fence}`)
+      // `lang` 原样写回：无语言不写标记——围栏信息不再丢失（Markdown 互通）。
+      const fenceHead = block.lang ? `${fence} ${block.lang}` : fence
+      own.push(`${indent}${fenceHead}`, ...raw.split('\n').map((line) => `${indent}${line}`), `${indent}${fence}`)
       break
     }
     case 'quote': {
