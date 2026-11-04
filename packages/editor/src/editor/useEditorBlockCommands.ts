@@ -214,7 +214,11 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
     if (!flushPendingEnter(editor, blockId)) return
     const block = store.get(blockId)
     if (!block) return
-    const content: ContentFragment[] = nextText === undefined ? block.content : nextText.length > 0 ? [{ t: 'text', v: nextText }] : []
+    let content: ContentFragment[] = nextText === undefined ? block.content : nextText.length > 0 ? [{ t: 'text', v: nextText }] : []
+    // 空块转表格（`/表格`）：播两行骨架（列头 + 分隔行）——否则空 table 块零高度不可见、光标掉进塌陷块（真机走查实测）。
+    if (type === 'table' && content.every((fragment) => fragment.v.length === 0)) {
+      content = [{ t: 'text', v: '| 列 1 | 列 2 |\n| --- | --- |' }]
+    }
     const affected = store.convertType(blockId, type, content, { checked: options.checked })
     if (!affected) return
     if (type === 'divider') {

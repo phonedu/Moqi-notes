@@ -884,6 +884,21 @@ body.is-touch-editing .prop-wrap { display: none; }
   overflow-x: auto;
   white-space: pre-wrap;
 }
+/* 源码块族（表格 / 公式，0.7 T-11）：与代码块同族——面板底、等宽、同内距；
+   min-height 让空块保住一行光标行盒（真机走查：空块塌陷、光标消失的修复）。 */
+.moqi-block-table,
+.moqi-block-math {
+  margin: .8em 0;
+  padding: .846em 1.077em;
+  border-radius: var(--r-pop);
+  background: var(--panel-2);
+  font-family: var(--mono);
+  font-size: calc(var(--fs-e) * .788);
+  line-height: 1.75;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  min-height: calc(var(--fs-e) * .788 * 1.75 + 1.692em);
+}
 /* 分隔线占**一整块**（与别的块同高：上内边距 5 + 一行 28 + 下内边距 5），线画在块的中线上。
    此前它是 `height: 1px` 的一条线：1px 的命中区（点不到、悬停不亮、块标记没有落点），
    而且块上带正文时文字会从线上溢出来（用户实测 「线应该在块的中间、分割线该是一整个块」）。
