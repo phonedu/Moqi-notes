@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Mous
 import { Icon } from '@moqi/editor'
 import { $findBlockNode as findBlockNode } from '@moqi/editor'
 import { EMBED_CARD_GEOMETRY, embedCardChromePlacement, hoveredIdFromPointer, listOrdinal, markerBoxStyle, markerPlacement, markersForBlock, ownLineCenter, type MarkerKind } from '@moqi/editor'
+import { clipboardPort } from '../composition'
 import { applyAssetVars } from './assetVars'
 import { clearDropLine, showDropLine } from '@moqi/editor'
 import type { DropPosition } from '@moqi/editor'
@@ -89,6 +90,9 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
 }) {
   const [markers, setMarkers] = useState<Marker[]>([])
   const [cards, setCards] = useState<EmbedCard[]>([])
+  // 代码块的「复制」入口（T-08）：测量每块右上角（内容坐标）；已复制短态（零提示：不弹 toast）。
+  const [codeActions, setCodeActions] = useState<Array<{ id: string; top: number; left: number }>>([])
+  const [copiedId, setCopiedId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const hoveredIdRef = useRef<string | null>(null)
   const selectedIdsRef = useRef(selectedIds)
@@ -99,6 +103,13 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   const draggedRef = useRef(false)
 
   /** 一次测量：遍历当前页面的块，得出应显示的标记与它们的实时位置。 */
+  const copyCode = async (id: string) => {
+    const element = blockElementById(contentRef.current, id)
+    if (!element) return
+    await clipboardPort.writeText(element.textContent ?? '')
+    setCopiedId(id)
+    window.setTimeout(() => setCopiedId((current) => (current === id ? null : current)), 1200)
+  }
   const measure = useCallback(() => {
     const content = contentRef.current
     if (!content) return
@@ -202,14 +213,26 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
       const lineTop = ownLineCenter(parseFloat(style.lineHeight), parseFloat(style.paddingTop) || 0, localRect)
       for (const kind of kinds) next.push({ id, kind, rect: localRect, lineTop, blockType, collapsed: element.dataset.collapsed === 'true', checked: element.dataset.checked === 'true' })
     }
+    // 代码块复制入口的位置：块右上角（内容坐标，与标记同一坐标系）。
+    const codeActions: Array<{ id: string; top: number; left: number }> = []
+    for (const element of content.querySelectorAll<HTMLElement>('.moqi-block[data-block-type="code"][data-entity-id]')) {
+      const id = element.dataset.entityId
+      if (!id) continue
+      const rect = rectOf(element)
+      if (!frame.inView(rect)) continue
+      const localRect = frame.rect(rect)
+      codeActions.push({ id, top: localRect.top + 6, left: localRect.right - 68 })
+    }
     const signature = [
       ...next.map((marker) => `${marker.kind}:${marker.id}:${Math.round(marker.rect.top)}:${Math.round(marker.rect.left)}:${Math.round(marker.lineTop)}:${marker.collapsed}:${marker.checked}`),
       ...cards.map((card) => `card:${card.id}:${card.state}:${Math.round(card.rect.top)}:${Math.round(card.rect.left)}`),
+      ...codeActions.map((action) => `code:${action.id}:${Math.round(action.top)}:${Math.round(action.left)}`),
     ].join('|')
     if (signature === signatureRef.current) return
     signatureRef.current = signature
     setMarkers(next)
     setCards(cards)
+    setCodeActions(codeActions)
     // assetUrl / compact / onOpenMedia 是真读值：补齐让媒体块落址与档位切换后重测（signature 去重防重渲染）。
   }, [contentRef, embedView, onPickEmbedSource, assetUrl, compact, onOpenMedia])
 
@@ -423,6 +446,28 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
             </button>
           )}
         </span>
+      ))}
+      {codeActions.map((action) => (
+        <button
+          key={`code-copy-${action.id}`}
+          type="button"
+          className="b-code-copy"
+          style={{
+            position: 'absolute',
+            top: action.top,
+            left: action.left,
+            fontSize: 12,
+            padding: '2px 8px',
+            borderRadius: 6,
+            background: 'var(--panel-2)',
+            color: 'var(--text-2)',
+          }}
+          aria-label={copiedId === action.id ? '已复制' : '复制代码'}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={(event) => { event.stopPropagation(); void copyCode(action.id) }}
+        >
+          {copiedId === action.id ? '已复制' : '复制'}
+        </button>
       ))}
       {cards.map((card) => {
         const chrome = embedCardChromePlacement(card.rect)
