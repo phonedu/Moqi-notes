@@ -105,7 +105,8 @@ export function TextToolbarPlugin({ enabled, formats, onToggleFormat, onConvertL
 
   if (!enabled || !state) return null
 
-  const width = 424
+  // 宽度随按钮数走（8 格式 + 转链/外链 + 复制/剪切/删除 + AI ≈ 560）；写死小值会让按钮溢出白底。
+  const width = 568
   const viewportWidth = typeof window === 'undefined' ? 1200 : window.innerWidth
   // 落点数学收在定位服务里（`blockAnchor.toolbarPlacement` 的 `text` 档，与块浮条同一份）。
   const { top, left } = toolbarPlacement('text', state.rect, { width, viewportWidth })
