@@ -478,7 +478,7 @@ test('R09-MD-3 通用文档：setext 标题（`===` / `---` 紧邻段落）升�
   assert.deepEqual(flatten(parseMarkdownDocument('硬换行  \n下一行').roots), ['text:硬换行', 'text:下一行'])
 })
 
-test('R09-MD-3 导入：Obsidian 的媒体嵌入 `![[图.png]]` 认成媒体引用；`![[页面]]` 不是媒体（保持字面）', () => {
+test('R09-MD-3 导入：媒体嵌入 `![[图.png]]` 认成媒体引用；`![[页面]]` 转嵌入占位（0.7 D 批）', () => {
   const doc = parseMarkdownDocument([
     '![[封面 图.png]]',
     '![[数据.csv]]',
@@ -490,7 +490,7 @@ test('R09-MD-3 导入：Obsidian 的媒体嵌入 `![[图.png]]` 认成媒体引�
     { href: '数据.csv', kind: 'file', label: '数据.csv' },
     { href: '图.png', kind: 'image', label: '图.png' },
   ], '页面嵌入与宽度后缀（`|300`）都不当媒体')
-  assert.equal(flatten(doc.roots)[2], 'text:![[另一页]]', '页面嵌入保持字面（不凭空造引用）')
+  assert.equal(flatten(doc.roots)[2], 'embed:另一页', '页面嵌入转嵌入占位：名字保留显示；引用不凭空造——目标存在才落 refs（resolvePageRefs）')
 })
 
 test('R09-MD-7 导入：Obsidian 的 `[[页名|别名]]` 与 `[[目录/页名]]` 还原成引用；带锚点的保持字面并单独报数', () => {
@@ -717,6 +717,17 @@ test('MD-FORMULA: 单行 $$x$$ 不吞噬后续行', () => {
   assert.equal(doc.roots[0].type, 'math')
   assert.equal(doc.roots[0].text, '$$E = mc^2$$')
   assert.equal(doc.roots[1].text, '后面的正文')
+})
+test('MD-EMBED: ![[页面]] 独立行转嵌入草稿（带 embedTarget）', () => {
+  const doc = parseMarkdownDocument('![[读书笔记]]\n')
+  assert.equal(doc.roots.length, 1)
+  assert.equal(doc.roots[0].type, 'embed')
+  assert.equal(doc.roots[0].embedTarget, '读书笔记')
+})
+test('MD-EMBED: 媒体形态 ![[x.png]] 仍走资产路（负例）', () => {
+  const doc = parseMarkdownDocument('![[图.png]]\n')
+  assert.equal(doc.roots[0].type, 'image')
+  assert.equal(doc.roots[0].embedTarget, undefined)
 })
 test('MD-LANG: 无语言围栏不产生 lang', () => {
   const doc = parseMarkdownDocument('```\nplain\n```\n')

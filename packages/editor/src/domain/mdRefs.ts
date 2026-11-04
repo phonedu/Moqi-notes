@@ -109,11 +109,21 @@ function pageNameOf(file: string): string {
 export function resolvePageRefs(
   drafts: OutlineDraft[],
   resolve: (pageName: string) => string | null,
-): { drafts: OutlineDraft[]; unresolved: string[] } {
+): { drafts: OutlineDraft[]; unresolved: string[]; embeds: number } {
   const unresolved: string[] = []
+  let embeds = 0
   const walk = (list: OutlineDraft[]): OutlineDraft[] => list.map((draft) => {
     const children = walk(draft.children)
-    const refs: Array<{ kind: 'object' | 'block'; targetId: string }> = []
+    const refs: Array<{ kind: 'object' | 'block'; targetId: string; refType?: 'link' | 'embed' }> = []
+    // 页面嵌入（0.7 D 批）：目标存在 = 落嵌入引用；不存在 = 悬空占位（不填 refs，渲染走源缺失说明）。
+    if (draft.embedTarget) {
+      const targetId = resolve(draft.embedTarget)
+      if (targetId) {
+        refs.push({ kind: 'block', targetId, refType: 'embed' })
+        embeds += 1
+      }
+    }
+
     const spliced = spliceDraftRefs(draft, splitPageRefs, (span) => {
       const targetId = resolve(pageNameOf(span.file))
       if (!targetId) {
@@ -123,10 +133,10 @@ export function resolvePageRefs(
       refs.push({ kind: 'object', targetId })
       return { t: 'inline-ref', v: span.label, ref: { kind: 'object', targetId } }
     })
-    if (!spliced) return { ...draft, children }
-    return { ...draft, content: spliced.content, refs, children }
+    if (!spliced) return { ...draft, refs: refs.length > 0 ? refs : draft.refs, children }
+    return { ...draft, content: spliced.content, refs: refs.length > 0 ? refs : draft.refs, children }
   })
-  return { drafts: walk(drafts), unresolved }
+  return { drafts: walk(drafts), unresolved, embeds }
 }
 
 // ---------------------------------------------------------------------------

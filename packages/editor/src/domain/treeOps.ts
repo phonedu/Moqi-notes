@@ -336,7 +336,7 @@ export function insertOutlineAfter(
     for (const ref of draft.refs ?? []) {
       operations.push(ref.kind === 'object'
         ? { type: 'object-ref', opId: crypto.randomUUID(), fromId: id, targetId: ref.targetId }
-        : { type: 'block-ref', opId: crypto.randomUUID(), fromId: id, targetId: ref.targetId, refType: 'link' })
+        : { type: 'block-ref', opId: crypto.randomUUID(), fromId: id, targetId: ref.targetId, refType: ref.refType ?? 'link' })
     }
     let childAt = 0
     for (const child of draft.children) {

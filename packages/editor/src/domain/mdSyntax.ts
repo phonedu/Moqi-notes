@@ -125,7 +125,9 @@ export type OutlineDraft = {
    * 片段与引用点要一起写，所以引用点单列在这儿——插入时按它补 `object-ref` / `block-ref` 操作
    * （只写片段不写引用点，反链面板就看不到这条引用）。粘贴那条路不产生这个字段。
    */
-  refs?: Array<{ kind: 'object' | 'block'; targetId: string }>
+  refs?: Array<{ kind: 'object' | 'block'; targetId: string; refType?: 'link' | 'embed' }>
+  /** 页面嵌入（`![[页面]]`，0.7 D 批）：待解析的目标页名——resolvePageRefs 按名填 refs（refType=embed）。 */
+  embedTarget?: string
   /** 媒体草稿（界面插入图片 / 附件时用）：payload 原样带上。 */
   asset?: BlockAsset
   /**
@@ -439,6 +441,15 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
     if (mediaRef) {
       markerSeen = true
       push(lineDepth, { type: mediaRef.kind === 'image' ? 'image' : 'file', text: mediaRef.label, mediaRef, children: [] }, index)
+      continue
+    }
+    // 页面嵌入（0.7 D 批）：`![[页面名]]`（无扩展名 ⇒ mediaRefOf 不认）——独立行整块转嵌入；
+    // 目标页按名在 resolvePageRefs 解析（zip 多文件一起进，先后无关）；解析不到 = 悬空占位（导出走源缺失说明）。
+    const pageEmbed = !requireMarker && !wasEscaped ? /^!\[\[([^\]\n]+)\]\]\s*$/.exec(work.trim()) : null
+    if (pageEmbed) {
+      markerSeen = true
+      const targetName = pageEmbed[1].trim()
+      push(lineDepth, { type: 'embed', text: targetName, embedTarget: targetName, children: [] }, index)
       continue
     }
     // 行尾空白（CommonMark 的硬换行标记 = 行尾两空格）不进正文：块内换行我们按行拆块，
