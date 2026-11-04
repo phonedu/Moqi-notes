@@ -121,7 +121,9 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
   useEffect(() => editor.registerCommand(INSERT_LINE_BREAK_COMMAND, () => {
     const blockId = currentBlockId(editor)
     if (!blockId) return true
-    return editor.getEditorState().read(() => $findBlockNode(blockId)?.getBlockType() !== 'code')
+    // 源码块族（code / table / math）：Enter = 块内换行（0.7 T-11 扩 table/math——与代码块同为源码块）。
+    const blockType = editor.getEditorState().read(() => (blockId ? $findBlockNode(blockId)?.getBlockType() : null))
+    return blockType === 'code' || blockType === 'table' || blockType === 'math'
   }, COMMAND_PRIORITY_HIGH), [editor])
 
 
