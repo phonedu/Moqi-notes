@@ -276,7 +276,7 @@ function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): s
       const raw = block.content.map((fragment) => fragment.v ?? '').join('')
       const fence = fenceFor(raw, 3)
       // `lang` 原样写回：无语言不写标记——围栏信息不再丢失（Markdown 互通）。
-      const fenceHead = block.lang ? `${fence} ${block.lang}` : fence
+      const fenceHead = block.lang ? `${fence}${block.lang}` : fence
       own.push(`${indent}${fenceHead}`, ...raw.split('\n').map((line) => `${indent}${line}`), `${indent}${fence}`)
       break
     }

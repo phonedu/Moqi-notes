@@ -30,6 +30,8 @@ const allowedTypes = new Set<Block['type']>([
   'image',
   'file',
   'embed',
+  'table',
+  'math',
 ])
 
 /**
