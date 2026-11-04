@@ -18,6 +18,9 @@ export const convertibleBlockTypes: BlockType[] = [
   'code',
   'divider',
   'todo',
+  // 源码块（0.7 T-11）：斜杠菜单「/表格 /公式」的插入走 convert 路径，需在可转换白名单内。
+  'table',
+  'math',
 ]
 
 const convertible = new Set<BlockType>(convertibleBlockTypes)
