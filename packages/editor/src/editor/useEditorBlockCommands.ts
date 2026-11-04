@@ -214,10 +214,19 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
     if (!flushPendingEnter(editor, blockId)) return
     const block = store.get(blockId)
     if (!block) return
+    let nextTextForMirror: string | undefined = nextText
     let content: ContentFragment[] = nextText === undefined ? block.content : nextText.length > 0 ? [{ t: 'text', v: nextText }] : []
-    // 空块转表格（`/表格`）：播两行骨架（列头 + 分隔行）——否则空 table 块零高度不可见、光标掉进塌陷块（真机走查实测）。
-    if (type === 'table' && content.every((fragment) => fragment.v.length === 0)) {
-      content = [{ t: 'text', v: '| 列 1 | 列 2 |\n| --- | --- |' }]
+    // 空块转源码族（`/表格` `/公式`）：空块零高度不可见、光标掉进塌陷块（真机走查实测）——
+    // 表格播两行骨架（列头 + 分隔行）让用户直接改源；公式落一个空文本片段保住行盒与光标。
+    // 骨架 / 空片段**同时进领域与镜像**（镜像只认 nextText，见下方 update 条件）。
+    if ((type === 'table' || type === 'math') && nextText === undefined && content.every((fragment) => fragment.v.length === 0)) {
+      if (type === 'table') {
+        content = [{ t: 'text', v: '| 列 1 | 列 2 |\n| --- | --- |' }]
+        nextTextForMirror = content[0].v
+      } else {
+        content = [{ t: 'text', v: '' }]
+        nextTextForMirror = ''
+      }
     }
     const affected = store.convertType(blockId, type, content, { checked: options.checked })
     if (!affected) return
@@ -232,9 +241,9 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
     editor.update(() => {
       const node = findBlockNode(blockId)
       if (!node) return
-      if (nextText !== undefined) {
+      if (nextTextForMirror !== undefined) {
         for (const child of node.getChildren()) if (!$isBlockNode(child)) child.remove()
-        if (nextText.length > 0) node.append($createTextNode(nextText))
+        if (nextTextForMirror.length > 0) node.append($createTextNode(nextTextForMirror))
       }
       node.setBlockType(type)
       // 勾选态**必须同步到编辑节点**（`R09-MD-3` 的 `[x] ` 打字触发）：域层这一次事务里已经把
