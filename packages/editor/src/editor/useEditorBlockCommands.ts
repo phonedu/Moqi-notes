@@ -410,7 +410,7 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
     persist([block.entityId, blockId])
   }
 
-  function insertBlockOfType(editor: LexicalEditor, kind: 'todo' | 'quote' | 'code' | 'text' | 'divider', seedText?: string, afterId?: string) {
+  function insertBlockOfType(editor: LexicalEditor, kind: 'todo' | 'quote' | 'code' | 'text' | 'divider' | 'table' | 'math', seedText?: string, afterId?: string) {
     const target = afterId ?? currentBlockId(editor)
     if (!target) return
     const anchor = store.get(target)
