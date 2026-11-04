@@ -22,6 +22,8 @@ export const BLOCK_TYPE_ITEMS: BlockTypeItem[] = [
   { type: 'quote', label: '引用', hint: '', icon: 'quote', short: '引用' },
   { type: 'todo', label: '待办', hint: '', icon: 'check-square', short: '待办' },
   { type: 'code', label: '代码', hint: '', icon: 'code', short: '代码' },
+  { type: 'table', label: '表格', hint: '源码', icon: 'grid', short: '表格' },
+  { type: 'math', label: '公式', hint: '源码', icon: 'code', short: '公式' },
   { type: 'bullet', label: '无序列表', hint: '', icon: 'list', short: '无序列表' },
   { type: 'numbered', label: '有序列表', hint: '', icon: 'list-numbered', short: '有序列表' },
   { type: 'divider', label: '分隔线', hint: '', icon: 'minus', short: '分隔线' },

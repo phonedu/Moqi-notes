@@ -91,7 +91,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   const [markers, setMarkers] = useState<Marker[]>([])
   const [cards, setCards] = useState<EmbedCard[]>([])
   // 代码块的「复制」入口（T-08）：测量每块右上角（内容坐标）；已复制短态（零提示：不弹 toast）。
-  const [codeActions, setCodeActions] = useState<Array<{ id: string; top: number; left: number }>>([])
+  const [codeActions, setCodeActions] = useState<Array<{ id: string; top: number; left: number; lang: string }>>([])
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const hoveredIdRef = useRef<string | null>(null)
@@ -214,19 +214,19 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
       for (const kind of kinds) next.push({ id, kind, rect: localRect, lineTop, blockType, collapsed: element.dataset.collapsed === 'true', checked: element.dataset.checked === 'true' })
     }
     // 代码块复制入口的位置：块右上角（内容坐标，与标记同一坐标系）。
-    const codeActions: Array<{ id: string; top: number; left: number }> = []
+    const codeActions: Array<{ id: string; top: number; left: number; lang: string }> = []
     for (const element of content.querySelectorAll<HTMLElement>('.moqi-block[data-block-type="code"][data-entity-id]')) {
       const id = element.dataset.entityId
       if (!id) continue
       const rect = rectOf(element)
       if (!frame.inView(rect)) continue
       const localRect = frame.rect(rect)
-      codeActions.push({ id, top: localRect.top + 6, left: localRect.right - 68 })
+      codeActions.push({ id, top: localRect.top + 6, left: localRect.right - 68, lang: element.dataset.lang ?? '' })
     }
     const signature = [
       ...next.map((marker) => `${marker.kind}:${marker.id}:${Math.round(marker.rect.top)}:${Math.round(marker.rect.left)}:${Math.round(marker.lineTop)}:${marker.collapsed}:${marker.checked}`),
       ...cards.map((card) => `card:${card.id}:${card.state}:${Math.round(card.rect.top)}:${Math.round(card.rect.left)}`),
-      ...codeActions.map((action) => `code:${action.id}:${Math.round(action.top)}:${Math.round(action.left)}`),
+      ...codeActions.map((action) => `code:${action.id}:${Math.round(action.top)}:${Math.round(action.left)}:${action.lang}`),
     ].join('|')
     if (signature === signatureRef.current) return
     signatureRef.current = signature
@@ -446,6 +446,16 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
             </button>
           )}
         </span>
+      ))}
+      {codeActions.map((action) => (
+        action.lang ? (
+          <span
+            key={`code-lang-${action.id}`}
+            style={{ position: 'absolute', top: action.top, left: action.left - 60, fontSize: 11, padding: '2px 6px', borderRadius: 6, background: 'var(--panel-2)', color: 'var(--text-3)' }}
+          >
+            {action.lang}
+          </span>
+        ) : null
       ))}
       {codeActions.map((action) => (
         <button

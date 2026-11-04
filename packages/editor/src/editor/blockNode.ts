@@ -31,6 +31,8 @@ export type SerializedBlockNode = SerializedElementNode & {
   collapsed: boolean
   checked: boolean
   isObject: boolean
+  /** 代码块的围栏语言（`lang` 字段的 Lexical 侧镜像，0.7 T-11）。 */
+  lang?: string
 }
 
 export class BlockNode extends ElementNode {
@@ -41,6 +43,8 @@ export class BlockNode extends ElementNode {
   __checked: boolean
   __isObject: boolean
   __aiMeta: AiMeta | null
+  /** 代码块的围栏语言（域字段 lang 的节点侧镜像；只有 code 块有值）。 */
+  __lang: string | null
   /**
    * 媒体 payload（13-媒体设计（已归档） §2；只有 image / file 有值）。
    * 与 `__aiMeta` 同理：**只挂在节点属性上、不写进编辑器的子节点**（那一层归 Lexical 管），
@@ -51,11 +55,12 @@ export class BlockNode extends ElementNode {
   static getType(): string { return 'moqi-block' }
 
   static clone(node: BlockNode): BlockNode {
-    return new BlockNode(node.__entityId, node.__blockUid, node.__blockType, node.__collapsed, node.__checked, node.__isObject, node.__aiMeta, node.__asset, node.__key)
+    return new BlockNode(node.__entityId, node.__blockUid, node.__blockType, node.__collapsed, node.__checked, node.__isObject, node.__aiMeta, node.__asset, node.__lang, node.__key)
   }
 
-  constructor(entityId: string, blockUid: string, blockType: BlockType, collapsed = false, checked = false, isObject = false, aiMeta: AiMeta | null = null, asset: BlockAsset | null = null, key?: NodeKey) {
+  constructor(entityId: string, blockUid: string, blockType: BlockType, collapsed = false, checked = false, isObject = false, aiMeta: AiMeta | null = null, asset: BlockAsset | null = null, lang: string | null = null, key?: NodeKey) {
     super(key)
+    this.__lang = lang
     this.__entityId = entityId
     this.__blockUid = blockUid
     this.__blockType = blockType
@@ -74,6 +79,9 @@ export class BlockNode extends ElementNode {
       serializedNode.collapsed,
       serializedNode.checked,
       serializedNode.isObject ?? false,
+      null,
+      null,
+      serializedNode.lang ?? null,
     ).updateFromJSON(serializedNode)
   }
 
@@ -87,6 +95,7 @@ export class BlockNode extends ElementNode {
       collapsed: this.__collapsed,
       checked: this.__checked,
       isObject: this.__isObject,
+      lang: this.__lang ?? undefined,
     }
   }
 
@@ -99,6 +108,7 @@ export class BlockNode extends ElementNode {
     dom.dataset.collapsed = String(this.__collapsed)
     dom.dataset.checked = String(this.__checked)
     dom.dataset.blockObject = String(this.__isObject)
+    if (this.__lang) dom.dataset.lang = this.__lang
     dom.className = `moqi-block ${blockTypeClassName(this.__blockType)}`
     if (this.__collapsed) dom.classList.add('is-collapsed')
     if (this.__checked) dom.classList.add('is-checked')
@@ -110,6 +120,10 @@ export class BlockNode extends ElementNode {
 
   updateDOM(previous: BlockNode, dom: HTMLElement, _config: EditorConfig): boolean {
     if (tagForBlockType(previous.__blockType) !== tagForBlockType(this.__blockType)) return true
+    if (previous.__lang !== this.__lang) {
+      if (this.__lang) dom.dataset.lang = this.__lang
+      else delete dom.dataset.lang
+    }
     // text/bullet/numbered/todo all render as <p>, so a type change here does
     // not recreate the element. The type class must be swapped in place or the
     // list marker / checkbox styles would not appear until a reload.
@@ -370,8 +384,8 @@ function decorateAi(dom: HTMLElement, aiMeta: AiMeta | null): void {
   dom.title = `${statusLabel} · ${AI_ACTION_LABEL[aiMeta.action]} · ${sourceLabel}（${stateLabel}）`
 }
 
-export function $createBlockNode(block: Pick<Block, 'entityId' | 'blockUid' | 'type' | 'collapsed' | 'checked' | 'isObject' | 'aiMeta' | 'asset'>): BlockNode {
-  return new BlockNode(block.entityId, block.blockUid, block.type, block.collapsed, block.checked, block.isObject, block.aiMeta, block.asset ?? null)
+export function $createBlockNode(block: Pick<Block, 'entityId' | 'blockUid' | 'type' | 'collapsed' | 'checked' | 'isObject' | 'aiMeta' | 'asset' | 'lang'>): BlockNode {
+  return new BlockNode(block.entityId, block.blockUid, block.type, block.collapsed, block.checked, block.isObject, block.aiMeta, block.asset ?? null, block.lang ?? null)
 }
 
 export function $isBlockNode(node: LexicalNode | null | undefined): node is BlockNode {
