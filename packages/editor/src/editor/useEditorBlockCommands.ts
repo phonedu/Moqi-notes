@@ -243,7 +243,8 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
       if (!node) return
       if (nextTextForMirror !== undefined) {
         for (const child of node.getChildren()) if (!$isBlockNode(child)) child.remove()
-        if (nextTextForMirror.length > 0) node.append($createTextNode(nextTextForMirror))
+        // 无条件 append：空文本片段（math 空块）也要落——空 TextNode 是光标的行盒，Lexical 会保留带 key 的空节点
+        node.append($createTextNode(nextTextForMirror))
       }
       node.setBlockType(type)
       // 勾选态**必须同步到编辑节点**（`R09-MD-3` 的 `[x] ` 打字触发）：域层这一次事务里已经把
