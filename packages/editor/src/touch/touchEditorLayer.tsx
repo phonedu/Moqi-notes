@@ -31,7 +31,7 @@ import { ensureCaretVisible } from '../editor/touchFocus'
 
 type TouchFmt = 'bold' | 'italic' | 'underline' | 'strikethrough' | 'code' | 'highlight'
 
-export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId, blockOps, formats, blockKind = 'text', onToggleFormat, onConvertBlock, onIndent, onMoveStep, onHistory, onInsertTile, onConvertLink, onLinkDialog, onOpenAiPanel, onOpenMedia, media = true, clipboard, onTouchActivate, onTouchFollow, onTouchBlank, onTouchExit }: {
+export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId, blockOps, formats, blockKind = 'text', onToggleFormat, onConvertBlock, onIndent, onMoveStep, onHistory, onInsertTile, onConvertLink, onLinkDialog, onOpenAiPanel, onOpenLangPicker, onOpenMedia, media = true, clipboard, onTouchActivate, onTouchFollow, onTouchBlank, onTouchExit }: {
   /** 结构型内核口（`ui/` 不许直连 lexical——边界门 ③）。 */
   editor: {
     setEditable: (value: boolean) => void
@@ -61,6 +61,8 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
   onConvertLink: () => void
   onLinkDialog: () => void
   onOpenAiPanel: () => void
+  /** 代码块编辑态底栏的「语言」键（语言选择器；仅代码块出——触控档没有块菜单，见 MobileFmtBar）。 */
+  onOpenLangPicker?: () => void
   /** 开图片预览（灯箱）——图片工具条的「扩展」键走它（`R09-BLOCK-19/20`）。 */
   onOpenMedia: (blockId: string) => void
   /** M5 可选能力：媒体关闭时插入面板不出媒体格（透传给胶囊 / 选择栏 / 格式栏）。 */
@@ -438,6 +440,7 @@ export function useTouchEditorLayer({ editor, enabled, touchCompact, touchEditId
             onMoveStep={onMoveStep}
             onHistory={onHistory}
             onOpenAiPanel={onOpenAiPanel}
+            onOpenLangPicker={onOpenLangPicker}
             media={media}
             onInsert={(tile, sub) => onInsertTile(String(tile), sub)}
             onOpenInsertPanel={(open) => {

@@ -87,7 +87,7 @@ const MEDIA_TILES: ReadonlySet<InsertTile> = new Set(['image', 'camera', 'file',
  */
 const prevent = (event: { preventDefault: () => void }) => event.preventDefault()
 
-export function MobileFmtBar({ formats, blockKind, openCharSignal = 0, onToggleFormat, onConvert, onIndent, onMoveStep, onHistory, onInsert, onOpenInsertPanel, onExit, media = true }: {
+export function MobileFmtBar({ formats, blockKind, openCharSignal = 0, onToggleFormat, onConvert, onIndent, onMoveStep, onHistory, onOpenAiPanel, onOpenLangPicker, onInsert, onOpenInsertPanel, onExit, media = true }: {
   /** 选区 / 待输入的现有格式（`Aa` 面板点亮）。 */
   formats: string[]
   /** 选区气泡「格式 ▸」的信号：变化一次 → 收起插入面板、`Aa` 面板就位。 */
@@ -100,6 +100,8 @@ export function MobileFmtBar({ formats, blockKind, openCharSignal = 0, onToggleF
   onMoveStep: (direction: -1 | 1) => void
   onHistory: (redo: boolean) => void
   onOpenAiPanel: () => void
+  /** 代码块编辑态的「语言」键（语言选择器；与桌面 ⋯ 菜单同一弹窗——触控档没有块菜单，这里是无隐藏层的外露入口）。 */
+  onOpenLangPicker?: () => void
   onInsert: (tile: InsertTile, sub?: 'ext' | 'page' | 'today' | 'now') => void
   /** 插入面板开关：开 = 收键盘（触控层做 blur 与键盘高快照）、关 = 焦点与键盘回来。 */
   onOpenInsertPanel: (open: boolean) => void
@@ -202,6 +204,9 @@ export function MobileFmtBar({ formats, blockKind, openCharSignal = 0, onToggleF
         <button type="button" className={insert ? 'is-on' : ''} aria-expanded={insert} aria-label="插入" title="插入" onClick={() => (insert ? closeInsert() : openInsert())}><span className="mi"><Icon name="plus" size={20} decorative /></span></button>
         <button type="button" className={panel === 'text' ? 'is-on' : ''} aria-expanded={panel === 'text'} aria-label="文本样式" title="文本样式" onClick={() => togglePanel('text')}><span className="mi"><Icon name="heading" size={20} decorative /></span></button>
         <button type="button" className={panel === 'list' ? 'is-on' : ''} aria-expanded={panel === 'list'} aria-label="列表与段落" title="列表与段落" onClick={() => togglePanel('list')}><span className="mi"><Icon name="list" size={20} decorative /></span></button>
+        {blockKind === 'code' && onOpenLangPicker ? (
+          <button type="button" aria-label="语言" title="语言（代码块）" onClick={onOpenLangPicker}><span className="mi"><Icon name="inline-code" size={20} decorative /></span></button>
+        ) : null}
         <button type="button" aria-label="撤销" title="撤销" onClick={() => onHistory(false)}><span className="mi"><Icon name="undo" size={20} decorative /></span></button>
         <button type="button" aria-label="重做" title="重做" onClick={() => onHistory(true)}><span className="mi"><Icon name="redo" size={20} decorative /></span></button>
         <button type="button" className="mbar-done" aria-label="完成" title="完成（退出编辑）" onClick={onExit}><span className="mi"><Icon name="check" size={20} decorative /></span></button>

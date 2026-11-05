@@ -94,6 +94,8 @@ export function EditorPlugins({ enabled, onEnter, onLeaveList, onIndent, onOutde
     onMoveStep: (direction: -1 | 1) => void
     onHistory: (redo: boolean) => void
     onInsertTile: (tile: string, sub?: 'ext' | 'page' | 'today' | 'now') => void
+    /** 代码块编辑态底栏的「语言」键（语言选择器；触控档没有块菜单，这是唯一入口）。 */
+    onOpenLangPicker?: () => void
   }
 }) {
   const featureSet = features ?? ALL_FEATURES_ON
@@ -108,6 +110,7 @@ export function EditorPlugins({ enabled, onEnter, onLeaveList, onIndent, onOutde
     onTouchActivate, onTouchFollow, onTouchBlank, onTouchExit,
     blockKind: toolbarOps.blockKind, onConvertBlock: toolbarOps.onConvertBlock,
     onIndent: toolbarOps.onIndent, onMoveStep: toolbarOps.onMoveStep, onHistory: toolbarOps.onHistory, onInsertTile: toolbarOps.onInsertTile,
+    onOpenLangPicker: toolbarOps.onOpenLangPicker,
   })
 
   return (
