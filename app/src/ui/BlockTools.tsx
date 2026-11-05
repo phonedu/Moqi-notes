@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react'
 import { Icon, isHighlightLang, tokenize } from '@moqi/editor'
+import { TableDecorations } from './TableGrid'
 import { $findBlockNode as findBlockNode } from '@moqi/editor'
 import { EMBED_CARD_GEOMETRY, embedCardChromePlacement, hoveredIdFromPointer, listOrdinal, markerBoxStyle, markerPlacement, markersForBlock, ownLineCenter, type MarkerKind } from '@moqi/editor'
 import { clipboardPort } from '../composition'
@@ -76,7 +77,7 @@ function codeTextOf(root: Node): string {
   return out
 }
 
-export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, onOpenCodeLangMenu, activeBlockId, compact }: {
+export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, onOpenCodeLangMenu, activeBlockId, onSetTableText, compact }: {
   scopeRef: React.RefObject<HTMLElement | null>
   contentRef: React.RefObject<HTMLElement | null>
   selectedIds: string[]
@@ -103,6 +104,8 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   onOpenCodeLangMenu?: (element: HTMLElement, blockId: string) => void
   /** 光标所在块：**编辑中的代码块不着色**（镜像层会盖住真文本，输入法/选区一律让位）。 */
   activeBlockId?: string | null
+  /** 表格视图写回文本（宿主 replaceBlockText；每次改动一次事务，撤销栈照常）。 */
+  onSetTableText?: (blockId: string, text: string) => void
   /** 有来源的卡：点胶囊 = 跳到来源（跨页时先切页）。 */
   onOpenEmbedSource: (blockId: string) => void
 }) {
@@ -110,6 +113,9 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   const [cards, setCards] = useState<EmbedCard[]>([])
   // 代码块的「复制」入口（T-08）：测量每块右上角（内容坐标）；已复制短态（零提示：不弹 toast）。
   const [codeActions, setCodeActions] = useState<Array<{ id: string; top: number; left: number; lang: string; text: string; width: number; height: number; rectTop: number; rectLeft: number }>>([])
+  /** 表格块：`id → 正在看源码`（会话内状态；默认表格视图）。 */
+  const [sourceViewIds, setSourceViewIds] = useState<Set<string>>(() => new Set())
+  const [tableActions, setTableActions] = useState<Array<{ id: string; rectTop: number; rectLeft: number; width: number; height: number; text: string }>>([])
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const hoveredIdRef = useRef<string | null>(null)
@@ -245,16 +251,28 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
         rectTop: localRect.top, rectLeft: localRect.left,
       })
     }
+    // 表格块：富表格视图的落位（同一坐标系；文本用于解析成网格）。
+    const tableActions: Array<{ id: string; rectTop: number; rectLeft: number; width: number; height: number; text: string }> = []
+    for (const element of content.querySelectorAll<HTMLElement>('.moqi-block[data-block-type="table"][data-entity-id]')) {
+      const id = element.dataset.entityId
+      if (!id) continue
+      const rect = rectOf(element)
+      if (!frame.inView(rect)) continue
+      const localRect = frame.rect(rect)
+      tableActions.push({ id, rectTop: localRect.top, rectLeft: localRect.left, width: localRect.width, height: localRect.height, text: codeTextOf(element) })
+    }
     const signature = [
       ...next.map((marker) => `${marker.kind}:${marker.id}:${Math.round(marker.rect.top)}:${Math.round(marker.rect.left)}:${Math.round(marker.lineTop)}:${marker.collapsed}:${marker.checked}`),
       ...cards.map((card) => `card:${card.id}:${card.state}:${Math.round(card.rect.top)}:${Math.round(card.rect.left)}`),
       ...codeActions.map((action) => `code:${action.id}:${Math.round(action.top)}:${Math.round(action.left)}:${action.lang}:${action.text.length}:${Math.round(action.width)}`),
+      ...tableActions.map((action) => `table:${action.id}:${Math.round(action.rectTop)}:${Math.round(action.rectLeft)}:${action.text.length}`),
     ].join('|')
     if (signature === signatureRef.current) return
     signatureRef.current = signature
     setMarkers(next)
     setCards(cards)
     setCodeActions(codeActions)
+    setTableActions(tableActions)
     // assetUrl / compact / onOpenMedia 是真读值：补齐让媒体块落址与档位切换后重测（signature 去重防重渲染）。
   }, [contentRef, embedView, onPickEmbedSource, assetUrl, compact, onOpenMedia])
 
@@ -470,6 +488,19 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
           )}
         </span>
       ))}
+      <TableDecorations
+        actions={tableActions}
+        sourceViewIds={sourceViewIds}
+        onSetText={onSetTableText}
+        onToggleSourceView={(blockId) => {
+          setSourceViewIds((current) => {
+            const next = new Set(current)
+            if (next.has(blockId)) next.delete(blockId)
+            else next.add(blockId)
+            return next
+          })
+        }}
+      />
       {codeActions.map((action) => {
         // 只在**有语言、能着色、且不在编辑**时铺镜像层：镜像是不透明底（盖住真文本），
         // 编辑态一律撤掉——输入法组合、选区、光标都不跟镜像层打交道。

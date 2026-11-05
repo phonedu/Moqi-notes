@@ -1165,6 +1165,66 @@ body.is-touch-editing .prop-wrap { display: none; }
 .b-code-hl .tok-number { color: var(--danger); }
 .b-code-hl .tok-keyword { color: var(--accent-text); }
 .b-code-copy { padding: 2px 8px; border-radius: var(--r-block); background: var(--panel-2); color: var(--text-2); font-size: var(--type-caption1-size); }
+/* 富表格视图（表格块的默认态）：盖在块文本之上的一块网格；同高亮镜像层一样是装饰层的绝对层。
+   `max-height` 收住以免长表格压到后面的块（内部滚动）。 */
+.b-table-wrap {
+  position: absolute;
+  z-index: 5;
+  max-height: 60vh;
+  overflow: auto;
+  padding: 8px 10px 10px;
+  border-radius: var(--r-pop);
+  background: var(--panel-2);
+}
+.b-table { font-family: var(--sans); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); }
+.b-table-bar { display: flex; align-items: center; gap: 6px; padding-bottom: 6px; }
+.b-table-bar button {
+  padding: 2px 8px;
+  border-radius: var(--r-block);
+  background: var(--panel);
+  color: var(--text-2);
+  font-size: var(--type-caption1-size); line-height: var(--type-caption1-line);
+}
+.b-table-bar button:hover { background: var(--hover); color: var(--text); }
+.b-table-hint { margin-left: auto; color: var(--text-3); font-size: var(--type-caption2-size); line-height: var(--type-caption2-line); }
+.b-table-scroll { overflow-x: auto; }
+.b-table table { border-collapse: collapse; width: 100%; }
+.b-table th, .b-table td { border: 1px solid var(--border-2); padding: 0; vertical-align: top; }
+.b-table th { background: var(--panel); font-weight: 600; }
+.b-table-head { display: flex; align-items: center; }
+.b-table-inp {
+  flex: 1;
+  min-width: 48px;
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  outline: none;
+}
+.b-table-inp:focus { background: var(--accent-soft); }
+.b-table-tool {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-right: 2px;
+  border-radius: var(--r-inline);
+  color: var(--text-3);
+  font-size: var(--type-caption1-size); line-height: var(--type-caption1-line);
+}
+.b-table-tool:hover { background: var(--hover); color: var(--text); }
+.b-table-tool.is-danger:hover { color: var(--danger); }
+.b-table-rowdel { width: 24px; border: none; text-align: center; }
+.b-table-toggle {
+  position: absolute;
+  z-index: 6;
+  padding: 2px 8px;
+  border-radius: var(--r-block);
+  background: var(--panel);
+  color: var(--text-3);
+  font-size: var(--type-caption2-size); line-height: var(--type-caption2-line);
+}
+.b-table-toggle:hover { background: var(--hover); color: var(--text-2); }
 .block-rail .b-handle:active { cursor: grabbing; }
 .block-rail .b-collapse, .block-rail .b-plus { border-radius: var(--r-block); }
 .block-rail .b-handle:hover,
