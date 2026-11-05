@@ -6092,6 +6092,63 @@ check('IMPORT-ZIP-2 包内前向引用补链：`![[目标页]]` 的目标排在�
   && forwardEmbed.embedRefs.some((ref) => ref.type === 'embed' && ref.targetBlockId === forwardEmbed.targetId),
   forwardEmbed)
 
+// ---------- 页面模板（复利线）：标记 → 新建页选择器 → 从模板创建三件 ----------
+// 模板 = 被标记的普通页面：卡片 ⋯「存为模板」→ 新建页出「空白 / 从模板」选择 → 选模板后
+// 新页带上属性预设与整棵正文（仅空实例才复制正文，非空路径由单测看护）。
+await reset()
+await page.evaluate(() => {
+  const now = Date.now()
+  const mk = (id, uid, type, text, parent, position, children = [], extra = {}) => ({
+    entityId: id, blockUid: uid, type, content: text ? [{ t: 'text', v: text }] : [], parent, children, position,
+    collapsed: false, checked: false, deleted: false, deletedAt: null, prevParent: null, prevIndex: null,
+    isObject: false, objectName: null, properties: [], tags: [], blockRefs: [], blockBackRefs: [], objectRefs: [], objectBackRefs: [],
+    aiMeta: null, created: now, modified: now, ...extra,
+  })
+  localStorage.setItem('moqi-project-b:blocks', JSON.stringify([
+    mk('tpl1', 'tpl1uid', 'text', '会议模板', null, 0, ['tph1', 'tpb1'], { isObject: true, objectName: '会议模板', properties: [{ defId: 'freq1', type: 'text', value: '每周' }] }),
+    mk('tph1', 'tph1uid', 'heading1', '议程', 'tpl1', 0),
+    mk('tpb1', 'tpb1uid', 'text', '第一项', 'tpl1', 1),
+  ]))
+  localStorage.setItem('moqi-project-b:metadata', JSON.stringify({ properties: [{ id: 'freq1', name: '频率', type: 'text', created: now, modified: now }], tags: [] }))
+})
+await reload()
+await page.waitForSelector('button[aria-label="新建页面"]', { timeout: NAV_READY_MS })
+await sleep(1200)
+// ① 卡片 ⋯ → 存为模板
+await page.locator('button[aria-label="会议模板 更多操作"]').click()
+await sleep(500)
+await page.locator('.pop button', { hasText: '存为模板' }).click()
+await sleep(1000)
+const marked = await page.evaluate(() => JSON.parse(localStorage.getItem('moqi-project-b:blocks')).find((b) => b.entityId === 'tpl1')?.isTemplate ?? null)
+// ② 新建页 → 选择器（空白 + 模板）
+await page.locator('button[aria-label="新建页面"]').click()
+await sleep(900)
+const picker = await page.evaluate(() => ({
+  title: document.querySelector('.dlg h3')?.textContent ?? null,
+  items: [...document.querySelectorAll('.dlg .fd-item')].map((b) => (b.textContent || '').trim()),
+}))
+// ③ 选模板 → 新页带属性与正文
+await page.locator('.dlg .fd-item', { hasText: '会议模板' }).click()
+await sleep(2000)
+const fromTemplate = await page.evaluate(() => {
+  const blocks = JSON.parse(localStorage.getItem('moqi-project-b:blocks'))
+  const pages = blocks.filter((b) => b.isObject && b.entityId !== 'tpl1' && !b.deleted)
+  const pg = pages[pages.length - 1]
+  return {
+    created: pages.length,
+    kids: (pg?.children ?? []).map((id) => (blocks.find((b) => b.entityId === id)?.content ?? []).map((f) => f.v).join('')),
+    props: (pg?.properties ?? []).map((v) => v.value),
+  }
+})
+check('TEMPLATE-MARK-1 / TEMPLATE-FROMCREATE-1 / TEMPLATE-EMPTY-1 页面模板：卡片⋯「存为模板」落 isTemplate · 新建页出选择器（空白＋模板）· 从模板创建的新页带上属性预设与整棵正文',
+  marked === true
+  && picker.title === '新建页面'
+  && picker.items.some((t) => t.includes('空白页面'))
+  && picker.items.some((t) => t.includes('会议模板'))
+  && fromTemplate.kids.join('/') === '议程/第一项'
+  && fromTemplate.props.join('/') === '每周',
+  { marked, picker, fromTemplate })
+
 
 // ---------- 侧栏「星标」（`R09-PRIN-1`，活原型 `#navStar`）----------
 // 用户 报的功能缺失：星标能力早就有（卡片 ⋯ 与 … 菜单都能星标），但侧栏导航没入口。
@@ -7876,8 +7933,8 @@ await sleep(400)
 const cardDesktop = await page.evaluate(() => ({ pop: Boolean(document.querySelector('.pop')), sheet: Boolean(document.querySelector('.sheet')) }))
 await page.keyboard.press('Escape')
 await sleep(400)
-check('MOBILE-CARD-1 卡片 ⋯ Sheet（`10` §4.1.2 · 4b-①）：360 下点卡片 ⋯ → 底部 Sheet（贴底、≤72% 高、遮罩在；标题「页面操作 · 页面名」；六项 = 打开页面 / 置顶 / 星标 / 复制链接 / 导出 Markdown / 移至回收站〔红〕；底部 30 天说明；桌面 Popover 不在）；星标 = 关 Sheet + 卡片头部 ★ 出现；打开页面 = 关 Sheet 进编辑器；桌面 1280 仍是 Popover（不回归）',
-  cardSheetNow.present === true && cardSheetNow.title.startsWith('页面操作 · ') && cardSheetNow.rows.join('/') === '打开页面/置顶/星标/复制链接/导出Markdown/移至回收站'
+check('MOBILE-CARD-1 卡片 ⋯ Sheet（`10` §4.1.2 · 4b-①）：360 下点卡片 ⋯ → 底部 Sheet（贴底、≤72% 高、遮罩在；标题「页面操作 · 页面名」；七项 = 打开页面 / 置顶 / 星标 / 存为模板 / 复制链接 / 导出 Markdown / 移至回收站〔红〕；底部 30 天说明；桌面 Popover 不在）；星标 = 关 Sheet + 卡片头部 ★ 出现；打开页面 = 关 Sheet 进编辑器；桌面 1280 仍是 Popover（不回归）',
+  cardSheetNow.present === true && cardSheetNow.title.startsWith('页面操作 · ') && cardSheetNow.rows.join('/') === '打开页面/置顶/星标/存为模板/复制链接/导出Markdown/移至回收站'
   && cardSheetNow.note === true && cardSheetNow.flushBottom === true && cardSheetNow.hPct !== null && cardSheetNow.hPct <= 72 && cardSheetNow.backdrop === true && cardSheetNow.popoverGone === true
   && cardStar.sheetGone === true && cardStar.star === true
   && cardOpen.sheetGone === true && cardOpen.editor === true && cardOpen.edit === true
