@@ -322,14 +322,37 @@ export function useMediaImport({
     }
     const decoder = new TextDecoder()
     let first: string | null = null
+    const existingEmbeds = new Set([...store.snapshot().values()].filter((block) => block.type === 'embed').map((block) => block.entityId))
+    const imported: { pageId: string; pageName: string }[] = []
     for (const name of plan.documents) {
       const bytes = byName.get(name)
       if (!bytes) continue
       const result = await importMarkdownDocument({ text: decoder.decode(bytes), fileName: entryBaseName(name), dir: null, silent: true, packageBytes })
       if (!result) continue
+      imported.push({ pageId: result.pageId, pageName: result.pageName })
       if (!first) first = result.pageId
     }
+    relinkForwardEmbeds(imported, existingEmbeds)
     if (first) openPage(first)
+  }
+
+  /**
+   * 包内**前向引用**补链：`![[页面]]` 的目标若在包里排在后面，逐篇导入那一刻它还没进库 ⇒ 落成悬空占位
+   * （「目标缺失」本意是**包里没有**，不是「排在后面」）。全部落库后，把**本批新建**且
+   * 仍没有嵌入引用的嵌入块按名字补上——只碰本批的块（`existingEmbeds` 之前的用户悬空卡一律不动）。
+   */
+  function relinkForwardEmbeds(imported: { pageId: string; pageName: string }[], before: Set<string>) {
+    if (imported.length === 0) return
+    const pageIdsByName = new Map(imported.map((item) => [item.pageName, item.pageId]))
+    const relinked: string[] = []
+    for (const block of store.snapshot().values()) {
+      if (block.deleted || block.type !== 'embed' || before.has(block.entityId)) continue
+      if (block.blockRefs.some((ref) => ref.type === 'embed')) continue
+      const name = block.content.map((fragment) => fragment.v).join('').trim()
+      const targetId = pageIdsByName.get(name)
+      if (targetId && store.setEmbedSource(block.entityId, targetId)) relinked.push(block.entityId)
+    }
+    if (relinked.length > 0) persist(relinked)
   }
 
   /** 浏览器拖入：File 对象 → 字节。 */
