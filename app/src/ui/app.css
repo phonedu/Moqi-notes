@@ -1143,6 +1143,27 @@ body.is-touch-editing .prop-wrap { display: none; }
 .block-rail .b-handle { border-radius: var(--r-block); cursor: grab; }
 /* 代码块装饰两件（BlockTools 装饰层；top/left 按测量内联给，这里只管静态皮）：语言徽标 ＋ 复制按钮。 */
 .b-code-lang { padding: 2px 6px; border-radius: var(--r-block); background: var(--panel-2); color: var(--text-3); font-size: var(--type-caption2-size); }
+/* 代码块语法着色的镜像层（装饰层画，铺在块文本之上）：**只在非编辑态出现**。
+   它用不透明底盖住真文本、按记号重新上色；点进块（成为编辑块）即撤掉，输入法/选区不受影响。
+   度量与 `.moqi-block-code` 逐项对齐（内距 / 等宽 / 行高 / 换行方式），否则文字会错位。 */
+.b-code-hl {
+  position: absolute;
+  margin: 0;
+  padding: .846em 1.077em;
+  border-radius: var(--r-pop);
+  background: var(--panel-2);
+  font-family: var(--mono);
+  font-size: calc(var(--fs-e) * .788);
+  line-height: 1.75;
+  white-space: pre-wrap;
+  overflow: hidden;
+  pointer-events: none;
+  color: var(--text-2);
+}
+.b-code-hl .tok-comment { color: var(--text-3); }
+.b-code-hl .tok-string { color: var(--ok); }
+.b-code-hl .tok-number { color: var(--danger); }
+.b-code-hl .tok-keyword { color: var(--accent-text); }
 .b-code-copy { padding: 2px 8px; border-radius: var(--r-block); background: var(--panel-2); color: var(--text-2); font-size: var(--type-caption1-size); }
 .block-rail .b-handle:active { cursor: grabbing; }
 .block-rail .b-collapse, .block-rail .b-plus { border-radius: var(--r-block); }

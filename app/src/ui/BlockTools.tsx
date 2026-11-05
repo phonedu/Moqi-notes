@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react'
-import { Icon } from '@moqi/editor'
+import { Icon, isHighlightLang, tokenize } from '@moqi/editor'
 import { $findBlockNode as findBlockNode } from '@moqi/editor'
 import { EMBED_CARD_GEOMETRY, embedCardChromePlacement, hoveredIdFromPointer, listOrdinal, markerBoxStyle, markerPlacement, markersForBlock, ownLineCenter, type MarkerKind } from '@moqi/editor'
 import { clipboardPort } from '../composition'
@@ -62,7 +62,21 @@ type EmbedCard = {
  * 标记全部是真实按钮（可 Tab 可达、有 aria-label、按 docs/04 §7 给足点击目标），
  * 只调用已有的领域入口；编辑器托管的 DOM 树不被改写，标记层渲染在 Lexical 根节点之外。
  */
-export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, codeLangs, onOpenCodeLangMenu, compact }: {
+/**
+ * 代码块的**纯文本**（含换行）：Lexical 把换行渲染成 `<br>`，`textContent` 会把它们吃掉——
+ * 镜像着色层直接用 `textContent` 就会把多行代码挤成一行（实测）。这里按节点走一遍、`<br>` 记作 `\n`。
+ */
+function codeTextOf(root: Node): string {
+  let out = ''
+  root.childNodes.forEach((node) => {
+    if (node.nodeType === Node.TEXT_NODE) out += node.textContent ?? ''
+    else if (node.nodeName === 'BR') out += '\n'
+    else out += codeTextOf(node)
+  })
+  return out
+}
+
+export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, onOpenCodeLangMenu, activeBlockId, compact }: {
   scopeRef: React.RefObject<HTMLElement | null>
   contentRef: React.RefObject<HTMLElement | null>
   selectedIds: string[]
@@ -85,17 +99,17 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   embedView: (blockId: string) => EmbedView | null
   /** 空态 / 悬空卡：点它 = 选来源（`选择来源 ↗`）。 */
   onPickEmbedSource: (blockId: string) => void
-  /** 代码块块头语言下拉的候选（设置页自选子集）。 */
-  codeLangs?: string[]
   /** 打开语言下拉：锚点＝被点的块头按钮，弹层复用全局菜单层。 */
   onOpenCodeLangMenu?: (element: HTMLElement, blockId: string) => void
+  /** 光标所在块：**编辑中的代码块不着色**（镜像层会盖住真文本，输入法/选区一律让位）。 */
+  activeBlockId?: string | null
   /** 有来源的卡：点胶囊 = 跳到来源（跨页时先切页）。 */
   onOpenEmbedSource: (blockId: string) => void
 }) {
   const [markers, setMarkers] = useState<Marker[]>([])
   const [cards, setCards] = useState<EmbedCard[]>([])
   // 代码块的「复制」入口（T-08）：测量每块右上角（内容坐标）；已复制短态（零提示：不弹 toast）。
-  const [codeActions, setCodeActions] = useState<Array<{ id: string; top: number; left: number; lang: string }>>([])
+  const [codeActions, setCodeActions] = useState<Array<{ id: string; top: number; left: number; lang: string; text: string; width: number; height: number; rectTop: number; rectLeft: number }>>([])
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const hoveredIdRef = useRef<string | null>(null)
@@ -218,19 +232,23 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
       for (const kind of kinds) next.push({ id, kind, rect: localRect, lineTop, blockType, collapsed: element.dataset.collapsed === 'true', checked: element.dataset.checked === 'true' })
     }
     // 代码块复制入口的位置：块右上角（内容坐标，与标记同一坐标系）。
-    const codeActions: Array<{ id: string; top: number; left: number; lang: string }> = []
+    const codeActions: Array<{ id: string; top: number; left: number; lang: string; text: string; width: number; height: number; rectTop: number; rectLeft: number }> = []
     for (const element of content.querySelectorAll<HTMLElement>('.moqi-block[data-block-type="code"][data-entity-id]')) {
       const id = element.dataset.entityId
       if (!id) continue
       const rect = rectOf(element)
       if (!frame.inView(rect)) continue
       const localRect = frame.rect(rect)
-      codeActions.push({ id, top: localRect.top + 6, left: localRect.right - 68, lang: element.dataset.lang ?? '' })
+      codeActions.push({
+        id, top: localRect.top + 6, left: localRect.right - 68, lang: element.dataset.lang ?? '',
+        text: codeTextOf(element), width: localRect.width, height: localRect.height,
+        rectTop: localRect.top, rectLeft: localRect.left,
+      })
     }
     const signature = [
       ...next.map((marker) => `${marker.kind}:${marker.id}:${Math.round(marker.rect.top)}:${Math.round(marker.rect.left)}:${Math.round(marker.lineTop)}:${marker.collapsed}:${marker.checked}`),
       ...cards.map((card) => `card:${card.id}:${card.state}:${Math.round(card.rect.top)}:${Math.round(card.rect.left)}`),
-      ...codeActions.map((action) => `code:${action.id}:${Math.round(action.top)}:${Math.round(action.left)}:${action.lang}`),
+      ...codeActions.map((action) => `code:${action.id}:${Math.round(action.top)}:${Math.round(action.left)}:${action.lang}:${action.text.length}:${Math.round(action.width)}`),
     ].join('|')
     if (signature === signatureRef.current) return
     signatureRef.current = signature
@@ -452,6 +470,27 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
           )}
         </span>
       ))}
+      {codeActions.map((action) => {
+        // 只在**有语言、能着色、且不在编辑**时铺镜像层：镜像是不透明底（盖住真文本），
+        // 编辑态一律撤掉——输入法组合、选区、光标都不跟镜像层打交道。
+        if (!isHighlightLang(action.lang) || action.id === activeBlockId) return null
+        const tokens = tokenize(action.text, action.lang)
+        if (tokens.length === 0) return null
+        return (
+          <pre
+            key={`code-hl-${action.id}`}
+            className="b-code-hl"
+            aria-hidden="true"
+            style={{ top: action.rectTop, left: action.rectLeft, width: action.width, height: action.height }}
+          >
+            {tokens.map((token, tokenIndex) => (
+              token.kind === 'plain'
+                ? token.text
+                : <span key={tokenIndex} className={`tok-${token.kind}`}>{token.text}</span>
+            ))}
+          </pre>
+        )
+      })}
       {codeActions.map((action) => (
         <button
           key={`code-lang-${action.id}`}
