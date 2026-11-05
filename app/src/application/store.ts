@@ -3,6 +3,8 @@ import { applyTransaction, touchedBlockIds, type DeleteSnapshot, type Operation,
 import { indentBlock, insertOutlineAfter, insertOutlineAsPage, moveBlock, moveBlocks, outdentBlock, owningPageId, subtreeMap } from '@moqi/editor'
 import type { OutlineDraft } from '@moqi/editor'
 import { copyBlocks, deleteBlocks } from '@moqi/editor'
+import { createTextBlock, instantiateTemplate, markTemplate } from '@moqi/editor'
+import { orderedRootIds } from '@moqi/editor'
 import { insertAiResults, insertAiResultsIntoNewPage, type AiInsertInput } from '@moqi/editor'
 import { convertBlockType } from '@moqi/editor'
 import { embedViewOf, insertExternalLink, insertInlineRef, refLabel, searchEmbedTargets, searchRefTargets, setEmbedSource, type EmbedCandidate, type EmbedView, type RefCandidate, type RefTrigger } from '@moqi/editor'
@@ -313,6 +315,62 @@ export class DomainStore {
     if (!block || block.deleted || !block.isObject || block.starred === starred) return false
     this.apply({ id: crypto.randomUUID(), operations: [{ type: 'update', opId: crypto.randomUUID(), blockId, changes: { starred }, previous: { starred: block.starred } }], timestamp: Date.now(), source: 'user' })
     return true
+  }
+
+  /** 复利线（0.7）：存为模板 / 取消模板——页面级标记，一条 update op。 */
+  setTemplate(blockId: string, on: boolean): boolean {
+    const transaction = markTemplate(this.blocks, blockId, on)
+    if (!transaction) return false
+    this.apply(transaction)
+    return true
+  }
+
+  /** 模板清单（页面 ⋯ / 从模板创建共用）：未删除的模板页，最近修改在前。 */
+  templatePages(): Block[] {
+    return [...this.blocks.values()]
+      .filter((block) => block.isObject && !block.deleted && block.isTemplate)
+      .sort((a, b) => b.modified - a.modified)
+  }
+
+  /**
+   * 把模板应用到现有页面（三件）：目标非空时只带属性预设、正文一字不动。
+   * 返回 false = 不成立（模板失效 / 目标不是页面 / 自引用）。
+   */
+  applyTemplate(targetPageId: string, templateId: string): boolean {
+    const result = instantiateTemplate(this.blocks, templateId, targetPageId)
+    if (!result) return false
+    this.apply(result.transaction)
+    return true
+  }
+
+  /**
+   * 从模板创建新页：建容器 → 应用三件，**一个事务**（一次撤销）。
+   * 名字沿用「未命名页面」（与普通新建一致：用户接着敲的第一行就是页面名）。
+   */
+  createPageFromTemplate(templateId: string): string | null {
+    const template = this.blocks.get(templateId)
+    if (!template || template.deleted || !template.isObject || !template.isTemplate) return null
+    const page = createTextBlock({
+      entityId: crypto.randomUUID(),
+      blockUid: `p${crypto.randomUUID().replaceAll('-', '').slice(0, 8)}`,
+      isObject: true,
+      objectName: '未命名页面',
+    })
+    // 目标页还没进图：临时视图里放进去，实例化才查得到它
+    const view = new Map(this.blocks)
+    view.set(page.entityId, page)
+    const applied = instantiateTemplate(view, templateId, page.entityId)
+    if (!applied) return null
+    this.apply({
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      source: 'user',
+      operations: [
+        { type: 'insert', opId: crypto.randomUUID(), block: page, parentId: null, index: orderedRootIds(this.blocks).length },
+        ...applied.transaction.operations,
+      ],
+    })
+    return page.entityId
   }
 
   /** T15: recycle-bin entries, newest deletion first. */

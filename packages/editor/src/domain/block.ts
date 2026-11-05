@@ -185,6 +185,8 @@ export type Block = {
   pinned: boolean
   /** V2b: page-level star (roots only). A mark only — it does not affect ordering. */
   starred: boolean
+  /** 页面模板标记（roots only）：被标记的普通页面即模板页——不新增块类型、不做模板管理中心。 */
+  isTemplate?: boolean
   tags: string[]
   properties: PropertyValue[]
   /**
@@ -299,6 +301,7 @@ export function createTextBlock(input: {
     isObject: input.isObject ?? false,
     objectName: input.objectName ?? null,
     pinned: false,
+    isTemplate: false,
     starred: false,
     tags: [],
     properties: [],

@@ -10,6 +10,8 @@ export function normalizeBlock(block: Block): Block {
   if (typeof block.position !== 'number' || !Number.isFinite(block.position)) block.position = 0
   if (typeof block.pinned !== 'boolean') block.pinned = false
   if (typeof block.starred !== 'boolean') block.starred = false
+  // 模板标记（0.7 复利线）：旧库缺字段 = 不是模板。
+  if (typeof block.isTemplate !== 'boolean') block.isTemplate = false
   if (!Array.isArray(block.tags)) block.tags = []
  // 属性面板的本页两档（`属性区重规划（已归档）` §0-1/§0-3/§0-10，）：旧库缺字段 = 空 = 现有行为。
   if (!Array.isArray(block.propertyShown)) block.propertyShown = []

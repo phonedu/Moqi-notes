@@ -43,6 +43,8 @@ export type DialogState =
   | { kind: 'externalLink'; blockId: string; offset: number; length: number; text: string }
   /** 代码块「语言…」选择器：候选＝设置页自选子集＋自由输入兜底＋清除（任意语言照存，不做白名单）。 */
   | { kind: 'langPicker'; blockId: string }
+  /** 从模板创建：新建页时可选空白或任一模板页（复利线）。 */
+  | { kind: 'templatePicker' }
   | { kind: 'closeWindow' }
   /** 多块删除 / 带子块删除：确认后仍可 ⌘Z；单块删除不弹。 */
   | { kind: 'bulkDelete'; ids: string[]; count: number; refs: number; hasChildren: boolean }

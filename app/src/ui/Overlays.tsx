@@ -52,7 +52,7 @@ export function OutlinePop({ anchor, entries, onJump, onClose }: MenuProps & { e
 }
 
 /** 编辑器「…」更多菜单（docs/09 §4.3.2）：三段式——视图与导航 / 页面动作 / 危险区。 */
-export function MoreMenu({ anchor, onClose, refOpen, onToggleRef, showRefPanel = true, onFind, onStats, onFocus, onCopyLink, onDuplicate, onDelete, onExport, starred, onToggleStar, onOpenProperties }: MenuProps & {
+export function MoreMenu({ anchor, onClose, refOpen, onToggleRef, showRefPanel = true, onFind, onStats, onFocus, onCopyLink, onDuplicate, onDelete, onExport, starred, onToggleStar, onOpenProperties, isTemplate = false, onToggleTemplate }: MenuProps & {
   refOpen: boolean
   /** M5 可选能力：反链关闭时不出「引用预览面板」项。 */
   showRefPanel?: boolean
@@ -66,6 +66,9 @@ export function MoreMenu({ anchor, onClose, refOpen, onToggleRef, showRefPanel =
   onExport: () => void
   starred: boolean
   onToggleStar: () => void
+  /** 复利线：本页是否已标为模板（菜单文案据此切换）。 */
+  isTemplate?: boolean
+  onToggleTemplate?: () => void
  /** 「属性」入口（`属性区重规划（已归档）` §0-1， 裁决：摘要条不再常驻，入口回到 ⋯）。 */
   onOpenProperties: () => void
 }) {
@@ -102,6 +105,12 @@ export function MoreMenu({ anchor, onClose, refOpen, onToggleRef, showRefPanel =
         <span className="mi"><Icon name={starred ? 'star-filled' : 'star'} size={16} decorative /></span>
         <span>{starred ? '取消星标' : '星标'}</span>
       </button>
+      {onToggleTemplate ? (
+        <button type="button" className={isTemplate ? 'is-on' : ''} onClick={run(onToggleTemplate)} title="存为模板：之后新建页可以「从模板创建」（属性预设＋正文＋子结构）">
+          <span className="mi"><Icon name="file-text" size={16} decorative /></span>
+          <span>{isTemplate ? '取消模板' : '存为模板'}</span>
+        </button>
+      ) : null}
       <button type="button" onClick={run(onCopyLink)}>
         <span className="mi"><Icon name="link" size={16} decorative /></span>
         <span>复制链接</span>
@@ -178,7 +187,7 @@ export function InsertMenu({ anchor, onPick, onClose, compact, media = true }: M
 }
 
 /** 页面卡片 ⋯ 菜单（docs/09 §4.1.2）。 */
-export function CardMenu({ anchor, card, canPin, onClose, onCopyLink, onDelete, onExport, onTogglePin, onToggleStar, compact, onOpen }: MenuProps & {
+export function CardMenu({ anchor, card, canPin, onClose, onCopyLink, onDelete, onExport, onTogglePin, onToggleStar, compact, onOpen, isTemplate = false, onToggleTemplate }: MenuProps & {
   card: LibraryCard
   /** 已置顶 5 个时为 false —— 菜单据此把「置顶」置灰（真正的门禁在 store.setPinned）。 */
   canPin: boolean
@@ -188,6 +197,9 @@ export function CardMenu({ anchor, card, canPin, onClose, onCopyLink, onDelete, 
   onExport: () => void
   onTogglePin: () => void
   onToggleStar: () => void
+  /** 复利线：本页是否已标为模板；不传 = 不出这一项。 */
+  isTemplate?: boolean
+  onToggleTemplate?: () => void
   /** 移动端形态（`10` §4.1.2，4b-①）：底部 Sheet = 六项（多一项「打开页面」）+ 底部说明。 */
   compact?: boolean
   onOpen: () => void
@@ -200,6 +212,7 @@ export function CardMenu({ anchor, card, canPin, onClose, onCopyLink, onDelete, 
         <button type="button" className="sg-row" onClick={run(onOpen)}><span className="mi"><Icon name="file-text" size={20} decorative /></span><span>打开页面</span></button>
         <button type="button" className={`sg-row${card.pinned ? ' is-on' : ''}`} disabled={pinDisabled} onClick={run(onTogglePin)} title={pinDisabled ? `最多置顶 ${MAX_PINNED_PAGES} 个页面——先取消一个` : ''}><span className="mi"><Icon name="chevron-up" size={20} decorative /></span><span>{card.pinned ? '取消置顶' : '置顶'}</span>{pinDisabled ? <span className="d">最多 {MAX_PINNED_PAGES} 个</span> : null}</button>
         <button type="button" className={`sg-row${card.starred ? ' is-on' : ''}`} onClick={run(onToggleStar)}><span className="mi"><Icon name={card.starred ? 'star-filled' : 'star'} size={20} decorative /></span><span>{card.starred ? '取消星标' : '星标'}</span></button>
+        {onToggleTemplate ? <button type="button" className={`sg-row${isTemplate ? ' is-on' : ''}`} onClick={run(onToggleTemplate)}><span className="mi"><Icon name="file-text" size={20} decorative /></span><span>{isTemplate ? '取消模板' : '存为模板'}</span></button> : null}
         <button type="button" className="sg-row" onClick={run(onCopyLink)}><span className="mi"><Icon name="link" size={20} decorative /></span><span>复制链接</span></button>
         <button type="button" className="sg-row" onClick={run(onExport)}><span className="mi"><Icon name="download" size={20} decorative /></span><span>导出 Markdown</span></button>
         <button type="button" className="sg-row is-danger" onClick={run(onDelete)}><span className="mi"><Icon name="trash" size={20} decorative /></span><span>移至回收站</span></button>
@@ -230,6 +243,12 @@ export function CardMenu({ anchor, card, canPin, onClose, onCopyLink, onDelete, 
         <span className="mi"><Icon name={card.starred ? 'star-filled' : 'star'} size={16} decorative /></span>
         <span>{card.starred ? '取消星标' : '星标'}</span>
       </button>
+      {onToggleTemplate ? (
+        <button type="button" className={isTemplate ? 'is-on' : ''} onClick={run(onToggleTemplate)} title="存为模板：之后新建页可以「从模板创建」（属性预设＋正文＋子结构）">
+          <span className="mi"><Icon name="file-text" size={16} decorative /></span>
+          <span>{isTemplate ? '取消模板' : '存为模板'}</span>
+        </button>
+      ) : null}
       <button type="button" onClick={run(onCopyLink)}>
         <span className="mi"><Icon name="link" size={16} decorative /></span>
         <span>复制链接</span>

@@ -313,3 +313,31 @@ export function PickDialog<T extends { id: string; name: string }>({ title, labe
     </Dialog>
   )
 }
+
+/**
+ * 「从模板创建」选择器（复利线）：空白页面 + 模板清单。
+ * 只在库里**存在模板页**时出现（没有模板 = 直接建空白页，零摩擦）。
+ */
+export function TemplatePickerDialog({ templates, onPickBlank, onPickTemplate, onClose }: {
+  templates: { id: string; name: string }[]
+  onPickBlank: () => void
+  onPickTemplate: (templateId: string) => void
+  onClose: () => void
+}) {
+  return (
+    <Dialog title="新建页面" subtitle="从模板创建会带上模板的属性与正文（目标页已有内容时只带属性）" onClose={onClose}>
+      <div className="fd-list">
+        <button type="button" className="fd-item" onClick={onPickBlank}>
+          <span className="fd-n">＋</span>
+          <span className="fd-t">空白页面</span>
+        </button>
+        {templates.map((template) => (
+          <button type="button" key={template.id} className="fd-item" onClick={() => onPickTemplate(template.id)}>
+            <span className="fd-n">▤</span>
+            <span className="fd-t">{template.name}</span>
+          </button>
+        ))}
+      </div>
+    </Dialog>
+  )
+}

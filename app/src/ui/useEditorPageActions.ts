@@ -1,6 +1,6 @@
 import type { MutableRefObject } from 'react'
 import type { LexicalEditor } from '@moqi/editor'
-import { createTextBlock, orderedRootIds, type BlockMap, type MetadataRegistry } from '@moqi/editor'
+import { collectSubtree, createTextBlock, orderedRootIds, type BlockMap, type MetadataRegistry } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
 import type { Operation } from '@moqi/editor'
 import { availableCopyName } from '@moqi/editor'
@@ -54,7 +54,27 @@ export function useEditorPageActions(deps: PageActionDeps) {
   } = deps
 
   // ---------- 页面动作 ----------
-  function createPage() {
+  /** 从模板创建新页：建页＋三件一个事务；落盘 = 新页与复制过来的整棵子树。 */
+  function createPageFromTemplate(templateId: string) {
+    const pageId = store.createPageFromTemplate(templateId)
+    if (!pageId) return null
+    persist([pageId, ...collectSubtree(store.read(), pageId).filter((id) => id !== pageId)])
+    openPage(pageId)
+    return pageId
+  }
+
+  /**
+   * 新建页（FAB / ＋新建页面 / ⌘N 共用）：库里有模板页时先给「空白页面 / 从模板创建」选择；
+   * 没有模板就直接建空白页——不常用模板的人看不到多出来的一步。
+   * `blank` = 选择器里点了「空白页面」，跳过这层分流。
+   */
+  function createPage(blank?: true) {
+    // 注意：`blank` 只能认**显式的 true**——库里的按钮把 click 事件直接传进来（truthy），
+    // 用 `!blank` 判会永远走空白分支（踩过）。
+    if (blank !== true && store.templatePages().length > 0) {
+      openDialog({ kind: 'templatePicker' })
+      return
+    }
     const page = createTextBlock({
       entityId: crypto.randomUUID(),
       blockUid: `p${crypto.randomUUID().replaceAll('-', '').slice(0, 8)}`,
@@ -112,6 +132,17 @@ export function useEditorPageActions(deps: PageActionDeps) {
     if (store.setPinned(pageId, next)) {
       persist([pageId])
     }
+  }
+
+  /**
+   * 复利线：存为模板 / 取消模板（页面 ⋯ 与页面库卡片 ⋯ 同一动作）。
+   * 零提示：菜单文案与「从模板创建」候选清单自证结果（与星标同口径）。
+   */
+  function toggleTemplate(pageId: string) {
+    const page = store.get(pageId)
+    if (!page || !page.isObject) return
+    const next = !page.isTemplate
+    if (store.setTemplate(pageId, next)) persist([pageId])
   }
 
   function toggleStar(pageId: string) {
@@ -218,7 +249,7 @@ export function useEditorPageActions(deps: PageActionDeps) {
 
 
   return {
-    createPage, openPage, togglePin, toggleStar, requestDeleteSelection, duplicatePage, copyLink,
+    createPage, createPageFromTemplate, openPage, togglePin, toggleStar, toggleTemplate, requestDeleteSelection, duplicatePage, copyLink,
     renameTag, mergeTag, removeTagFromAll,
   }
 }

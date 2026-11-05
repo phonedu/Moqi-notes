@@ -3,7 +3,7 @@ import { TagMergeDialog, ConfirmDialog } from './Dialogs'
 import { AddPropertyDialog } from './Property'
 import { LibraryFilterPanel } from './LibraryFilterPanel'
 import { SearchOverlay } from './SearchOverlay'
-import { BulkDeleteDialog, DiscardAiBlockDialog, LinkDialog, PickDialog, PromptDialog } from './Dialogs'
+import { BulkDeleteDialog, DiscardAiBlockDialog, LinkDialog, PickDialog, PromptDialog, TemplatePickerDialog } from './Dialogs'
 import { Icon } from '@moqi/editor'
 import type { EditorAppRuntime } from './useEditorRuntime'
 import { AI_ACTION_LABEL, type BlockType } from '@moqi/editor'
@@ -19,7 +19,7 @@ import { toggleBlockFormat } from '@moqi/editor'
 
 /** 编辑器浮层（模块化 M1.7）：菜单、弹窗、搜索、筛选与提示。 */
 export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
-  const { activeBlockId, activeFormatsValue, activePage, activePageId, aiState, features, applyEmbedSource, applyExternalLink, assetPort, blockMenuTarget, blockTypeOfCursor, cancelAi, clearEmbedSource, closeDialog, closeMenu, compact, convertCurrentBlock, copyLink, copySelection, copySelectionToClipboard, createAndAddProperty, cutSelection, deleteSelection, dialog, discardAiBlock, duplicatePage, editorRef, exitSelection, findHits, findQuery, hasGeneratingAiBlock, jumpToBlock, libraryCards, libraryFilter, listAnchorRect, listAnchorVisible, menu, mergeTag, mountProperty, moveBlockStepById, movePageToTrash, notify, openDialog, openExportPage, openMenu, openPage, openSettingsView, openSidePanel, outlineEntries, outlineMove, pageStats, pickInsert, prefs, proceedClose, purgePages, refPanelOpen, registry, removeTagFromAll, renameTag, requestDeleteSelection, runAi, searchPort, selectedIds, selectionRect, setAskTargetMode, setBlockLang, setBriefOpen, setFindQuery, setFocusMode, setLibraryFilter, setRefPanelOpen, setSearchScope, store, tagSummaries, toggleCollapse, togglePin, toggleStar, touchEditId, view, visibleCards } = runtime
+  const { activeBlockId, activeFormatsValue, activePage, activePageId, aiState, features, applyEmbedSource, applyExternalLink, assetPort, blockMenuTarget, blockTypeOfCursor, cancelAi, clearEmbedSource, closeDialog, closeMenu, compact, convertCurrentBlock, copyLink, copySelection, copySelectionToClipboard, createAndAddProperty, createPage, createPageFromTemplate, cutSelection, deleteSelection, dialog, discardAiBlock, duplicatePage, editorRef, exitSelection, findHits, findQuery, hasGeneratingAiBlock, jumpToBlock, libraryCards, libraryFilter, listAnchorRect, listAnchorVisible, menu, mergeTag, mountProperty, moveBlockStepById, movePageToTrash, notify, openDialog, openExportPage, openMenu, openPage, openSettingsView, openSidePanel, outlineEntries, outlineMove, pageStats, pickInsert, prefs, proceedClose, purgePages, refPanelOpen, registry, removeTagFromAll, renameTag, requestDeleteSelection, runAi, searchPort, selectedIds, selectionRect, setAskTargetMode, setBlockLang, setBriefOpen, setFindQuery, setFocusMode, setLibraryFilter, setRefPanelOpen, setSearchScope, store, tagSummaries, toggleCollapse, togglePin, toggleStar, toggleTemplate, touchEditId, view, visibleCards } = runtime
   const overlayLayer = (
     <>
           {/* ---------- 浮层 ---------- */}
@@ -48,6 +48,8 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
               onDelete={() => { if (activePageId) openDialog({ kind: 'deletePage', pageId: activePageId, name: activePage?.objectName ?? '未命名页面' }) }}
               starred={activePage?.starred ?? false}
               onToggleStar={() => { if (activePageId) toggleStar(activePageId) }}
+              isTemplate={Boolean(activePage?.isTemplate)}
+              onToggleTemplate={() => { if (activePageId) toggleTemplate(activePageId) }}
               onOpenProperties={() => {
         // §0-1/§0-9（ 裁决）：⋯ 的「属性」入口——**标签行直接加进面板**（摩擦归零）、
                 // 面板展开（是用户点出来的），同时开「添加属性」弹层供添加其他属性。
@@ -205,6 +207,8 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
               canPin={store.canPin(menu.card.id)}
               onTogglePin={() => togglePin(menu.card.id)}
               onToggleStar={() => toggleStar(menu.card.id)}
+              isTemplate={Boolean(store.get(menu.card.id)?.isTemplate)}
+              onToggleTemplate={() => toggleTemplate(menu.card.id)}
               onClose={() => closeMenu()} compact={compact} onOpen={() => openPage(menu.card.id)}
             />
           ) : null}
@@ -294,6 +298,14 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
               blockId={dialog.blockId}
               findTargets={(query, fromId) => store.embedSourceTargets(query, fromId)}
               onPick={(targetId) => { const id = dialog.blockId; closeDialog(); applyEmbedSource(id, targetId) }}
+              onClose={() => closeDialog()}
+            />
+          ) : null}
+          {dialog?.kind === 'templatePicker' ? (
+            <TemplatePickerDialog
+              templates={store.templatePages().map((page) => ({ id: page.entityId, name: page.objectName ?? '未命名页面' }))}
+              onPickBlank={() => { closeDialog(); createPage(true) }}
+              onPickTemplate={(templateId) => { closeDialog(); createPageFromTemplate(templateId) }}
               onClose={() => closeDialog()}
             />
           ) : null}
