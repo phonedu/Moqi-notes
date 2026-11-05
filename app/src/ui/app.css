@@ -761,7 +761,7 @@ body.is-focus .doc-col { padding-top: 40px; }
    另：**页面名字行**就是容器块元素自己那一行（`.moqi-name-line-anchor` 只是行盒锚点），下面的
    颜色硬口径同样蓋到它：日后若有人重引「聚焦表达」，也不得把编辑块 / 名字行带灰。 */
 .doc-col.is-touch-edit .moqi-block[data-touch-edit="1"] { color: var(--text); }
-.doc-col.is-touch-edit .editor-content { caret-color: var(--accent-text); }
+.doc-col.is-touch-edit .editor-content { caret-color: var(--text); }
 /* γ1（ 用户裁定「只剩左滑」）：**编辑态正文**的触摸抑制——`touch-action: pan-y` 把横向手势
    留给 JS（左滑 = 选择模式），`-webkit-touch-callout: none` 禁系统长按菜单（`10` 二册 §6.2「系统长按
    菜单一律禁用」）。**只限编辑态**：只读态要保留原生选词与系统长按菜单（同日裁定），所以绝不落到
