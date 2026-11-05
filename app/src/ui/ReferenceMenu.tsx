@@ -1,7 +1,7 @@
 import type { LexicalEditor } from '@moqi/editor'
 import type { RefKind } from '@moqi/editor'
 import { parseRefQuery, type RefCandidate, type RefTrigger } from '@moqi/editor'
-import { useBlockAnchor } from './blockAnchor'
+import { menuPlacement, useBlockAnchor, useViewportHeight } from './blockAnchor'
 import { useReferenceMenu } from '@moqi/editor'
 import { menuRows } from '@moqi/editor'
 import type { Suggestion } from '@moqi/editor'
@@ -53,12 +53,19 @@ export function ReferenceMenuPlugin({ enabled, findTargets, suggestFor, onInsert
   })
   // 位置与可见性都是**派生**的：由块自己算，不缓存在 state 里（docs/09 §6.9 R09-BEDIT-9）。
   const anchor = useBlockAnchor(editor, state?.blockId ?? null, enabled && state !== null)
+  const viewportHeight = useViewportHeight()
 
   if (!enabled || !state || anchor === null || !anchor.inView) return null
   const rows = menuRows(state)
   const suggestionStart = rows.findIndex((row) => row.group === 'suggest')
+  const placement = menuPlacement(anchor, viewportHeight)
   return (
-    <div className="slash-menu" role="listbox" aria-label={state.kind === 'object' ? '对象双链' : '块双链'} style={{ top: anchor.top, left: anchor.left }}>
+    <div
+      className="slash-menu"
+      role="listbox"
+      aria-label={state.kind === 'object' ? '对象双链' : '块双链'}
+      style={{ top: placement.top ?? undefined, bottom: placement.bottom ?? undefined, left: anchor.left, maxHeight: placement.maxHeight }}
+    >
       <div className="slash-menu-title">{state.kind === 'object' ? '链接到对象' : '链接到 Block'}</div>
       {rows.length === 0 ? <div className="slash-menu-empty">无匹配结果</div> : rows.map((row, rowIndex) => (
         <div key={row.targetId}>

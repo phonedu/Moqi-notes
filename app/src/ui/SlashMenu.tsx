@@ -1,4 +1,4 @@
-import { useBlockAnchor } from './blockAnchor'
+import { menuPlacement, useBlockAnchor, useViewportHeight } from './blockAnchor'
 import { useSlashMenu } from '@moqi/editor'
 import type { LexicalEditor, TextFormatType } from '@moqi/editor'
 import { Icon, type IconName } from '@moqi/editor'
@@ -69,12 +69,19 @@ export function SlashMenuPlugin({ enabled, media = true, onCommand }: {
   const matches = state ? filterItems(state.query, media) : []
   // 位置与可见性都是**派生**的：由块自己算，不缓存在 state 里（docs/09 §6.9 R09-BEDIT-9）。
   const anchor = useBlockAnchor(editor, state?.blockId ?? null, enabled && state !== null)
+  const viewportHeight = useViewportHeight()
 
   if (!enabled || !state || anchor === null || !anchor.inView) return null
 
   let flatIndex = -1
+  const placement = menuPlacement(anchor, viewportHeight)
   return (
-    <div className="slash-menu" role="listbox" aria-label="斜杠菜单" style={{ top: anchor.top, left: anchor.left }}>
+    <div
+      className="slash-menu"
+      role="listbox"
+      aria-label="斜杠菜单"
+      style={{ top: placement.top ?? undefined, bottom: placement.bottom ?? undefined, left: anchor.left, maxHeight: placement.maxHeight }}
+    >
       {matches.length === 0 ? <div className="slash-menu-empty">没有匹配的块类型或指令</div> : null}
       {(['转换为', '插入', '行内'] as SlashGroup[]).map((group) => {
         const items = matches.filter((item) => item.group === group)

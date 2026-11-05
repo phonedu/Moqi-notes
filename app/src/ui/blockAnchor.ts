@@ -25,6 +25,8 @@ export type BlockAnchorRect = {
   /** 这份测量属于哪个块：换块后旧位置立刻作废，浮层不会带着上一处的位置闪一帧。 */
   blockId: string
   top: number
+  /** 锚块自己的顶沿（视口坐标）：`menuPlacement` 上翻的基准（下沿在 `top` 里）。 */
+  blockTop: number
   left: number
   /** 锚点块是否还在正文滚动视口里（滚到格式栏底下 / 视口外时为假）。 */
   inView: boolean
@@ -152,7 +154,7 @@ export function useBlockAnchor(editor: EditorRootSource, blockId: string | null,
     }
     const frame = anchorFrameOf(element, 'viewport')
     const rect = element.getBoundingClientRect()
-    const next: BlockAnchorRect = { blockId, top: rect.bottom + 4, left: rect.left, inView: frame.inView(rect) }
+    const next: BlockAnchorRect = { blockId, top: rect.bottom + 4, blockTop: rect.top, left: rect.left, inView: frame.inView(rect) }
     setMeasured((current) => current && current.blockId === next.blockId && current.top === next.top
       && current.left === next.left && current.inView === next.inView ? current : next)
   }, enabled && blockId !== null, blockId)
@@ -160,6 +162,45 @@ export function useBlockAnchor(editor: EditorRootSource, blockId: string | null,
   if (!enabled || blockId === null) return null
   // 只认属于当前块的那份测量：换块瞬间不拿旧位置顶上。
   return measured && measured.blockId === blockId ? measured : null
+}
+
+/* 块锚菜单（斜杠 / `[[`·`((` 双链）的落位口径，与 `Popover` 同一套（GAP / EDGE / 220 门槛），
+   只是锚形不同——那边是触发按钮的矩形，这边是块的下沿 / 顶沿。 */
+const MENU_GAP = 4
+const MENU_EDGE = 12
+/** 「下方放不下这么高的菜单就考虑上翻」的门槛（同 `Popover` 的 220：约六条目，再多靠盒内滚动）。 */
+const MENU_FLIP_H = 220
+/** 高度下限：两侧都没空间时兜底——超大面积块（整屏表格 / 源码块）里的菜单也必须滚得到尾。 */
+const MENU_MIN_H = 96
+
+/**
+ * 块锚菜单落位：优先就地展开在块下方；下方放不下（`MENU_FLIP_H`）且上方更宽就上翻到块顶上。
+ * 再把高度夹进所在一侧的可用空间——**菜单盒任何情况下都要完整落在视口里**：此前只有
+ * `max-height: 60dvh` 不夹视口，块贴近窗口底时盒子下半截被窗口截掉，盒内滚动永远够不着尾部
+ * （「行内」组看不见，用户实测）。
+ */
+export function menuPlacement(anchor: { top: number; blockTop: number }, viewportHeight: number): { top: number | null; bottom: number | null; maxHeight: number } {
+  const below = viewportHeight - anchor.top - MENU_EDGE
+  const above = anchor.blockTop - MENU_GAP - MENU_EDGE
+  const flip = below < MENU_FLIP_H && above > below
+  return flip
+    ? { top: null, bottom: viewportHeight - anchor.blockTop + MENU_GAP, maxHeight: Math.max(MENU_MIN_H, above) }
+    : { top: anchor.top, bottom: null, maxHeight: Math.max(MENU_MIN_H, below) }
+}
+
+/** 视口高订阅（`Popover` 里那份订阅的块锚菜单读者）：键盘弹出 / WebView 首帧 innerHeight 会变，落位要随动。 */
+export function useViewportHeight(): number {
+  const [height, setHeight] = useState(() => (typeof window === 'undefined' ? 800 : window.innerHeight))
+  useEffect(() => {
+    const read = () => setHeight(window.innerHeight)
+    window.addEventListener('resize', read)
+    window.visualViewport?.addEventListener('resize', read)
+    return () => {
+      window.removeEventListener('resize', read)
+      window.visualViewport?.removeEventListener('resize', read)
+    }
+  }, [])
+  return height
 }
 
 /**

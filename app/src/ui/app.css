@@ -1819,7 +1819,9 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
   position: fixed;
   z-index: var(--z-popover);
   width: 268px;
-  max-height: 60dvh;
+  /* 高度上限与「贴底上翻」由 `menuPlacement`（blockAnchor.ts）随视口算成内联样式，这里不再设
+     max-height——块贴近窗口底时盒子下半截会被窗口截掉，盒内滚动永远够不着尾部（「行内」组
+     看不见，用户实测）。 */
   padding: 5px;
   overflow-y: auto;
   border-radius: var(--r-pop);
