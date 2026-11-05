@@ -160,7 +160,7 @@ export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
       if (compact || !element || !blockId || element.dataset.blockObject === 'true') return
       const ids = selectedIds.includes(blockId) ? selectedIds : [blockId]
       if (!selectedIds.includes(blockId)) selectBlock(blockId, 'single')
-      openMenu('blockMenu', element, { blockIds: ids })
+      openMenu('blockMenu', element, { blockIds: ids, fromContext: true })
     },
   }
 

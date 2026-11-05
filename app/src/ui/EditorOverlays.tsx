@@ -74,7 +74,7 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
             />
           ) : null}
           {view === 'editor' && menu?.kind === 'blockMenu' ? (
-            <Popover anchor={menu.anchor} width={214} label="块操作" onClose={() => closeMenu()}>
+            <Popover anchor={menu.anchor} width={214} label="块操作" keepOpenOnAnchor={!menu.fromContext} onClose={() => closeMenu()}>
               <button type="button" onClick={() => { if (menu.element) openMenu('blockType', menu.element) }}>
                 <span className="mi"><Icon name="heading" size={16} decorative /></span>
                 <span>转换为</span>

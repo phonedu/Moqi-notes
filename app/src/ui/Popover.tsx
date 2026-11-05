@@ -18,6 +18,11 @@ type PopoverProps = {
   className?: string
   label: string
   onClose: () => void
+  /**
+   * 点锚点矩形里**不关**（触发按钮再点一次由它自己的 click 收起，标准 toggle 语义）。
+   * 右键菜单要关掉这条：它的锚点是**整块**，开着不关会让「块内点左键」永远收不掉菜单。
+   */
+  keepOpenOnAnchor?: boolean
   children: ReactNode
 }
 
@@ -28,7 +33,7 @@ const EDGE = 12
  * 锚定浮层：在触发按钮正下方就地展开，空间不足时上翻。
  * 关闭路径统一为「Esc / 点空白 / 选中条目」，与原型一致。
  */
-export function Popover({ anchor, align = 'left', width, maxHeight, className = '', label, onClose, children }: PopoverProps) {
+export function Popover({ anchor, align = 'left', width, maxHeight, className = '', label, onClose, keepOpenOnAnchor = true, children }: PopoverProps) {
   const ref = useRef<HTMLDivElement | null>(null)
   // 视口尺寸要**订阅**而不是只在渲染时读一次：打开瞬间（尤其移动端键盘收起 / WebView 首帧）
   // innerHeight 还在变——旧做法只在父级重渲染时重算 limit，于是面板「先一小截、过会儿变大」
@@ -52,9 +57,11 @@ export function Popover({ anchor, align = 'left', width, maxHeight, className = 
       // **触发元素自己那一块不关**：它的 `click` 负责 toggle（再点一次收起，标准菜单语义）。
       // 否则 mousedown 先关、随后的 click 又开，表现成「点按钮关不掉」。用锚点矩形判定，
       // 免得把元素引用穿过每一层菜单组件。
-      const insideAnchor = event.clientX >= anchor.left - 2 && event.clientX <= anchor.right + 2
-        && event.clientY >= anchor.top - 2 && event.clientY <= anchor.bottom + 2
-      if (insideAnchor) return
+      if (keepOpenOnAnchor) {
+        const insideAnchor = event.clientX >= anchor.left - 2 && event.clientX <= anchor.right + 2
+          && event.clientY >= anchor.top - 2 && event.clientY <= anchor.bottom + 2
+        if (insideAnchor) return
+      }
       onClose()
     }
     const onKeyDown = (event: KeyboardEvent) => {
@@ -68,7 +75,7 @@ export function Popover({ anchor, align = 'left', width, maxHeight, className = 
       document.removeEventListener('mousedown', onPointerDown, true)
       document.removeEventListener('keydown', onKeyDown, true)
     }
-  }, [onClose, anchor.top, anchor.left, anchor.right, anchor.bottom])
+  }, [onClose, keepOpenOnAnchor, anchor.top, anchor.left, anchor.right, anchor.bottom])
 
   const viewportHeight = viewport.h
   const viewportWidth = viewport.w

@@ -24,7 +24,7 @@ import type { LibraryCard, TagSummary } from './types'
 export type MenuState =
   | { kind: 'outline' | 'more' | 'blockType' | 'insert' | 'filter'; anchor: AnchorRect; element: HTMLElement | null }
   /** 块菜单（`R09-BEDIT-10`）：块浮动工具栏的 `⋯ 更多` 与**右键块体 / 把手**打开同一份清单；`blockIds` 是此刻作用的目标块。 */
-  | { kind: 'blockMenu'; anchor: AnchorRect; element: HTMLElement | null; blockIds: string[] }
+  | { kind: 'blockMenu'; anchor: AnchorRect; element: HTMLElement | null; blockIds: string[]; /** 右键块体打开（不是点「⋯」按钮）：锚点是整块，点块内左键必须关菜单。 */ fromContext?: boolean }
   /** 锚在列表里的菜单（页面库卡片 ⋯ / 侧栏标签 ⋯）：位置由 `useFloatingAnchor` 跟着锚点重测。 */
   | { kind: 'card'; anchor: AnchorRect; element: HTMLElement | null; card: LibraryCard }
   | { kind: 'tag'; anchor: AnchorRect; element: HTMLElement | null; tag: TagSummary }
