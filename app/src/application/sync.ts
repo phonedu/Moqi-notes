@@ -363,9 +363,11 @@ export async function runSync(options: {
   registry: MetadataRegistry
   /** 定义同步的本机状态（版本 / 指纹 / 设备游标）。 */
   registryState: RegistrySyncState
+  /** 真进度（已处理批次 / 总批次）：换完之后才知道要处理几批，落一批报一次。 */
+  onProgress?: (done: number, total: number) => void
   now?: number
 }): Promise<SyncResult> {
-  const { port, deviceId, oplog, cursor, blocks, apply, registry, registryState } = options
+  const { port, deviceId, oplog, cursor, blocks, apply, registry, registryState, onProgress } = options
   const outgoing = outgoingFrom(oplog, cursor, deviceId)
   // 定义快照（A1）：指纹变了（或从未交过）才重发——定义很少变，重发的只是同一份小 JSON。
   const stamp = registryStamp(registry)
@@ -425,7 +427,10 @@ export async function runSync(options: {
         group.operations.push(synthesizedRestore(blocks, root))
       }
     }
-    for (const [created, group] of [...groups].sort((left, right) => left[0] - right[0])) {
+    const ordered = [...groups].sort((left, right) => left[0] - right[0])
+    onProgress?.(0, ordered.length)
+    let processed = 0
+    for (const [created, group] of ordered) {
       // **逐组独立应用**：一条应用不了的变更（校验拒绝 / 目标块不在本机）不该卡住整台设备。
       // 以前这里没有逐组保护，一组抛错会让整轮 `runSync` 冒泡到调用方的 catch ⇒ 游标不落盘
       // ⇒ 每一拍重拉同一批、永远停在「离线 · N 条待同步」——把**数据拒绝伪装成网络问题**
@@ -444,6 +449,8 @@ export async function runSync(options: {
         // 整组原子回滚（`store.apply` 的工作副本语义）：这一组的**变更条数**都算失败。
         failed += group.operations.length
       }
+      processed += 1
+      onProgress?.(processed, ordered.length)
     }
   }
   return {

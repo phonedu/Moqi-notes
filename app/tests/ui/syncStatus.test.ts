@@ -16,6 +16,7 @@ test('STATE-SYNC-1 四态各有文案与圆点：未配置 / 同步中 / 已同�
   const cases: Array<[SyncStatus, string, string]> = [
     [{ kind: 'unconfigured' }, 'idle', '未配置同步'],
     [{ kind: 'syncing', done: 2, total: 3 }, 'saving', '同步中 · 2/3'],
+    [{ kind: 'syncing', done: 0, total: 0 }, 'saving', '同步中…'],
     [{ kind: 'synced', at: Date.now() }, 'ok', '已同步 · 刚刚'],
     [{ kind: 'offline', pending: 4 }, 'warn', '离线 · 4 条待同步'],
   ]
@@ -37,4 +38,28 @@ test('STATE-SYNC-1 待同步条数是实时数字，不是写死的占位（R09-
   assert.match(syncPresentation({ kind: 'offline', pending: 0 }).text, /0 条待同步/)
   assert.match(syncPresentation({ kind: 'offline', pending: 12 }).text, /12 条待同步/)
   assert.match(syncPresentation({ kind: 'syncing', done: 1, total: 7 }).text, /1\/7/)
+})
+
+test('同步完成读数：已同步态带出「合并 / 跳过 / 失败」，失败转 warn 档、跳过有解释', () => {
+  const clean = syncPresentation({ kind: 'synced', at: Date.now(), merged: 0, skipped: 0, failed: 0 })
+  assert.equal(clean.text, '已同步 · 刚刚', '全零时不上读数（成功零噪音）')
+
+  const merged = syncPresentation({ kind: 'synced', at: Date.now(), merged: 3, skipped: 1, failed: 0 })
+  assert.equal(merged.st, 'ok')
+  assert.match(merged.text, /合并 3/)
+  assert.match(merged.text, /跳过 1/)
+  assert.match(merged.title, /本机版本更新|保留/, '跳过要说清是本机版本更新被保留')
+
+  const failed = syncPresentation({ kind: 'synced', at: Date.now(), merged: 0, skipped: 0, failed: 2 })
+  assert.equal(failed.st, 'warn', '有失败就不再是干净的 ok 档')
+  assert.match(failed.text, /失败 2/)
+  assert.match(failed.title, /整组跳过|其余照常/, '失败要说明影响范围（坏组跳过、其余落地）')
+})
+
+test('死读数：「同步中」不再报假分数——交换时总数未知只显示旋转点', () => {
+  const unknown = syncPresentation({ kind: 'syncing', done: 0, total: 0 })
+  assert.equal(unknown.text, '同步中…')
+  assert.doesNotMatch(unknown.text, /0\/0/, '总数未知时不许出现 0/0')
+  const known = syncPresentation({ kind: 'syncing', done: 2, total: 5 })
+  assert.equal(known.text, '同步中 · 2/5', '知道总数时分数是真的（已处理批次 / 总批次）')
 })

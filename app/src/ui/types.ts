@@ -13,7 +13,8 @@ export type SaveState = 'saved' | 'saving' | 'error'
  */
 export type SyncStatus =
   | { kind: 'unconfigured' }
-  | { kind: 'synced'; at: number }
+  /** 一轮同步完成：`merged` = 并进来的变更条数（后写者胜下被采纳的），`skipped` = 被本机版本压住的，`failed` = 应用失败（整组跳过）的。 */
+  | { kind: 'synced'; at: number; merged?: number; skipped?: number; failed?: number }
   | { kind: 'syncing'; done: number; total: number }
   | { kind: 'offline'; pending: number }
 

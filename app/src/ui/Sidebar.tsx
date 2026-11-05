@@ -42,10 +42,26 @@ export function syncPresentation(status: SyncStatus): { st: string; text: string
   switch (status.kind) {
     case 'unconfigured':
       return { st: 'idle', text: '未配置同步', title: '还没设置同步位置——点开去设置' }
-    case 'synced':
-      return { st: 'ok', text: `已同步 · ${formatRelative(status.at)}`, title: '本机没有待传变更，远端也已经拉完' }
+    case 'synced': {
+      // 合并 / 跳过 / 失败都要能看见——**只在非零时上文案**，成功仍是零噪音。
+      const extra: string[] = []
+      if (status.merged) extra.push(`合并 ${status.merged}`)
+      if (status.skipped) extra.push(`跳过 ${status.skipped}`)
+      if (status.failed) extra.push(`失败 ${status.failed}`)
+      const title = status.failed
+        ? '有变更没应用成功（目标块不在本机等）：坏组整组跳过，其余照常落地；游标已前进，不会卡住'
+        : status.skipped
+          ? '跳过的块是本机版本更新（后写者胜），本机保留原样'
+          : '上一轮同步已完成；新改动会自己排队再传'
+      return { st: status.failed ? 'warn' : 'ok', text: `已同步 · ${formatRelative(status.at)}${extra.length ? ` · ${extra.join(' · ')}` : ''}`, title }
+    }
     case 'syncing':
-      return { st: 'saving', text: `同步中 · ${status.done}/${status.total}`, title: '正在推送 / 拉取' }
+      return {
+        st: 'saving',
+        // 总数未知（还在交换）时不报分数——`0/0` 是死读数（G-30）。
+        text: status.total > 0 ? `同步中 · ${status.done}/${status.total}` : '同步中…',
+        title: '正在推送 / 拉取',
+      }
     case 'offline':
       return { st: 'warn', text: `离线 · ${status.pending} 条待同步`, title: '传输不可达；编辑照常，连上后自动补传' }
   }

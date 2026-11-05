@@ -132,8 +132,8 @@ export function useSyncEngine(options: {
     try {
       const deviceId = await resolveDeviceId()
       const cursor = state.cursor
-      const total = Math.max(1, (await storage.maxOplogSeq(deviceId)) - (cursor[deviceId] ?? 0))
-      setSyncStatus({ kind: 'syncing', done: 0, total })
+      // **真进度**：换完才知道要处理几批（`runSync.onProgress` 来报）；这里先起旋转点，不报假分数。
+      setSyncStatus({ kind: 'syncing', done: 0, total: 0 })
       const port = new DirectorySyncPort(syncIo, () => state.directory, () => resolveDeviceId())
       let appliedGroups = 0
       const result = await runSync({
@@ -141,6 +141,7 @@ export function useSyncEngine(options: {
         blocks: store.snapshot(),
         registry: registryRef.current(),
         registryState: state.registry ?? { sent: null, cursor: {} },
+        onProgress: (done, total) => setSyncStatus({ kind: 'syncing', done, total }),
         apply: (operations, transaction) => {
           // 远端变更走领域事务通路（`source: 'sync'`），跟手敲一个字是同一条路——
           // 所以它同样进撤销栈、同样被落盘、也同样被转发给下一台设备。
@@ -166,7 +167,7 @@ export function useSyncEngine(options: {
       const next: SyncState = { ...state, cursor: result.cursor, lastSyncAt: Date.now(), registry: result.registry }
       setSyncState(next)
       await storage.saveSyncState(next)
-      setSyncStatus({ kind: 'synced', at: next.lastSyncAt ?? Date.now() })
+      setSyncStatus({ kind: 'synced', at: next.lastSyncAt ?? Date.now(), merged: result.applied, skipped: result.skipped, failed: result.failed })
       retryStepRef.current = 0
     } catch {
       // 传输不可达不是错误态（`R09-SYNC-4`）：只把状态改成「离线 · N 条待同步」。

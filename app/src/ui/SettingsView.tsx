@@ -81,6 +81,8 @@ type SettingsViewProps = {
   syncDirectory: string
   onSyncDirectoryChange: (directory: string) => void
   syncStatusText: string
+  /** 上一轮同步的读数：合并（采纳进来的）/ 跳过（本机版本较新被保留）/ 失败（整组跳过）。`null` = 本次会话还没跑过。 */
+  syncResult?: { at: number; merged: number; skipped: number; failed: number } | null
   onSyncNow: () => void
   /** 本机设备标识（截断显示）——同步的游标与冲突定序按它走，排查时用得上。 */
   deviceIdPreview: string
@@ -114,7 +116,7 @@ export function SettingsView({
   themeId, mode, fontSize, lineHeight, columnWidth, onSetAppearance, onNotify,
   codeLangs, onSetCodeLangs,
   version, stage, build, changelog, importInlineTags, onToggleImportInlineTags,
-  syncDirectory, onSyncDirectoryChange, syncStatusText, onSyncNow, indexStatus, backup, section, onSectionChange, exportPage, compact, onClose, level, onLevelChange,
+  syncDirectory, onSyncDirectoryChange, syncStatusText, syncResult, onSyncNow, indexStatus, backup, section, onSectionChange, exportPage, compact, onClose, level, onLevelChange,
 }: SettingsViewProps) {
   /** 左分栏选中项与「数据」组的展开态（`R09-SET-17`）：默认进「AI 能力」（分区表的第一条）。 */
   const [dataOpen, setDataOpen] = useState(true)
@@ -297,6 +299,21 @@ export function SettingsView({
                 <button type="button" className="btn" onClick={onSyncNow} disabled={!syncDirectory}>立即同步</button>
               </div>
             </div>
+            {/* 上一轮同步的**真实读数**——合并（采纳进来的）/ 跳过（本机版本较新被保留）/ 失败（整组跳过）。
+                没跑过就说没跑过，不留死数。 */}
+            <div className="frow">
+              <label>上次同步</label>
+              <div className="ctl">
+                {syncResult ? (
+                  <span className="note" data-sync-result={`${syncResult.merged}/${syncResult.skipped}/${syncResult.failed}`}>
+                    合并 {syncResult.merged} · 跳过 {syncResult.skipped} · 失败 {syncResult.failed}
+                  </span>
+                ) : (
+                  <span className="note">本次会话还没同步过</span>
+                )}
+              </div>
+            </div>
+            <div className="hint">跳过 = 同一块两端都改过、本机版本更新（后写者胜，本机保留）；失败 = 变现没落成（目标块不在本机等），坏组整组跳过、其余照常。</div>
           </div>
                 </>
               ) : null}

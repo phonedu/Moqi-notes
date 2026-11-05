@@ -247,6 +247,9 @@ export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
                 syncDirectory: syncState.directory,
                 onSyncDirectoryChange: setSyncDirectory,
                 syncStatusText: syncPresentation(syncStatus).text,
+                syncResult: syncStatus.kind === 'synced'
+                  ? { at: syncStatus.at, merged: syncStatus.merged ?? 0, skipped: syncStatus.skipped ?? 0, failed: syncStatus.failed ?? 0 }
+                  : null,
                 onSyncNow: () => void runSyncOnce(),
                 deviceIdPreview: deviceIdLabel ?? '（解析中…）',
                 indexStatus,
