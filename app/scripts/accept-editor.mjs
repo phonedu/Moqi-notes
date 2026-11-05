@@ -6065,6 +6065,33 @@ check('IMPORT-ZIP-1 导入包（第 13 项「拖入 zip」）：拖入 .zip = �
   && zipBackup.pages === zipImported.pages.length + 1 /* 基线页 + 新建 1 页 */
   , { zipImported, zipBackup })
 
+// ---------- 包内**前向引用**的页面嵌入（走查逮到的缺口：目标页排在后面就链不上）----------
+// 逐篇导入只认那一刻已在库的页面；这里把嵌入源命名排在目标前面（a- 在 z- 之前），
+// 断言导入结束后嵌入块**确实拿到 embed 引用**——即导入后的补链生效。
+const forwardPack = zipSync({
+  'a-embed.md': strToU8('外层页面。\n\n![[z-target]]\n'),
+  'z-target.md': strToU8('被嵌入的目标页。\n'),
+})
+await reset()
+await dropZip(Buffer.from(forwardPack).toString('base64'), '前向引用包.zip')
+await sleep(2600)
+const forwardEmbed = await page.evaluate(() => {
+  const blocks = JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]')
+  const embed = blocks.find((b) => b.type === 'embed' && !b.deleted)
+  const target = blocks.find((b) => b.isObject && (b.objectName ?? '') === 'z-target')
+  return {
+    pages: blocks.filter((b) => b.isObject && !b.deleted).map((b) => b.objectName),
+    embedText: (embed?.content ?? []).map((f) => f.v).join(''),
+    embedRefs: embed?.blockRefs ?? [],
+    targetId: target?.entityId ?? null,
+  }
+})
+check('IMPORT-ZIP-2 包内前向引用补链：`![[目标页]]` 的目标排在包里后面时，导入结束后嵌入块仍拿到指向该页的 embed 引用（此前落成悬空占位）',
+  forwardEmbed.pages.includes('a-embed') && forwardEmbed.pages.includes('z-target')
+  && forwardEmbed.embedText === 'z-target'
+  && forwardEmbed.embedRefs.some((ref) => ref.type === 'embed' && ref.targetBlockId === forwardEmbed.targetId),
+  forwardEmbed)
+
 
 // ---------- 侧栏「星标」（`R09-PRIN-1`，活原型 `#navStar`）----------
 // 用户 报的功能缺失：星标能力早就有（卡片 ⋯ 与 … 菜单都能星标），但侧栏导航没入口。
