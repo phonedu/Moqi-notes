@@ -169,6 +169,10 @@ export class BlockNode extends ElementNode {
     this.getWritable().__checked = checked
   }
 
+  getLang(): string | null { return this.__lang || null }
+  /** 语言设置 / 清除（装饰层徽标与 ⋯ 菜单「语言…」共用）：'' 与 null 同义＝无语言，DOM 不写 data-lang。 */
+  setLang(lang: string | null): void { this.getWritable().__lang = lang || null }
+
   setBlockType(blockType: BlockType): void {
     this.getWritable().__blockType = blockType
   }
@@ -278,12 +282,7 @@ export class NameLineAnchorNode extends DecoratorNode<null> {
 
   static importJSON(): NameLineAnchorNode { return new NameLineAnchorNode() }
 
-  createDOM(_config: EditorConfig): HTMLElement {
-    const dom = document.createElement('span')
-    dom.className = 'moqi-name-line-anchor'
-    dom.setAttribute('aria-hidden', 'true')
-    return dom
-  }
+  createDOM(_config: EditorConfig): HTMLElement { const dom = document.createElement('span'); dom.className = 'moqi-name-line-anchor'; dom.setAttribute('aria-hidden', 'true'); return dom }
 
   updateDOM(): boolean { return false }
 

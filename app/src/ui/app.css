@@ -1141,6 +1141,9 @@ body.is-touch-editing .prop-wrap { display: none; }
 .tb-btn::after { content: ''; position: absolute; inset: -2px -3px; }
 .block-rail button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .block-rail .b-handle { border-radius: var(--r-block); cursor: grab; }
+/* 代码块装饰两件（BlockTools 装饰层；top/left 按测量内联给，这里只管静态皮）：语言徽标 ＋ 复制按钮。 */
+.b-code-lang { padding: 2px 6px; border-radius: var(--r-block); background: var(--panel-2); color: var(--text-3); font-size: var(--type-caption2-size); }
+.b-code-copy { padding: 2px 8px; border-radius: var(--r-block); background: var(--panel-2); color: var(--text-2); font-size: var(--type-caption1-size); }
 .block-rail .b-handle:active { cursor: grabbing; }
 .block-rail .b-collapse, .block-rail .b-plus { border-radius: var(--r-block); }
 .block-rail .b-handle:hover,
@@ -1700,6 +1703,22 @@ html[data-theme="dark"] .tx-h { background: rgba(255, 205, 0, .28); }
 .fd-item .fd-n { width: 22px; flex-shrink: 0; color: var(--text-3); font-family: var(--mono); font-size: var(--type-caption2-size); line-height: var(--type-caption2-line); }
 .fd-item .fd-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); }
 .fd-item mark { background: color-mix(in srgb, var(--accent) 22%, transparent); color: inherit; border-radius: var(--r-inline); }
+/* 语言 chips（两处共用）：「语言…」选择器的候选行 ＋ 设置页「代码块语言」的勾选面板。
+   同一枚胶囊两态：is-cur = 选择器里「当前语言」（点了不动作），is-on = 设置页里「已勾进子集」。 */
+.lang-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.lang-chip {
+  padding: 4px 10px;
+  border: 1px solid var(--border-2);
+  border-radius: var(--r-block);
+  background: var(--panel);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: var(--type-caption1-size); line-height: var(--type-caption1-line);
+  transition: background var(--dur-fast), border-color var(--dur-fast);
+}
+.lang-chip:hover { border-color: var(--color-border-strong); background: var(--panel-2); }
+.lang-chip.is-on { background: var(--accent-soft); border-color: color-mix(in srgb, var(--accent) 45%, transparent); color: var(--accent-text); }
+.lang-chip.is-cur { background: var(--accent-soft); color: var(--accent-text); }
 /* 「选择来源页面 / 块」候选行：标签 + 所属页面（`R09-BLOCK-24`，与页内查找共用同一套行样式）。 */
 .fd-item .fd-hint { margin-left: 10px; color: var(--text-3); font-style: normal; font-size: var(--type-caption1-size); line-height: var(--type-caption1-line); }
 .fd-empty { padding: 26px 12px; text-align: center; color: var(--text-3); font-size: var(--type-footnote-size); line-height: 1.9; }

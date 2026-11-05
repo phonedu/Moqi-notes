@@ -77,7 +77,21 @@ export type UiPrefs = {
    * **只登记、不改字**：正文一字不动（幂等、往返逐字一致），见 `domain/mdRefs.collectInlineTags`。
    */
   importInlineTags: boolean
+  /** 语言选择器的候选子集（代码块 ⋯ 菜单「语言…」的候选＝这里勾的；设置页「代码块语言」自选）。
+   * **纯界面偏好、不构成白名单**：选择器带自由输入兜底，任意语言照存块属性。 */
+  codeLangs: string[]
 }
+
+/** 候选目录（设置页勾选面板的备选清单）。语言本身不做白名单——这里只决定「哪些可一键点选」。 */
+export const CODE_LANG_CATALOG: string[] = [
+  'typescript', 'javascript', 'python', 'rust', 'go', 'java', 'c', 'cpp', 'csharp', 'kotlin',
+  'swift', 'php', 'ruby', 'bash', 'json', 'yaml', 'sql', 'html', 'css', 'mermaid',
+]
+
+/** 首启默认子集（十门类上下、mermaid 在列）。 */
+export const DEFAULT_CODE_LANGS: string[] = [
+  'typescript', 'javascript', 'python', 'rust', 'go', 'java', 'bash', 'json', 'sql', 'mermaid',
+]
 
 export const defaultUiPrefs: UiPrefs = {
   themeId: 'default',
@@ -92,6 +106,7 @@ export const defaultUiPrefs: UiPrefs = {
   sidebarWidth: 250,
   pagecolWidth: 400,
   importInlineTags: true,
+  codeLangs: DEFAULT_CODE_LANGS,
 }
 
 const STORAGE_KEY = 'moqi-project-b:ui-prefs'
@@ -100,6 +115,13 @@ const STORAGE_KEY = 'moqi-project-b:ui-prefs'
 function clampWidth(value: unknown, min: number, max: number, fallback: number): number {
   if (typeof value !== 'number' || !Number.isFinite(value)) return fallback
   return Math.min(max, Math.max(min, Math.round(value)))
+}
+
+/** 语言子集合法性：非空串数组即收（目录外也收——它只是界面偏好，设置页会把目录外的项画出来）。 */
+function codeLangsOf(value: unknown): string[] {
+  if (!Array.isArray(value)) return DEFAULT_CODE_LANGS
+  const langs = value.filter((lang): lang is string => typeof lang === 'string' && lang.length > 0)
+  return langs.length > 0 ? langs : DEFAULT_CODE_LANGS
 }
 
 export function loadUiPrefs(): UiPrefs {
@@ -125,6 +147,8 @@ export function loadUiPrefs(): UiPrefs {
       listColumnCollapsed: parsed.listColumnCollapsed === true && !matchMediaSafe(MQ.compact),
       sidebarWidth: clampWidth(parsed.sidebarWidth, 200, 420, 250),
       pagecolWidth: clampWidth(parsed.pagecolWidth, 300, 620, 400),
+      // 语言子集：逐项必须是目录里的非空串；整组不合法（旧偏好缺项 / 手改坏值）回落默认集。
+      codeLangs: codeLangsOf(parsed.codeLangs),
     }
   } catch {
     return { ...defaultUiPrefs }

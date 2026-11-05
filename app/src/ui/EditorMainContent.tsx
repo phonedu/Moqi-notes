@@ -217,6 +217,8 @@ export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
                 lineHeight: prefs.lineHeight,
                 columnWidth: prefs.columnWidth,
                 onSetAppearance: patchPrefs,
+                codeLangs: prefs.codeLangs,
+                onSetCodeLangs: (langs) => patchPrefs({ codeLangs: langs }),
                 importInlineTags: prefs.importInlineTags,
                 onToggleImportInlineTags: () => patchPrefs({ importInlineTags: !prefs.importInlineTags }),
                 onNotify: (message) => notify(message),

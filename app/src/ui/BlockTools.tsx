@@ -250,7 +250,8 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
     const content = contentRef.current
     if (!scope || !content || !enabled) return
     const observer = new MutationObserver(() => schedule())
-    observer.observe(content, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-collapsed', 'data-checked', 'data-block-type'] })
+    // data-lang：语言徽标跟着「语言…」选择器的落值刷新（LangPicker 只改 dataset.lang，内容不动）。
+    observer.observe(content, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-collapsed', 'data-checked', 'data-block-type', 'data-lang'] })
   // 滚动监听挂在 **window 的捕获阶段**（ 修）：真正滚动的元素是正文列的**父级**
     // `.editor-body`，挂在 `.doc-col` 上根本收不到它的滚动事件——标记层用的是视口坐标，
     // 于是滚动时标记不跟着走（AI 块的标签 / 操作行「飘起来」就是这个原因）。
@@ -451,7 +452,8 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
         action.lang ? (
           <span
             key={`code-lang-${action.id}`}
-            style={{ position: 'absolute', top: action.top, left: action.left - 60, fontSize: 11, padding: '2px 6px', borderRadius: 6, background: 'var(--panel-2)', color: 'var(--text-3)' }}
+            className="b-code-lang"
+            style={{ position: 'absolute', top: action.top, left: action.left - 60 }}
           >
             {action.lang}
           </span>
@@ -466,11 +468,6 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
             position: 'absolute',
             top: action.top,
             left: action.left,
-            fontSize: 12,
-            padding: '2px 8px',
-            borderRadius: 6,
-            background: 'var(--panel-2)',
-            color: 'var(--text-2)',
           }}
           aria-label={copiedId === action.id ? '已复制' : '复制代码'}
           onMouseDown={(event) => event.preventDefault()}

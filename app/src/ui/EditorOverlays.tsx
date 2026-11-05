@@ -11,6 +11,7 @@ import { aiSourcePlan } from '@moqi/editor'
 import { DEFAULT_FIELD } from '@moqi/editor'
 import { owningPageId } from '@moqi/editor'
 import { BlockFlybar } from './BlockFlybar'
+import { LangPickerDialog } from './LangPicker'
 import { Popover } from './Popover'
 import { saveMediaCopy } from './shellSupport'
 import { toggleBlockFormat } from '@moqi/editor'
@@ -18,7 +19,7 @@ import { toggleBlockFormat } from '@moqi/editor'
 
 /** 编辑器浮层（模块化 M1.7）：菜单、弹窗、搜索、筛选与提示。 */
 export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
-  const { activeBlockId, activeFormatsValue, activePage, activePageId, aiState, features, applyEmbedSource, applyExternalLink, assetPort, blockMenuTarget, blockTypeOfCursor, cancelAi, clearEmbedSource, closeDialog, closeMenu, compact, convertCurrentBlock, copyLink, copySelection, copySelectionToClipboard, createAndAddProperty, cutSelection, deleteSelection, dialog, discardAiBlock, duplicatePage, editorRef, exitSelection, findHits, findQuery, hasGeneratingAiBlock, jumpToBlock, libraryCards, libraryFilter, listAnchorRect, listAnchorVisible, menu, mergeTag, mountProperty, moveBlockStepById, movePageToTrash, notify, openDialog, openExportPage, openMenu, openPage, openSettingsView, openSidePanel, outlineEntries, outlineMove, pageStats, pickInsert, prefs, proceedClose, purgePages, refPanelOpen, registry, removeTagFromAll, renameTag, requestDeleteSelection, runAi, searchPort, selectedIds, selectionRect, setAskTargetMode, setBriefOpen, setFindQuery, setFocusMode, setLibraryFilter, setRefPanelOpen, setSearchScope, store, tagSummaries, toggleCollapse, togglePin, toggleStar, touchEditId, view, visibleCards } = runtime
+  const { activeBlockId, activeFormatsValue, activePage, activePageId, aiState, features, applyEmbedSource, applyExternalLink, assetPort, blockMenuTarget, blockTypeOfCursor, cancelAi, clearEmbedSource, closeDialog, closeMenu, compact, convertCurrentBlock, copyLink, copySelection, copySelectionToClipboard, createAndAddProperty, cutSelection, deleteSelection, dialog, discardAiBlock, duplicatePage, editorRef, exitSelection, findHits, findQuery, hasGeneratingAiBlock, jumpToBlock, libraryCards, libraryFilter, listAnchorRect, listAnchorVisible, menu, mergeTag, mountProperty, moveBlockStepById, movePageToTrash, notify, openDialog, openExportPage, openMenu, openPage, openSettingsView, openSidePanel, outlineEntries, outlineMove, pageStats, pickInsert, prefs, proceedClose, purgePages, refPanelOpen, registry, removeTagFromAll, renameTag, requestDeleteSelection, runAi, searchPort, selectedIds, selectionRect, setAskTargetMode, setBlockLang, setBriefOpen, setFindQuery, setFocusMode, setLibraryFilter, setRefPanelOpen, setSearchScope, store, tagSummaries, toggleCollapse, togglePin, toggleStar, touchEditId, view, visibleCards } = runtime
   const overlayLayer = (
     <>
           {/* ---------- 浮层 ---------- */}
@@ -79,6 +80,14 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
                 <span>转换为</span>
                 <span className="d">▸</span>
               </button>
+              {/* 语言…：只有代码块出（语言徽标同一家）；开「语言选择器」弹窗——候选＝设置页自选子集＋
+                  自由输入兜底＋清除，任意语言照存（不做白名单）。 */}
+              {blockMenuTarget?.type === 'code' ? (
+                <button type="button" onClick={() => { openDialog({ kind: 'langPicker', blockId: blockMenuTarget.entityId }); closeMenu() }}>
+                  <span className="mi"><Icon name="inline-code" size={16} decorative /></span>
+                  <span>语言…</span>
+                </button>
+              ) : null}
               {/* 剪贴板三条（`R09-BEDIT-10`/`R09-KEY-21`）：**「复制」= 系统剪贴板（⌘C 同一动作）**、
                   「创建副本」= duplicate——同名会把用户带沟里（旧账已纠）。 */}
               {blockMenuTarget && (blockMenuTarget.type === 'image' || blockMenuTarget.type === 'file') ? (
@@ -285,6 +294,19 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
               blockId={dialog.blockId}
               findTargets={(query, fromId) => store.embedSourceTargets(query, fromId)}
               onPick={(targetId) => { const id = dialog.blockId; closeDialog(); applyEmbedSource(id, targetId) }}
+              onClose={() => closeDialog()}
+            />
+          ) : null}
+          {dialog?.kind === 'langPicker' ? (
+            <LangPickerDialog
+              current={store.get(dialog.blockId)?.lang || null}
+              codeLangs={prefs.codeLangs}
+              onSetLang={(lang) => {
+                const editor = editorRef.current
+                const id = dialog.blockId
+                closeDialog()
+                if (editor) setBlockLang(editor, id, lang)
+              }}
               onClose={() => closeDialog()}
             />
           ) : null}

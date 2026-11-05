@@ -41,6 +41,8 @@ export type DialogState =
   | { kind: 'purgePages'; pageIds: string[]; names: string[]; losers: string[] }
   /** 「插入外部链接」对话框（`R09-ELINK-1/2`）：带上打开那一刻光标/选区的领域落点（取消不留痕）。 */
   | { kind: 'externalLink'; blockId: string; offset: number; length: number; text: string }
+  /** 代码块「语言…」选择器：候选＝设置页自选子集＋自由输入兜底＋清除（任意语言照存，不做白名单）。 */
+  | { kind: 'langPicker'; blockId: string }
   | { kind: 'closeWindow' }
   /** 多块删除 / 带子块删除：确认后仍可 ⌘Z；单块删除不弹。 */
   | { kind: 'bulkDelete'; ids: string[]; count: number; refs: number; hasChildren: boolean }

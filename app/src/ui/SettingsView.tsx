@@ -2,7 +2,7 @@ import { useEffect, useState, type MouseEvent } from 'react'
 import { Icon } from '@moqi/editor'
 import { formatRelative } from './format'
 import {
-  COLUMN_WIDTH_STEPS, FONT_SIZE_STEPS, LINE_HEIGHT_STEPS, THEMES, loadSeenVersion, saveSeenVersion,
+  CODE_LANG_CATALOG, COLUMN_WIDTH_STEPS, FONT_SIZE_STEPS, LINE_HEIGHT_STEPS, THEMES, loadSeenVersion, saveSeenVersion,
   type ColumnWidthStep, type FontSizeStep, type LineHeightStep, type ThemeMode, type UiPrefs,
 } from './uiPrefs'
 import type { SearchIndexStatus } from '../application/search'
@@ -58,6 +58,9 @@ type SettingsViewProps = {
   columnWidth: ColumnWidthStep
   /** 只传改动的那几项（主题 id / 浅深 / 三个排版档）。 */
   onSetAppearance: (patch: Partial<Pick<UiPrefs, 'themeId' | 'mode' | 'fontSize' | 'lineHeight' | 'columnWidth'>>) => void
+  /** 语言选择器的候选子集（代码块 ⋯「语言…」用；纯界面偏好，不构成白名单）。 */
+  codeLangs: string[]
+  onSetCodeLangs: (langs: string[]) => void
  /** 导入页的行内标签开关（用户 裁决；本机偏好，默认开）。 */
   importInlineTags: boolean
   onToggleImportInlineTags: () => void
@@ -109,6 +112,7 @@ type SettingsViewProps = {
 export function SettingsView({
   aiConfig, aiReady, onSaveAi, properties, usage, onCreateProperty, onRenameProperty, onDeleteProperty, onNameProblem, propertyOps, fileOps,
   themeId, mode, fontSize, lineHeight, columnWidth, onSetAppearance, onNotify,
+  codeLangs, onSetCodeLangs,
   version, stage, build, changelog, importInlineTags, onToggleImportInlineTags,
   syncDirectory, onSyncDirectoryChange, syncStatusText, onSyncNow, indexStatus, backup, section, onSectionChange, exportPage, compact, onClose, level, onLevelChange,
 }: SettingsViewProps) {
@@ -400,6 +404,33 @@ export function SettingsView({
               </div>
             </div>
             <div className="hint">字号 / 行高 / 列宽只作用于编辑区（档位即钳制，不提供自由输入）。</div>
+          </div>
+
+          {/* 代码块语言自选子集：语言选择器（块 ⋯ 菜单「语言…」）的候选＝这里勾选的集合。
+              **纯界面偏好**——选择器带自由输入兜底，任意语言照存块属性，这份清单不构成白名单。 */}
+          <div className="set-card">
+            <h3><Icon name="inline-code" size={16} decorative />代码块语言<span className="sub">「语言…」选择器的候选</span></h3>
+            <div className="lang-chips">
+              {[...new Set([...CODE_LANG_CATALOG, ...codeLangs])].map((lang) => {
+                const on = codeLangs.includes(lang)
+                return (
+                  <button
+                    key={lang}
+                    type="button"
+                    aria-pressed={on}
+                    className={`lang-chip ${on ? 'is-on' : ''}`}
+                    onClick={() => {
+                      // 至少留一个候选：全清空会让选择器没有可点的候选（自由输入仍在，但候选空了）。
+                      if (on && codeLangs.length <= 1) return
+                      onSetCodeLangs(on ? codeLangs.filter((item) => item !== lang) : [...codeLangs, lang])
+                    }}
+                  >
+                    {lang}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="hint">勾选的是代码块「语言…」选择器里的候选；目录外的语言用选择器的自由输入照存，不受这份清单限制。</div>
           </div>
 
                 </>

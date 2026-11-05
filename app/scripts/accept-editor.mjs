@@ -813,6 +813,91 @@ check('ENTER-CODEBLOCK-1 / ENTER-CODEBLOCK-2 / ENTER-CODEBLOCK-3 代码块内 En
   && !textSplit.some((b) => b.type !== 'code' && b.text.includes('\n')),
   { lineBreak, typedNextLine, exitStripped, kidsAfterExit, reloadedCode, reloadedBreaks, emptyType: emptyConverted.find((b) => b.id === 'a6emp')?.type, textKids: kidsOf(textSplit, 'a6p') })
 
+// ---------- W6b · 代码块语言选择器（块 ⋯ 菜单「语言…」：候选＝自选子集 / 自由输入兜底 / 清除） ----------
+// 钉住四件事：① 菜单入口只在代码块出、选择器画默认子集候选；② 点候选落块属性（data-lang 与领域
+// `lang` 同步、徽标跟着亮）；③ 自由输入任意语言照存（不做白名单）；④ 清除后 data-lang 撤掉、
+// 导出不再写标记。语言存取走属性 update op（与勾选同形），这里同时验「清除＝空串载荷」的重载往返。
+const openLangPicker = async (entityId) => {
+  // 右键块体（与把手 ⋯ 同一份块菜单；flybar 只在**选中**时出现，右键直达）
+  await page.locator(`.editor-content .moqi-block[data-entity-id="${entityId}"]`).click({ button: 'right' })
+  await sleep(300)
+  const entry = page.locator('.pop button', { hasText: '语言…' })
+  const entryPresent = await entry.count() > 0
+  if (entryPresent) await entry.click()
+  await sleep(300)
+  return entryPresent
+}
+const langStateOf = async (entityId) => page.evaluate((id) => {
+  const block = document.querySelector(`.editor-content .moqi-block[data-entity-id="${id}"]`)
+  const stored = JSON.parse(localStorage.getItem('moqi-project-b:blocks') ?? '[]').find((b) => b.entityId === id)
+  return { dom: block?.dataset.lang ?? null, domain: stored?.lang ?? null }
+}, entityId)
+await reset()
+await page.evaluate(() => {
+  const now = Date.now()
+  const mk = (id, uid, type, text, parent, position, children = [], extra = {}) => ({
+    entityId: id, blockUid: uid, type, content: text ? [{ t: 'text', v: text }] : [], parent, children, position,
+    collapsed: false, checked: false, deleted: false, deletedAt: null, prevParent: null, prevIndex: null,
+    isObject: false, objectName: null, properties: [], tags: [], blockRefs: [], blockBackRefs: [], objectRefs: [], objectBackRefs: [],
+    aiMeta: null, created: now, modified: now, ...extra,
+  })
+  localStorage.setItem('moqi-project-b:blocks', JSON.stringify([
+    mk('a7p', 'a7page01', 'text', '语言页', null, 0, ['a7cod', 'a7cod2', 'a7txt'], { isObject: true, objectName: '语言页' }),
+    mk('a7cod', 'a7cod001', 'code', 'const a = 1', 'a7p', 0),
+    mk('a7cod2', 'a7cod002', 'code', 'graph TD', 'a7p', 1, [], { lang: 'mermaid' }),
+    mk('a7txt', 'a7txt001', 'text', '普通段落', 'a7p', 2),
+  ]))
+  localStorage.setItem('moqi-project-b:metadata', JSON.stringify({ properties: [], tags: [] }))
+})
+await reload()
+await page.waitForSelector('.editor-content .moqi-block[data-entity-id="a7cod"]', { timeout: NAV_READY_MS })
+await sleep(900)
+// ① 种子块徽标（mermaid）在；文本块菜单里没有「语言…」
+const mermaidState = await langStateOf('a7cod2')
+await page.locator('.editor-content .moqi-block[data-entity-id="a7txt"]').click({ button: 'right' })
+await sleep(300)
+const textBlockNoLangEntry = await page.locator('.pop button', { hasText: '语言…' }).count() === 0
+await page.keyboard.press('Escape')
+await sleep(200)
+// ② 候选＝默认子集（未改偏好时 10 门、mermaid 在列）；点 rust 落块
+await openLangPicker('a7cod')
+const chipCount = await page.locator('.lang-chip').count()
+const hasMermaidChip = await page.locator('.lang-chip', { hasText: 'mermaid' }).count() > 0
+await page.locator('.lang-chip', { hasText: 'rust' }).click()
+await sleep(1200)
+const afterChip = await langStateOf('a7cod')
+// ③ 自由输入：foobar 照存（大小写原样）
+await openLangPicker('a7cod')
+await page.locator('input[aria-label="自定义语言"]').fill('FooBar')
+await page.keyboard.press('Enter')
+await sleep(1200)
+const afterFreeInput = await langStateOf('a7cod')
+// ④ 清除：data-lang 撤掉、领域回空
+await openLangPicker('a7cod')
+await page.locator('.dlg button', { hasText: '清除语言' }).click()
+await sleep(1200)
+const afterClear = await langStateOf('a7cod')
+check('LANG-PICKER-1 语言选择器：菜单入口只在代码块出 · 候选＝设置页自选子集（默认 10 门、mermaid 在列）· 点候选 / 自由输入任意语言照存（大小写原样、不做白名单）· 清除后 data-lang 与领域 lang 一并撤掉 · 种子语言徽标数据在',
+  textBlockNoLangEntry && chipCount === 10 && hasMermaidChip
+  && afterChip.dom === 'rust' && afterChip.domain === 'rust'
+  && afterFreeInput.dom === 'FooBar' && afterFreeInput.domain === 'FooBar'
+  && afterClear.dom === null && !afterClear.domain
+  && mermaidState.dom === 'mermaid',
+  { textBlockNoLangEntry, chipCount, hasMermaidChip, afterChip, afterFreeInput, afterClear, mermaidState })
+// ⑤ 复制按钮（`CODEBLOCK-COPY-1`）：复制内容 = 源码原文，点后短态「已复制」（零提示纪律）
+await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: URL.replace(/\/+$/, '') })
+const readClip = () => page.evaluate(async () => { try { return await navigator.clipboard.readText() } catch (error) { return `READ-FAIL:${error.message}` } })
+await sleep(300)
+await page.locator('.b-code-copy').first().click()
+await sleep(150)
+const copiedShort = await page.evaluate(() => document.querySelector('.b-code-copy')?.textContent ?? '')
+await sleep(600)
+const copiedText = await readClip()
+const sourceText = await page.evaluate(() => document.querySelector('.editor-content .moqi-block[data-entity-id="a7cod"]')?.textContent ?? '')
+check('CODEBLOCK-COPY-1 代码块复制按钮：复制内容 = 源码原文 · 点后短态「已复制」（不弹 toast）',
+  copiedText === 'const a = 1' && copiedText === sourceText && copiedShort === '已复制',
+  { copiedText, sourceText, copiedShort })
+
 // ---------- 正确用法：缩进块上两次 Enter 退出缩进（04 §3） ----------
 // 场景按文档与用户口径重建（干净的 页首 + 三个同级子块），层级一律从**领域图**读：
 // DOM 文本匹配会把祖先块一起算进来，测到的不是同一个块。

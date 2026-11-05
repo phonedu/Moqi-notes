@@ -18,6 +18,7 @@ import { BlockTypeMenu, InsertMenu, MoreMenu, OutlinePop, TagMenu } from '../../
 import type { PropertyDef, PropertyRow } from '../../src/ui/types'
 import { BLOCK_TYPE_ITEMS, INSERT_ITEMS, blockTypeLabel, insertRoute } from '../../src/ui/menuItems'
 import { slashItems } from '../../src/ui/SlashMenu'
+import { DEFAULT_CODE_LANGS } from '../../src/ui/uiPrefs'
 import { inlineRefClassNames } from '@moqi/editor'
 import { insertDateText } from '../../src/ui/format'
 
@@ -181,6 +182,8 @@ const settingsProps = {
   lineHeight: 'normal' as const,
   columnWidth: 'normal' as const,
   onSetAppearance: () => undefined,
+  codeLangs: DEFAULT_CODE_LANGS,
+  onSetCodeLangs: () => undefined,
   onNotify: () => undefined,
   fileOps: { canPickFile: false, canPickFolder: false, canSaveAs: false, onPickFiles: () => undefined, onPickFolder: () => undefined },
   version: '0.2.0-rc.1',
@@ -228,6 +231,9 @@ test('设置左分栏（R09-SET-17）：五组分区、「数据」组五页在�
   assert.match(appearance, /暖纸·赭/)
   assert.match(appearance, /正文字号/)
   assert.match(appearance, /正文列宽/)
+  // 代码块语言卡（语言选择器的候选子集）：默认集与目录全集在册（纯界面偏好，不是白名单）。
+  for (const lang of DEFAULT_CODE_LANGS) assert.match(appearance, new RegExp(`>${lang}<`), `候选里应有「${lang}」`)
+  assert.match(appearance, />kotlin</, '目录里不在默认集的语言也要画出来（可勾进来）')
   // 属性页（属性字典：建 / 改名 / 停用）。
   const props = renderSettings('properties', { properties: [{ id: 'def-status', name: '状态', type: 'select', options: [{ id: 'o1', label: '进行中' }], created: 1, modified: 1 }] })
   assert.match(props, /属性/)

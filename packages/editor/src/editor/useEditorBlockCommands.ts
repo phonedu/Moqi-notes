@@ -303,6 +303,30 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
   }
 
   /**
+   * 代码块语言设置 / 清除（块 ⋯ 菜单「语言…」选择器，`null` ＝ 清除）：走**属性 update op**——
+   * 与勾选同一形状，oplog / 同步 / 撤销全链免费，不新增 op 类型。载荷里的「无语言」用**空串**
+   * 而不是 undefined：oplog 的 JSON 序列化会丢 undefined 键，空串才能让撤销 / 回放在重载后仍正确。
+   * 任意语言照存（不做白名单），只去首尾空白、大小写原样保留。
+   */
+  function setBlockLang(editor: LexicalEditor, blockId: string, lang: string | null) {
+    const block = store.get(blockId)
+    if (!block || block.type !== 'code') return
+    const next = lang?.trim() ? lang.trim() : ''
+    if ((block.lang ?? '') === next) return
+    store.apply({
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      source: 'user',
+      operations: [{ type: 'update', opId: crypto.randomUUID(), blockId, changes: { lang: next }, previous: { lang: block.lang ?? '' } }],
+    })
+    editor.update(() => {
+      const node = findBlockNode(blockId)
+      if (node) node.setLang(next || null)
+    }, { tag: [HISTORIC_TAG, 'moqi-lang'], discrete: true })
+    persist([blockId])
+  }
+
+  /**
    * 光标 / 选区在当前块里的**领域落点**（`$contentOffset` 口径，与领域 `content` 的字符偏移一致）；
    * 不在行内文字里时返回 null。三个入口（⌘L / 斜杠 / 粘贴纯 URL）共用这一份量法。
    */
@@ -480,7 +504,7 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
 
 
   return {
-    onEnter, outlineMove, toggleCollapse, convertCurrentBlock, replaceBlockText, toggleChecked, caretRangeInBlock,
+    onEnter, outlineMove, toggleCollapse, convertCurrentBlock, replaceBlockText, toggleChecked, setBlockLang, caretRangeInBlock,
     handleMove, moveBlocksStep, moveBlockStepById, insertSibling, insertBlockOfType,
     flushPendingEnter, nameRowFacts,
   }
