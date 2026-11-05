@@ -667,7 +667,6 @@ impl SqliteBlockStore {
         let columns = "b.entity_id, b.block_type, b.is_object, b.object_name, b.parent, b.modified,
                        CASE WHEN b.is_object = 1 THEN COALESCE(b.object_name, '') ELSE b.content_text END,
                        b.tags";
-        let order = "ORDER BY b.is_object DESC, b.modified DESC LIMIT ?2";
         // UNION 那条通路要在**外层**排序，键是子查询里的别名（见下面 FTS 分支）
         let order_union = "ORDER BY sort_object DESC, sort_modified DESC LIMIT ?2";
         // V2c 路线 B：拼音子句**常驻**（中文查询时 `instr` 自然为 0，不影响结果），参数个数因此固定。
@@ -680,6 +679,74 @@ impl SqliteBlockStore {
             } else {
                 "\u{0}".to_owned()
             };
+        // ---- 1–2 字：两条独立扫描后合并 ----
+        // **不能写成 `blocks LEFT JOIN blocks_fts`**：那样 SQLite 会对每一行块去扫一遍 FTS 表，
+        // 5000 块实测 14.9s（判据 300ms）。拆成两条各自 O(n) 的扫描，再在 Rust 侧合并排序。
+        if text.chars().count() < 3 {
+            const SCAN_CAP: usize = 2000;
+            let mut merged: Vec<SearchHit> = Vec::new();
+            let mut seen: std::collections::HashSet<String> = std::collections::HashSet::new();
+            let row_of = |row: &rusqlite::Row<'_>| {
+                Ok(SearchHit {
+                    entity_id: row.get(0)?,
+                    block_type: row.get(1)?,
+                    is_object: row.get::<_, i64>(2)? != 0,
+                    object_name: row.get(3)?,
+                    parent_id: row.get(4)?,
+                    modified: row.get(5)?,
+                    text: row.get(6)?,
+                    tags: serde_json::from_str(&row.get::<_, String>(7)?).unwrap_or_default(),
+                })
+            };
+            // ① 正文 / 页面名 / 标签 / 属性：扫 blocks 一次
+            {
+                let mut statement = self.conn.prepare(&format!(
+                    "SELECT {columns} FROM blocks b
+                      WHERE b.deleted = 0
+                        AND (instr(b.content_text, ?1) > 0 OR instr(COALESCE(b.object_name, ''), ?1) > 0
+                             OR instr(b.tags_text, ?1) > 0 OR instr(b.properties_text, ?1) > 0)
+                      LIMIT ?2"
+                ))?;
+                let rows =
+                    statement.query_map(params![text, SCAN_CAP as i64], |row| row_of(row))?;
+                for hit in rows {
+                    let hit = hit?;
+                    if seen.insert(hit.entity_id.clone()) {
+                        merged.push(hit);
+                    }
+                }
+            }
+            // ② 拼音：先在索引表里收敛成 id 集合（子查询），再回表取字段——避免逐行 join
+            {
+                let mut statement = self.conn.prepare(&format!(
+                    "SELECT {columns} FROM blocks b
+                       JOIN (SELECT entity_id FROM blocks_fts
+                              WHERE instr(pinyin_full, ?1) > 0 OR instr(pinyin_initials, ?2) > 0) m
+                         ON m.entity_id = b.entity_id
+                      WHERE b.deleted = 0
+                      LIMIT ?3"
+                ))?;
+                let rows = statement.query_map(
+                    params![pinyin_full, pinyin_initials, SCAN_CAP as i64],
+                    |row| row_of(row),
+                )?;
+                for hit in rows {
+                    let hit = hit?;
+                    if seen.insert(hit.entity_id.clone()) {
+                        merged.push(hit);
+                    }
+                }
+            }
+            // 与 SQL 分支同一排序口径：页面优先、再按修改时间倒序
+            merged.sort_by(|left, right| {
+                right
+                    .is_object
+                    .cmp(&left.is_object)
+                    .then(right.modified.cmp(&left.modified))
+            });
+            merged.truncate(limit as usize);
+            return Ok(merged);
+        }
         let mut statement = if text.chars().count() >= 3 {
             // 短语查询：整串当成一个词（转义内部引号），得到的就是**子串匹配**语义。
             //
@@ -699,15 +766,7 @@ impl SqliteBlockStore {
                  ) {order_union}"
             ))?
         } else {
-            self.conn.prepare(&format!(
-                "SELECT {columns} FROM blocks b
-                 LEFT JOIN blocks_fts f ON f.entity_id = b.entity_id
-                 WHERE b.deleted = 0
-                   AND (instr(b.content_text, ?1) > 0 OR instr(COALESCE(b.object_name, ''), ?1) > 0
-                        OR instr(b.tags_text, ?1) > 0 OR instr(b.properties_text, ?1) > 0
-                        OR instr(f.pinyin_full, ?3) > 0 OR instr(f.pinyin_initials, ?4) > 0)
-                 {order}"
-            ))?
+            unreachable!("1–2 字在上面走独立扫描分支")
         };
         let match_arg = if text.chars().count() >= 3 {
             format!("\"{}\"", text.replace('"', "\"\""))
@@ -1426,6 +1485,40 @@ mod tests {
         assert_eq!(store.search_hits("墨", 20)?.len(), 1);
         // 空查询不返回任何东西（界面在输入框空着时不该显示一堆结果）。
         assert!(store.search_hits("   ", 20)?.is_empty());
+        Ok(())
+    }
+
+    /// 5000 块两字词检索的实测读数（性能门槛：≤ 300ms；这里在 **debug** 构建下跑，
+    /// debug 更慢，过了就等于 release 也过）。顺带把读数打印出来——记数字，不记「通过」。
+    #[test]
+    fn search_hits_two_char_query_stays_fast_on_5000_blocks() -> Result<()> {
+        let mut store = SqliteBlockStore::open_in_memory()?;
+        // 5000 块、每块一段中文正文：两字词「检索」散落在正文中间（真实写作的样子）
+        for index in 0..5000 {
+            let text = format!(
+                "第{index}条：这一段是本地优先的笔记正文，讲检索索引与同步合并，也提到双链与模板。",
+                index = index
+            );
+            store.upsert_block(&sample(
+                &format!("perf{index}"),
+                &format!("u{index:07}"),
+                &text,
+            ))?;
+        }
+        let started = std::time::Instant::now();
+        let hits = store.search_hits("检索", 50)?;
+        let elapsed = started.elapsed();
+        println!(
+            "SEARCH-PERF 5000 块两字词：{}ms，命中 {} 条",
+            elapsed.as_millis(),
+            hits.len()
+        );
+        assert!(!hits.is_empty(), "两字词必须能命中");
+        assert!(
+            elapsed.as_millis() <= 300,
+            "两字词检索超过 300ms 判据：{}ms",
+            elapsed.as_millis()
+        );
         Ok(())
     }
 
