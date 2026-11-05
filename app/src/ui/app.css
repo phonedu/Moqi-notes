@@ -16,6 +16,12 @@ html, body { height: 100%; }
    桌面两端 env() 都是 0，零影响。 在 index.html 里开。 */
 body { padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
 
+/* 指针 / 滚动条 / 表单控件的明暗档显式钉给引擎（`color-scheme` 跟 `data-mode` 走）：不声明时
+   引擎按启发式自选——深色下黑档指针贴深底基本不可见，块面之间黑 / 白乱翻（用户实测走查）。
+   浅色=黑档、深色=白档，全区域一致。 */
+:root { color-scheme: light; }
+html[data-mode="dark"] { color-scheme: dark; }
+
 body {
   font-family: var(--sans);
   font-size: var(--type-subheadline-size); line-height: var(--type-subheadline-line);
