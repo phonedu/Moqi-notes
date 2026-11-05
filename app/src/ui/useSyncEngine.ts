@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { createDefaultAssetSyncPort, createDefaultSyncFileIo, type AssetPort, type SyncState, type TransactionStoragePort } from '../composition'
-import { DirectorySyncPort, runSync } from '../application/sync'
+import { DirectorySyncPort, operationTargetId, runSync } from '../application/sync'
 import { assetSyncPlan, referencedAssetNames } from '../application/assetSync'
 import type { MetadataRegistry } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
@@ -39,6 +39,10 @@ export type SyncEngine = {
   setSyncDirectory: (directory: string) => void
   runSyncOnce: () => Promise<void>
   scheduleSync: (delay?: number) => void
+  /** 最近一轮同步「改写了多少块」以及能否一键回滚（同步后再没被用户编辑过才可回滚）。 */
+  lastSync: { blocks: number } | null
+  /** 一键回滚到同步前；返回 false = 已被后续编辑打乱，不能整段回滚。 */
+  rollbackLastSync: () => boolean
 }
 
 export function useSyncEngine(options: {
@@ -90,6 +94,11 @@ export function useSyncEngine(options: {
   const onAssetsPulledRef = useRef(options.onAssetsPulled)
   onAssetsPulledRef.current = options.onAssetsPulled
   const [syncState, setSyncState] = useState<SyncState>({ directory: '', cursor: {}, lastSyncAt: null })
+  const [lastSync, setLastSync] = useState<{ blocks: number } | null>(null)
+  /** 同步前的撤销栈水位：回滚只撤这个水位之后的同步事务。 */
+  const syncMarkRef = useRef<number>(-1)
+  const lastSyncRef = useRef<{ blocks: number } | null>(null)
+  useEffect(() => { lastSyncRef.current = lastSync }, [lastSync])
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ kind: 'unconfigured' })
   const syncStateRef = useRef(syncState)
   syncStateRef.current = syncState
@@ -136,6 +145,9 @@ export function useSyncEngine(options: {
       setSyncStatus({ kind: 'syncing', done: 0, total: 0 })
       const port = new DirectorySyncPort(syncIo, () => state.directory, () => resolveDeviceId())
       let appliedGroups = 0
+      // 回滚水位：同步事务全在它之后；中途用户若自己编辑，回滚会被领域拒绝（不连带撤手写）。
+      const markBefore = store.undoMark()
+      const touched = new Set<string>()
       const result = await runSync({
         port, deviceId, oplog: await storage.loadOplog(deviceId, 0), cursor,
         blocks: store.snapshot(),
@@ -145,6 +157,10 @@ export function useSyncEngine(options: {
         apply: (operations, transaction) => {
           // 远端变更走领域事务通路（`source: 'sync'`），跟手敲一个字是同一条路——
           // 所以它同样进撤销栈、同样被落盘、也同样被转发给下一台设备。
+          for (const operation of operations) {
+            const target = operationTargetId(operation)
+            if (target) touched.add(target)
+          }
           store.apply({ ...transaction, operations })
           appliedGroups += 1
         },
@@ -164,6 +180,14 @@ export function useSyncEngine(options: {
       // 资产随同步（`docs/03` §14.2「媒体文件」；13-媒体设计（已归档）§2 第 3 行）：每轮成功之后
       // 推 / 拉一次（只增不减）。失败静默重试——资产不在编辑路径上，下一轮同步会补（幂等）。
       void syncAssets(state.directory)
+      // 「本次改写了 N 块」+ 回滚水位（只在真有写入时给出；没有就清掉，不留死读数）。
+      if (appliedGroups > 0) {
+        syncMarkRef.current = markBefore
+        setLastSync({ blocks: touched.size })
+      } else {
+        syncMarkRef.current = -1
+        setLastSync(null)
+      }
       const next: SyncState = { ...state, cursor: result.cursor, lastSyncAt: Date.now(), registry: result.registry }
       setSyncState(next)
       await storage.saveSyncState(next)
@@ -199,6 +223,21 @@ export function useSyncEngine(options: {
   }
 
   /** 排一次延后的同步（重复调用只保留最后一次——打字时不该每拍都往共享目录跑一趟）。*/
+  /**
+   * 一键回滚到同步前（同步事务的逆操作整段撤掉）。返回 false = 撤销栈里那一段已经不只同步事务
+   * （用户中途编辑过），不硬来——避免连带撤掉用户的手写。
+   */
+  function rollbackLastSync(): boolean {
+    const mark = syncMarkRef.current
+    if (mark < 0 || lastSyncRef.current === null) return false
+    if (store.rollbackSyncSince(mark) < 0) return false
+    syncMarkRef.current = -1
+    setLastSync(null)
+    persist([])
+    reloadFromStore(activePageIdRef.current)
+    return true
+  }
+
   function scheduleSync(delay = SCHEDULE_DELAY): void {
     if (syncTimerRef.current) clearTimeout(syncTimerRef.current)
     syncTimerRef.current = setTimeout(() => {
@@ -230,6 +269,6 @@ export function useSyncEngine(options: {
   return {
     syncState, syncStatus, deviceIdLabel, deviceId: resolveDeviceId,
     isSyncConfigured: () => Boolean(syncStateRef.current.directory),
-    setSyncDirectory, runSyncOnce, scheduleSync,
+    setSyncDirectory, runSyncOnce, scheduleSync, lastSync, rollbackLastSync,
   }
 }

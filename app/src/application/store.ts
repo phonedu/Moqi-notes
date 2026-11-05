@@ -511,6 +511,23 @@ export class DomainStore {
     return { blockIds: result.blockIds, pageId: result.pageId }
   }
 
+  /**
+   * 「同步回滚」用的撤销栈水位：同步前记一个水位，回滚时撤回到它。
+   * 只允许**整段都是同步事务**才回滚——中间夹了用户自己的编辑就拒绝（否则会连带撤掉用户的手写）。
+   */
+  undoMark(): number {
+    return this.undoStack.length
+  }
+
+  /** 撤回 `mark` 之后的所有事务（仅当它们全是 `source: 'sync'`）。返回回滚的事务数；不满足返回 -1。 */
+  rollbackSyncSince(mark: number): number {
+    if (mark < 0 || mark > this.undoStack.length) return -1
+    const tail = this.undoStack.slice(mark)
+    if (tail.length === 0 || !tail.every((transaction) => transaction.source === 'sync')) return -1
+    for (let index = 0; index < tail.length; index += 1) this.undo()
+    return tail.length
+  }
+
   undo(): void {
     const transaction = this.undoStack.pop()
     if (!transaction) return

@@ -83,6 +83,8 @@ type SettingsViewProps = {
   syncStatusText: string
   /** 上一轮同步的读数：合并（采纳进来的）/ 跳过（本机版本较新被保留）/ 失败（整组跳过）。`null` = 本次会话还没跑过。 */
   syncResult?: { at: number; merged: number; skipped: number; failed: number } | null
+  /** 「本次同步改写了 N 块」＋一键回滚；`null` = 这一轮没有写入或已不可回滚。 */
+  syncRollback?: { blocks: number; onRollback: () => void } | null
   onSyncNow: () => void
   /** 本机设备标识（截断显示）——同步的游标与冲突定序按它走，排查时用得上。 */
   deviceIdPreview: string
@@ -116,7 +118,7 @@ export function SettingsView({
   themeId, mode, fontSize, lineHeight, columnWidth, onSetAppearance, onNotify,
   codeLangs, onSetCodeLangs,
   version, stage, build, changelog, importInlineTags, onToggleImportInlineTags,
-  syncDirectory, onSyncDirectoryChange, syncStatusText, syncResult, onSyncNow, indexStatus, backup, section, onSectionChange, exportPage, compact, onClose, level, onLevelChange,
+  syncDirectory, onSyncDirectoryChange, syncStatusText, syncResult, syncRollback, onSyncNow, indexStatus, backup, section, onSectionChange, exportPage, compact, onClose, level, onLevelChange,
 }: SettingsViewProps) {
   /** 左分栏选中项与「数据」组的展开态（`R09-SET-17`）：默认进「AI 能力」（分区表的第一条）。 */
   const [dataOpen, setDataOpen] = useState(true)
@@ -314,6 +316,16 @@ export function SettingsView({
               </div>
             </div>
             <div className="hint">跳过 = 同一块两端都改过、本机版本更新（后写者胜，本机保留）；失败 = 变现没落成（目标块不在本机等），坏组整组跳过、其余照常。</div>
+            {syncRollback ? (
+              <div className="frow">
+                <label>本次改写</label>
+                <div className="ctl">
+                  <span className="note" data-sync-rollback={syncRollback.blocks}>本次同步改写了 {syncRollback.blocks} 块</span>
+                  <span style={{ flex: 1 }} />
+                  <button type="button" className="btn" onClick={syncRollback.onRollback}>回滚到同步前</button>
+                </div>
+              </div>
+            ) : null}
           </div>
                 </>
               ) : null}

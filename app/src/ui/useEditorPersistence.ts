@@ -49,7 +49,7 @@ export function useEditorPersistence(deps: PersistenceDeps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const persistQueue = useMemo(() => new OrderedPersistQueue(), [storage])
 
-  const { syncState, syncStatus, deviceIdLabel, deviceId: resolveDeviceId, isSyncConfigured, setSyncDirectory, runSyncOnce, scheduleSync } = useSyncEngine({
+  const { syncState, syncStatus, deviceIdLabel, deviceId: resolveDeviceId, isSyncConfigured, setSyncDirectory, runSyncOnce, scheduleSync, lastSync, rollbackLastSync } = useSyncEngine({
     storage, store, persist, reloadFromStore, activePageIdRef,
     // A1：定义随同步走——读当下注册表；远端并进来之后写回（`updateRegistry` 自带落盘）。
     registry: () => registry,
@@ -267,6 +267,6 @@ export function useEditorPersistence(deps: PersistenceDeps) {
   return {
     persist, onChange, syncEditorChanges, reloadFromStore, flushPendingPersist, cancelPendingPersist,
     adoptRootContent, pendingEnterRef, editorBase,
-    syncState, syncStatus, deviceIdLabel, resolveDeviceId, isSyncConfigured, setSyncDirectory, runSyncOnce, scheduleSync,
+    syncState, syncStatus, deviceIdLabel, resolveDeviceId, isSyncConfigured, setSyncDirectory, runSyncOnce, scheduleSync, lastSync, rollbackLastSync,
   }
 }
