@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { parseMarkdownDocument, type OutlineDraft, type Block, type BlockMap, type MetadataRegistry, createTextBlock, emptyRegistry, insertOutlineAfter } from '@moqi/editor'
+import { parseMarkdownDocument, type OutlineDraft, type Block, type MetadataRegistry, createTextBlock, emptyRegistry, insertOutlineAfter } from '@moqi/editor'
 import { DomainStore } from '../../src/application/store'
 import { planMarkdownExport } from '@moqi/editor'
 

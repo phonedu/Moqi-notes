@@ -126,7 +126,7 @@ export function TextToolbarPlugin({ enabled, formats, onToggleFormat, onConvertL
             onMouseDown={(event) => event.preventDefault()}
             onClick={() => applyFormat(button.format)}
           >
-            {button.icon ? <Icon name={button.icon} size={17} decorative /> : <span style={{ fontSize: 13, fontWeight: 500 }}>{button.glyph}</span>}
+            {button.icon ? <Icon name={button.icon} size={17} decorative /> : <span style={{ fontSize: 'var(--type-footnote-size)', fontWeight: 500 }}>{button.glyph}</span>}
           </button>
         ))}
         <span className="div" />
