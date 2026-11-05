@@ -401,6 +401,11 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
           rows.push(rawLines[cursor])
           cursor += 1
         }
+        // 富表格旁注（合并单元格 / 列宽）：紧邻表格的一行专有注释，收进同一个块（否则往返会被拆成独立块）
+        if (cursor < rawLines.length && /^\s*%%\s*moqi-table:\s*\{.*\}\s*%%\s*$/.test(rawLines[cursor])) {
+          rows.push(rawLines[cursor])
+          cursor += 1
+        }
         push(lineDepth, { type: 'table', text: rows.join('\n'), children: [] }, cursor - 1)
         index = cursor - 1
         continue

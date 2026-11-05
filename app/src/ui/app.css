@@ -1225,6 +1225,19 @@ body.is-touch-editing .prop-wrap { display: none; }
   font-size: var(--type-caption2-size); line-height: var(--type-caption2-line);
 }
 .b-table-toggle:hover { background: var(--hover); color: var(--text-2); }
+/* 合并 / 列宽（旁注存储）：选中格高亮、表头右缘的拖拽条。 */
+.b-table th.is-selected, .b-table td.is-selected { background: var(--accent-soft); }
+.b-table-bar button:disabled { color: var(--text-3); cursor: default; }
+.b-table-head { position: relative; }
+.b-table-resize {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 1;
+}
 .block-rail .b-handle:active { cursor: grabbing; }
 .block-rail .b-collapse, .block-rail .b-plus { border-radius: var(--r-block); }
 .block-rail .b-handle:hover,

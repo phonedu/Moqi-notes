@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import {
-  deleteColumn, deleteRow, insertColumn, insertRow, parseTable, serializeTable, setCell, setColumnAlign,
+  deleteColumn, deleteRow, insertColumn, insertRow, isMergeAnchor, mergeAt, mergeCells, parseTable,
+  rowCount, serializeTable, setCell, setColumnAlign, setColumnWidth, unmergeCells,
   type TableAlign, type TableModel,
 } from '@moqi/editor'
 
@@ -10,13 +11,15 @@ import {
  * 真相永远是块的正文文本（Markdown 管道表）：这里每次改动都 `serializeTable` 回文本、交给宿主
  * `replaceBlockText` 落库——所以导出/导入语义、撤销栈、同步全都沿用既有通道，表格视图只是编辑器。
  *
- * 受控策略：本地持 `model`，外部 `text` 变化（源码视图改过 / 撤销）时按**序列化等值**判断是否重灌，
- * 避免打字过程中把输入框光标重置。
+ * 合并单元格与列宽在 Markdown 里没有表示法：它们随文本一起走**旁注**（`%% moqi-table: … %%`），
+ * 见 `domain/tableModel`。这里只负责画与操作。
  */
 
 const ALIGN_CYCLE: TableAlign[] = [null, 'left', 'center', 'right']
 
 const alignLabel = (align: TableAlign): string => (align === 'center' ? '居中' : align === 'right' ? '右对齐' : align === 'left' ? '左对齐' : '默认')
+
+type Selection = { row: number; col: number; row2: number; col2: number }
 
 export function TableGrid({ text, onChange }: {
   /** 块的正文（Markdown 管道表）。 */
@@ -33,6 +36,9 @@ export function TableGrid({ text, onChange }: {
   }
   const model = state.text === text ? state.model : parseTable(text)
 
+  const [selection, setSelection] = useState<Selection | null>(null)
+  const [drag, setDrag] = useState<{ column: number; width: number } | null>(null)
+
   if (!model) return null
 
   const commit = (next: TableModel) => {
@@ -43,61 +49,155 @@ export function TableGrid({ text, onChange }: {
 
   const cycleAlign = (column: number) => {
     const current = model.align[column] ?? null
-    const next = ALIGN_CYCLE[(ALIGN_CYCLE.indexOf(current) + 1) % ALIGN_CYCLE.length]
-    commit(setColumnAlign(model, column, next))
+    commit(setColumnAlign(model, column, ALIGN_CYCLE[(ALIGN_CYCLE.indexOf(current) + 1) % ALIGN_CYCLE.length]))
   }
 
-  const cellInput = (value: string, onInput: (next: string) => void, column = 0) => (
+  const selectCell = (row: number, column: number, extend: boolean) => {
+    setSelection((current) => (extend && current ? { ...current, row2: row, col2: column } : { row, col: row, row2: row, col2: column }))
+  }
+
+  const bounds = (() => {
+    if (!selection) return null
+    return {
+      top: Math.min(selection.row, selection.row2), bottom: Math.max(selection.row, selection.row2),
+      left: Math.min(selection.col, selection.col2), right: Math.max(selection.col, selection.col2),
+    }
+  })()
+  const selectionCells = bounds ? (bounds.bottom - bounds.top + 1) * (bounds.right - bounds.left + 1) : 0
+  const selectionInMerge = (() => {
+    if (!bounds) return false
+    for (let row = bounds.top; row <= bounds.bottom; row += 1) {
+      for (let column = bounds.left; column <= bounds.right; column += 1) {
+        if (mergeAt(model, row, column)) return true
+      }
+    }
+    return false
+  })()
+
+  const mergeSelection = () => {
+    if (!bounds) return
+    commit(mergeCells(model, bounds.top, bounds.left, bounds.bottom, bounds.right))
+    setSelection(null)
+  }
+  const unmergeSelection = () => {
+    if (!bounds) return
+    let next = model
+    for (let row = bounds.top; row <= bounds.bottom; row += 1) {
+      for (let column = bounds.left; column <= bounds.right; column += 1) {
+        next = unmergeCells(next, row, column)
+      }
+    }
+    commit(next)
+    setSelection(null)
+  }
+
+  /** 被别的合并块覆盖的格子（不渲染）。 */
+  const covered = new Set<string>()
+  for (let row = 0; row < rowCount(model); row += 1) {
+    for (let column = 0; column < model.header.length; column += 1) {
+      const merge = mergeAt(model, row, column)
+      if (merge && !isMergeAnchor(model, row, column)) covered.add(`${row}:${column}`)
+    }
+  }
+
+  const spanOf = (row: number, column: number) => {
+    const merge = mergeAt(model, row, column)
+    return merge ? { rowSpan: merge.rowSpan, colSpan: merge.colSpan } : {}
+  }
+
+  const cellClass = (row: number, column: number) => {
+    if (!bounds) return ''
+    const inside = row >= bounds.top && row <= bounds.bottom && column >= bounds.left && column <= bounds.right
+    return inside ? 'is-selected' : ''
+  }
+
+  const cellInput = (value: string, onInput: (next: string) => void, column: number) => (
     <input
       className="b-table-inp"
       style={{ textAlign: model.align[column] ?? undefined }}
       value={value}
       onChange={(event) => onInput(event.target.value)}
-      onKeyDown={(event) => {
-        // 表格里 Tab / Shift+Tab 只走单元格导航（浏览器默认即可）；回车不换行、不拆块
-        if (event.key === 'Enter') event.preventDefault()
-      }}
+      onKeyDown={(event) => { if (event.key === 'Enter') event.preventDefault() }}
     />
   )
+
+  const startResize = (event: React.MouseEvent<HTMLElement>, column: number) => {
+    event.preventDefault()
+    event.stopPropagation()
+    const startX = event.clientX
+    const startWidth = model.widths[column] || event.currentTarget.parentElement?.getBoundingClientRect().width || 80
+    const move = (moveEvent: MouseEvent) => setDrag({ column, width: Math.max(48, Math.round(startWidth + (moveEvent.clientX - startX))) })
+    const up = (upEvent: MouseEvent) => {
+      window.removeEventListener('mousemove', move)
+      window.removeEventListener('mouseup', up)
+      const width = Math.max(48, Math.round(startWidth + (upEvent.clientX - startX)))
+      setDrag(null)
+      commit(setColumnWidth(model, column, width))
+    }
+    window.addEventListener('mousemove', move)
+    window.addEventListener('mouseup', up)
+  }
+
+  const widthOf = (column: number) => (drag?.column === column ? drag.width : model.widths[column] || 0)
 
   return (
     <div className="b-table" onMouseDown={(event) => event.stopPropagation()}>
       <div className="b-table-bar">
         <button type="button" onClick={() => commit(insertRow(model, model.rows.length))}>＋ 行</button>
         <button type="button" onClick={() => commit(insertColumn(model, model.header.length))}>＋ 列</button>
-        <span className="b-table-hint">Markdown 管道表</span>
+        <button type="button" disabled={selectionCells < 2} onClick={mergeSelection}>合并</button>
+        <button type="button" disabled={!selectionInMerge} onClick={unmergeSelection}>拆分</button>
+        <span className="b-table-hint">{selectionCells > 1 ? `已选 ${selectionCells} 格` : 'Markdown 管道表'}</span>
       </div>
       <div className="b-table-scroll">
         <table>
+          <colgroup>
+            {model.header.map((_, column) => {
+              const width = widthOf(column)
+              return <col key={column} style={width ? { width } : undefined} />
+            })}
+            <col style={{ width: 24 }} />
+          </colgroup>
           <thead>
             <tr>
-              {model.header.map((cell, column) => (
-                <th key={column}>
-                  <div className="b-table-head">
-                    {cellInput(cell, (next) => commit(setCell(model, 0, column, next)), column)}
-                    <button
-                      type="button"
-                      className="b-table-tool"
-                      title={`列对齐：${alignLabel(model.align[column] ?? null)}（点击切换）`}
-                      aria-label="列对齐"
-                      onClick={() => cycleAlign(column)}
-                    >
-                      {model.align[column] === 'center' ? '↔' : model.align[column] === 'right' ? '→' : model.align[column] === 'left' ? '←' : '·'}
-                    </button>
-                    {model.header.length > 1 ? (
-                      <button type="button" className="b-table-tool is-danger" title="删除该列" aria-label="删除列" onClick={() => commit(deleteColumn(model, column))}>×</button>
-                    ) : null}
-                  </div>
-                </th>
-              ))}
+              {model.header.map((cell, column) => {
+                if (covered.has(`0:${column}`)) return null
+                return (
+                  <th key={column} {...spanOf(0, column)} className={cellClass(0, column).trim()}>
+                    <div className="b-table-head" onMouseDown={(event) => selectCell(0, column, event.shiftKey)}>
+                      {cellInput(cell, (next) => commit(setCell(model, 0, column, next)), column)}
+                      <button
+                        type="button"
+                        className="b-table-tool"
+                        title={`列对齐：${alignLabel(model.align[column] ?? null)}（点击切换）`}
+                        aria-label="列对齐"
+                        onClick={() => cycleAlign(column)}
+                      >
+                        {model.align[column] === 'center' ? '↔' : model.align[column] === 'right' ? '→' : model.align[column] === 'left' ? '←' : '·'}
+                      </button>
+                      {model.header.length > 1 ? (
+                        <button type="button" className="b-table-tool is-danger" title="删除该列" aria-label="删除列" onClick={() => commit(deleteColumn(model, column))}>×</button>
+                      ) : null}
+                      <span className="b-table-resize" role="separator" aria-label="拖动调列宽" onMouseDown={(event) => startResize(event, column)} />
+                    </div>
+                  </th>
+                )
+              })}
             </tr>
           </thead>
           <tbody>
             {model.rows.map((row, rowIndex) => (
               <tr key={rowIndex}>
-                {row.map((cell, column) => (
-                  <td key={column}>{cellInput(cell, (next) => commit(setCell(model, rowIndex + 1, column, next)), column)}</td>
-                ))}
+                {row.map((cell, column) => {
+                  if (covered.has(`${rowIndex + 1}:${column}`)) return null
+                  return (
+                    <td key={column} {...spanOf(rowIndex + 1, column)} className={cellClass(rowIndex + 1, column).trim()}>
+                      <div onMouseDown={(event) => selectCell(rowIndex + 1, column, event.shiftKey)}>
+                        {cellInput(cell, (next) => commit(setCell(model, rowIndex + 1, column, next)), column)}
+                      </div>
+                    </td>
+                  )
+                })}
                 <td className="b-table-rowdel">
                   <button type="button" className="b-table-tool is-danger" title="删除该行" aria-label="删除行" onClick={() => commit(deleteRow(model, rowIndex))}>×</button>
                 </td>
@@ -109,7 +209,6 @@ export function TableGrid({ text, onChange }: {
     </div>
   )
 }
-
 
 /** 表格块的装饰层（绝对定位在正文列里）：网格视图 + 「表格/源码」切换按钮。 */
 export function TableDecorations({ actions, sourceViewIds, onToggleSourceView, onSetText }: {

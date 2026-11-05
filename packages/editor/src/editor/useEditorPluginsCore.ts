@@ -413,6 +413,13 @@ export function useEditorPluginsCore(props: EditorPluginsCoreProps): LexicalEdit
     if (!enabled) return
     return editor.registerNodeTransform(TextNode, (node) => {
       if (editor.isComposing()) return
+      // **源码块族不跑行内记号**：代码 / 表格 / 公式块的文本是逐字原文（`%%` 之类的字符是数据，
+      // 不是标记）。表格的合并/列宽旁注就写在块里，误触会把 `%%` 抹掉、往返即坏。
+      const parentBlock = node.getParent()
+      if ($isBlockNode(parentBlock)) {
+        const type = parentBlock.getBlockType()
+        if (type === 'code' || type === 'table' || type === 'math') return
+      }
       const selection = $getSelection()
       if (!$isRangeSelection(selection) || !selection.isCollapsed()) return
       if (selection.anchor.key !== node.getKey() || selection.anchor.offset !== node.getTextContentSize()) return
