@@ -60,6 +60,31 @@ export function EditorOverlays({ runtime }: { runtime: EditorAppRuntime }) {
               onClose={() => closeMenu()}
             />
           ) : null}
+          {view === 'editor' && menu?.kind === 'codeLang' ? (
+            <Popover anchor={menu.anchor} width={184} label="代码块语言" keepOpenOnAnchor={false} onClose={() => closeMenu()}>
+              <div className="pop-h">语言</div>
+              {prefs.codeLangs.map((lang) => (
+                <button
+                  key={lang}
+                  type="button"
+                  className={store.get(menu.blockId)?.lang === lang ? 'is-on' : ''}
+                  onClick={() => { const editor = editorRef.current; if (editor) setBlockLang(editor, menu.blockId, lang); closeMenu() }}
+                >
+                  <span className="mi"><Icon name="code" size={16} decorative /></span>
+                  <span>{lang}</span>
+                </button>
+              ))}
+              <hr />
+              <button type="button" onClick={() => { openDialog({ kind: 'langPicker', blockId: menu.blockId }); closeMenu() }}>
+                <span className="mi"><Icon name="settings" size={16} decorative /></span>
+                <span>更多语言…</span>
+              </button>
+              <button type="button" onClick={() => { const editor = editorRef.current; if (editor) setBlockLang(editor, menu.blockId, null); closeMenu() }}>
+                <span className="mi"><Icon name="x" size={16} decorative /></span>
+                <span>清除语言</span>
+              </button>
+            </Popover>
+          ) : null}
           {view === 'editor' && menu?.kind === 'blockType' ? (
             <BlockTypeMenu
               anchor={menu.anchor}

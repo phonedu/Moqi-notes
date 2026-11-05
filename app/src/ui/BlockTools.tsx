@@ -62,7 +62,7 @@ type EmbedCard = {
  * 标记全部是真实按钮（可 Tab 可达、有 aria-label、按 docs/04 §7 给足点击目标），
  * 只调用已有的领域入口；编辑器托管的 DOM 树不被改写，标记层渲染在 Lexical 根节点之外。
  */
-export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, compact }: {
+export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, codeLangs, onOpenCodeLangMenu, compact }: {
   scopeRef: React.RefObject<HTMLElement | null>
   contentRef: React.RefObject<HTMLElement | null>
   selectedIds: string[]
@@ -85,6 +85,10 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   embedView: (blockId: string) => EmbedView | null
   /** 空态 / 悬空卡：点它 = 选来源（`选择来源 ↗`）。 */
   onPickEmbedSource: (blockId: string) => void
+  /** 代码块块头语言下拉的候选（设置页自选子集）。 */
+  codeLangs?: string[]
+  /** 打开语言下拉：锚点＝被点的块头按钮，弹层复用全局菜单层。 */
+  onOpenCodeLangMenu?: (element: HTMLElement, blockId: string) => void
   /** 有来源的卡：点胶囊 = 跳到来源（跨页时先切页）。 */
   onOpenEmbedSource: (blockId: string) => void
 }) {
@@ -449,15 +453,18 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
         </span>
       ))}
       {codeActions.map((action) => (
-        action.lang ? (
-          <span
-            key={`code-lang-${action.id}`}
-            className="b-code-lang"
-            style={{ position: 'absolute', top: action.top, left: action.left - 60 }}
-          >
-            {action.lang}
-          </span>
-        ) : null
+        <button
+          key={`code-lang-${action.id}`}
+          type="button"
+          className={`b-code-lang${action.lang ? '' : ' is-empty'}`}
+          style={{ position: 'absolute', top: action.top, left: action.left - 60 }}
+          aria-label={action.lang ? `语言：${action.lang}（点击切换）` : '设置语言'}
+          title={action.lang ? '切换语言' : '设置语言'}
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={(event) => { event.stopPropagation(); onOpenCodeLangMenu?.(event.currentTarget, action.id) }}
+        >
+          {action.lang || '语言'}
+        </button>
       ))}
       {codeActions.map((action) => (
         <button

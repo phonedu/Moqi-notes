@@ -88,6 +88,8 @@ export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
         const view = store.embedView(blockId)
         if (view?.sourcePageId) jumpToBlock(view.sourcePageId)
       },
+      codeLangs: prefs.codeLangs,
+      onOpenCodeLangMenu: (element, blockId) => openMenu('codeLang', element, { blockId }),
     },
     aiBars: {
       onStop: () => cancelAi(),
