@@ -90,7 +90,8 @@ export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
       },
       onOpenCodeLangMenu: (element, blockId) => openMenu('codeLang', element, { blockId }),
       activeBlockId: compact ? touchEditId : activeBlockId,
-      onSetTableText: (blockId, text) => { const editor = editorRef.current; if (editor) replaceBlockText(editor, blockId, text) },
+      // `selectEnd: false`：写回时**不许抢焦点**——表格网格在输入框里打字，抢一次焦点后续字符就落到块文本上了（accept 抓到）。
+      onSetTableText: (blockId, text) => { const editor = editorRef.current; if (editor) replaceBlockText(editor, blockId, text, { selectEnd: false }) },
     },
     aiBars: {
       onStop: () => cancelAi(),

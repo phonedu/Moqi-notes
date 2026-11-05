@@ -6149,6 +6149,91 @@ check('TEMPLATE-MARK-1 / TEMPLATE-FROMCREATE-1 / TEMPLATE-EMPTY-1 页面模板�
   && fromTemplate.props.join('/') === '每周',
   { marked, picker, fromTemplate })
 
+// ---------- 富表格（表格块双视图）：网格编辑 / 合并 / 拆分 / 列宽 / 源码视图 ----------
+// 真相是 Markdown 管道表文本；合并与列宽 Markdown 没有写法 ⇒ 走紧邻的一行旁注注释。
+await reset()
+await page.evaluate(() => {
+  const now = Date.now()
+  const mk = (id, uid, type, text, parent, position, children = [], extra = {}) => ({
+    entityId: id, blockUid: uid, type, content: text ? [{ t: 'text', v: text }] : [], parent, children, position,
+    collapsed: false, checked: false, deleted: false, deletedAt: null, prevParent: null, prevIndex: null,
+    isObject: false, objectName: null, properties: [], tags: [], blockRefs: [], blockBackRefs: [], objectRefs: [], objectBackRefs: [],
+    aiMeta: null, created: now, modified: now, ...extra,
+  })
+  localStorage.setItem('moqi-project-b:blocks', JSON.stringify([
+    mk('tbp', 'tbppage', 'text', '表格页', null, 0, ['tbt'], { isObject: true, objectName: '表格页' }),
+    mk('tbt', 'tbtuid', 'table', '| 名字 | 数量 |\n| --- | --- |\n| 苹果 | 3 |', 'tbp', 0),
+  ]))
+  localStorage.setItem('moqi-project-b:metadata', JSON.stringify({ properties: [], tags: [] }))
+})
+await reload()
+await page.waitForSelector('.b-table', { timeout: NAV_READY_MS })
+await sleep(1200)
+const tableText = () => page.evaluate(() => {
+  const block = JSON.parse(localStorage.getItem('moqi-project-b:blocks')).find((b) => b.entityId === 'tbt')
+  return (block?.content ?? []).map((f) => f.v).join('')
+})
+const gridReady = await page.evaluate(() => document.querySelectorAll('.b-table-inp').length)
+// 改一个格子
+const cell = await page.evaluate(() => {
+  const input = document.querySelectorAll('.b-table-inp')[2]
+  const rect = input.getBoundingClientRect()
+  return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+})
+await page.mouse.click(cell.x, cell.y)
+await page.keyboard.press('End')
+await page.keyboard.type('派')
+await sleep(900)
+const edited = await tableText()
+// Shift 选表头两格 → 合并
+const heads = await page.evaluate(() => [...document.querySelectorAll('.b-table-head')].slice(0, 2).map((el) => {
+  const rect = el.getBoundingClientRect()
+  return { x: rect.x + 20, y: rect.y + rect.height / 2 }
+}))
+await page.mouse.click(heads[0].x, heads[0].y)
+await sleep(200)
+await page.keyboard.down('Shift')
+await page.mouse.click(heads[1].x, heads[1].y)
+await page.keyboard.up('Shift')
+await sleep(300)
+await page.locator('.b-table-bar button', { hasText: '合并' }).click()
+await sleep(1000)
+const merged = await tableText()
+const colSpan = await page.evaluate(() => document.querySelector('.b-table th')?.getAttribute('colspan') ?? null)
+// 拆分
+await page.mouse.click(heads[0].x, heads[0].y)
+await sleep(300)
+await page.locator('.b-table-bar button', { hasText: '拆分' }).click()
+await sleep(1000)
+const unmerged = await tableText()
+// 拖列宽
+const handle = await page.evaluate(() => {
+  const el = document.querySelector('.b-table-resize')
+  const rect = el.getBoundingClientRect()
+  return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 }
+})
+await page.mouse.move(handle.x, handle.y)
+await page.mouse.down()
+await page.mouse.move(handle.x + 60, handle.y, { steps: 4 })
+await page.mouse.up()
+await sleep(1000)
+const resized = await tableText()
+// 源码视图
+await page.locator('.b-table-toggle').click()
+await sleep(700)
+const sourceShown = await page.evaluate(() => !document.querySelector('.b-table') && Boolean(document.querySelector('.moqi-block[data-block-type="table"]')))
+await page.locator('.b-table-toggle').click()
+await sleep(700)
+const gridBack = await page.evaluate(() => Boolean(document.querySelector('.b-table')))
+check('TABLE-GRID-1 / TABLE-MERGE-1 / TABLE-WIDTH-1 富表格：网格就地编辑落库 · Shift 选格合并（th colspan=2 且旁注写入）· 拆分撤掉旁注 · 拖拽列宽写入 widths 旁注 · 源码视图切走网格、切回即表格',
+  gridReady === 4
+  && edited.includes('苹果派')
+  && merged.includes('%% moqi-table:') && merged.includes('"merges"') && colSpan === '2'
+  && !unmerged.includes('"merges"')
+  && resized.includes('"widths"')
+  && sourceShown === true && gridBack === true,
+  { gridReady, edited, merged, colSpan, unmerged, resized, sourceShown, gridBack })
+
 
 // ---------- 侧栏「星标」（`R09-PRIN-1`，活原型 `#navStar`）----------
 // 用户 报的功能缺失：星标能力早就有（卡片 ⋯ 与 … 菜单都能星标），但侧栏导航没入口。

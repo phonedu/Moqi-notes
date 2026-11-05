@@ -43,8 +43,18 @@ export function TableGrid({ text, onChange }: {
 
   const commit = (next: TableModel) => {
     const nextText = serializeTable(next)
+    // 写回要经过编辑器镜像，那一步会把焦点抢回正文根（实测：连续打字只有第一个字进得来）。
+    // 这里记住当前格子与光标，写完立刻还回去。
+    const active = typeof document !== 'undefined' ? (document.activeElement as HTMLInputElement | null) : null
+    const cellKey = active?.dataset?.cell ?? null
+    const caret = active && typeof active.selectionStart === 'number' ? active.selectionStart : null
     setState({ text: nextText, model: next })
     onChange(nextText)
+    if (cellKey) {
+      const again = document.querySelector<HTMLInputElement>(`.b-table-inp[data-cell="${cellKey}"]`)
+      again?.focus()
+      if (again && caret !== null) again.setSelectionRange(caret, caret)
+    }
   }
 
   const cycleAlign = (column: number) => {
@@ -111,9 +121,10 @@ export function TableGrid({ text, onChange }: {
     return inside ? 'is-selected' : ''
   }
 
-  const cellInput = (value: string, onInput: (next: string) => void, column: number) => (
+  const cellInput = (value: string, onInput: (next: string) => void, column: number, cellKey: string) => (
     <input
       className="b-table-inp"
+      data-cell={cellKey}
       style={{ textAlign: model.align[column] ?? undefined }}
       value={value}
       onChange={(event) => onInput(event.target.value)}
@@ -165,7 +176,7 @@ export function TableGrid({ text, onChange }: {
                 return (
                   <th key={column} {...spanOf(0, column)} className={cellClass(0, column).trim()}>
                     <div className="b-table-head" onMouseDown={(event) => selectCell(0, column, event.shiftKey)}>
-                      {cellInput(cell, (next) => commit(setCell(model, 0, column, next)), column)}
+                      {cellInput(cell, (next) => commit(setCell(model, 0, column, next)), column, `0:${column}`)}
                       <button
                         type="button"
                         className="b-table-tool"
@@ -193,7 +204,7 @@ export function TableGrid({ text, onChange }: {
                   return (
                     <td key={column} {...spanOf(rowIndex + 1, column)} className={cellClass(rowIndex + 1, column).trim()}>
                       <div onMouseDown={(event) => selectCell(rowIndex + 1, column, event.shiftKey)}>
-                        {cellInput(cell, (next) => commit(setCell(model, rowIndex + 1, column, next)), column)}
+                        {cellInput(cell, (next) => commit(setCell(model, rowIndex + 1, column, next)), column, `${rowIndex + 1}:${column}`)}
                       </div>
                     </td>
                   )
