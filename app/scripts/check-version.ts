@@ -48,6 +48,18 @@ if (cargoVersion !== version) {
 }
 
 const releases = parseChangelog(read('CHANGELOG.md'))
+
+// 仓库根 `CHANGELOG.md` 是 README 链接的发布面副本（`app/CHANGELOG.md` 是构建源）。
+// 两份必须一致——0.7.0 发布前根副本还停在 0.6.2，用户从 README 点进来看不到新版本。
+try {
+  const rootCopy = readFileSync(resolve(APP_ROOT, '..', 'CHANGELOG.md'), 'utf8')
+  const normalize = (text: string) => text.replace(/\r\n/g, '\n')
+  if (normalize(rootCopy) !== normalize(read('CHANGELOG.md'))) {
+    problems.push('根 CHANGELOG.md 与 app/CHANGELOG.md 不一致——发布前把 app 版同步到根（README 链接的是根）')
+  }
+} catch {
+  problems.push('根 CHANGELOG.md 读不到（README 链接的是它）')
+}
 if (!releases.some((release) => release.version === version)) {
   problems.push(`CHANGELOG.md 缺少「${version}」段落，最新一条是「${releases[0]?.version ?? '无'}」`)
 }
