@@ -99,7 +99,7 @@
 
 ### 下载现成包
 
-安装包与 Android APK 在 [GitHub Releases](https://github.com/phonedu/Moqi-notes/releases)（随发布挂出，当前挂 `v0.6.1`）。
+安装包与 Android APK 在 [GitHub Releases](https://github.com/phonedu/Moqi-notes/releases)（随发布挂出，当前挂 `v0.7.0`）。
 
 ### 从源码构建
 
