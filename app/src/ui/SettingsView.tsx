@@ -83,9 +83,13 @@ type SettingsViewProps = {
   syncStatusText: string
   /** 诊断：导出本地技术日志（只落本机、不外发；导出后返回落点）。 */
   diagnostics: { onExport: () => Promise<string | null> }
-  /** 上一轮同步的读数：合并（采纳进来的）/ 跳过（本机版本较新被保留）/ 失败（整组跳过）。`null` = 本次会话还没跑过。 */
-  syncResult?: { at: number; merged: number; skipped: number; failed: number } | null
-  /** 「本次同步改写了 N 块」＋一键回滚；`null` = 这一轮没有写入或已不可回滚。 */
+  /**
+   * 上一次**有变化**的同步读数：合并（采纳进来的）/ 跳过（本机版本较新被保留）/ 失败（整组跳过）。
+   * `changedAt` 是产生这组读数的那一轮；没有变更的轮询只刷新 `at`，不抹读数。
+   * `null` = 本次会话还没跑过。
+   */
+  syncResult?: { at: number; merged: number; skipped: number; failed: number; changedAt?: number } | null
+  /** 「上次同步改写了 N 块」＋一键回滚；`null` = 这次会话还没有过写入，或已回滚。 */
   syncRollback?: { blocks: number; onRollback: () => void } | null
   onSyncNow: () => void
   /** 本机设备标识（截断显示）——同步的游标与冲突定序按它走，排查时用得上。 */
@@ -307,7 +311,9 @@ export function SettingsView({
                 <button type="button" className="btn" onClick={onSyncNow} disabled={!syncDirectory}>立即同步</button>
               </div>
             </div>
-            {/* 上一轮同步的**真实读数**——合并（采纳进来的）/ 跳过（本机版本较新被保留）/ 失败（整组跳过）。
+            {/* 上一次**有变化**的同步的真实读数——合并（采纳进来的）/ 跳过（本机版本较新被保留）/
+                失败（整组跳过）。读数粘滞：没有变更的轮询只刷新状态时间，不抹这组数；
+                隔了一轮以上就标出读数来自多久之前，免得「刚刚」把旧读数说成本轮。
                 没跑过就说没跑过，不留死数。 */}
             <div className="frow">
               <label>上次同步</label>
@@ -315,6 +321,9 @@ export function SettingsView({
                 {syncResult ? (
                   <span className="note" data-sync-result={`${syncResult.merged}/${syncResult.skipped}/${syncResult.failed}`}>
                     合并 {syncResult.merged} · 跳过 {syncResult.skipped} · 失败 {syncResult.failed}
+                    {syncResult.changedAt && syncResult.at - syncResult.changedAt > 5_000
+                      ? `（${formatRelative(syncResult.changedAt)}的读数）`
+                      : ''}
                   </span>
                 ) : (
                   <span className="note">本次会话还没同步过</span>
@@ -324,9 +333,9 @@ export function SettingsView({
             <div className="hint">跳过 = 同一块两端都改过、本机版本更新（后写者胜，本机保留）；失败 = 变现没落成（目标块不在本机等），坏组整组跳过、其余照常。</div>
             {syncRollback ? (
               <div className="frow">
-                <label>本次改写</label>
+                <label>上次改写</label>
                 <div className="ctl">
-                  <span className="note" data-sync-rollback={syncRollback.blocks}>本次同步改写了 {syncRollback.blocks} 块</span>
+                  <span className="note" data-sync-rollback={syncRollback.blocks}>上次同步改写了 {syncRollback.blocks} 块</span>
                   <span style={{ flex: 1 }} />
                   <button type="button" className="btn" onClick={syncRollback.onRollback}>回滚到同步前</button>
                 </div>

@@ -13,8 +13,12 @@ export type SaveState = 'saved' | 'saving' | 'error'
  */
 export type SyncStatus =
   | { kind: 'unconfigured' }
-  /** 一轮同步完成：`merged` = 并进来的变更条数（后写者胜下被采纳的），`skipped` = 被本机版本压住的，`failed` = 应用失败（整组跳过）的。 */
-  | { kind: 'synced'; at: number; merged?: number; skipped?: number; failed?: number }
+  /**
+   * 一轮同步完成：`merged` = 并进来的变更条数（后写者胜下被采纳的），`skipped` = 被本机版本压住的，
+   * `failed` = 应用失败（整组跳过）的。三个读数**粘滞**——它们来自 `changedAt` 那一轮有变化的同步，
+   * 后续没有变更的轮询只刷新 `at`，不会把读数抹成 0（否则设置页永远读不到「合并 / 跳过」）。
+   */
+  | { kind: 'synced'; at: number; merged?: number; skipped?: number; failed?: number; changedAt?: number }
   | { kind: 'syncing'; done: number; total: number }
   | { kind: 'offline'; pending: number }
 

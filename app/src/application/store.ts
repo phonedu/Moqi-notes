@@ -24,6 +24,12 @@ export class DomainStore {
   private purgedIds = new Set<string>()
   /** V2b：已应用、待写进 `oplog` 的事务（同步只读那份日志；见 `noteApplied`）。*/
   private committed: Transaction[] = []
+  /**
+   * 用户动作计数（含**镜像写入**）：键入的文字走 `applyMirror`，不进撤销栈，但必须算用户动作——
+   * 同步回滚要据此拒绝「同步后又自己打过字」的情况（`C-05`），否则会把用户刚敲的字留在
+   * 远端版之后、却悄悄撤掉同步内容。
+   */
+  private userActions = 0
 
   constructor(initialBlocks: Block[] = []) {
     this.blocks = new Map(initialBlocks.map((block) => [block.entityId, structuredClone(block)]))
@@ -63,6 +69,7 @@ export class DomainStore {
    */
   private noteApplied(transaction: Transaction): void {
     this.noteTouched(transaction.operations)
+    if (transaction.source === 'user') this.userActions += 1
     if (transaction.operations.length > 0) this.committed.push(transaction)
   }
 
@@ -517,6 +524,14 @@ export class DomainStore {
    */
   undoMark(): number {
     return this.undoStack.length
+  }
+
+  /**
+   * 用户动作水位（与 `undoMark` 成对使用）：键入不占撤销栈，只看撤销栈会漏掉「同步后打了字」。
+   * 回滚要求两枚水位都没动过——撤销栈全是同步事务、也没有镜像写入混进来。
+   */
+  userActionMark(): number {
+    return this.userActions
   }
 
   /** 撤回 `mark` 之后的所有事务（仅当它们全是 `source: 'sync'`）。返回回滚的事务数；不满足返回 -1。 */

@@ -48,12 +48,17 @@ export function syncPresentation(status: SyncStatus): { st: string; text: string
       if (status.merged) extra.push(`合并 ${status.merged}`)
       if (status.skipped) extra.push(`跳过 ${status.skipped}`)
       if (status.failed) extra.push(`失败 ${status.failed}`)
-      const title = status.failed
+      const base = status.failed
         ? '有变更没应用成功（目标块不在本机等）：坏组整组跳过，其余照常落地；游标已前进，不会卡住'
         : status.skipped
           ? '跳过的块是本机版本更新（后写者胜），本机保留原样'
           : '上一轮同步已完成；新改动会自己排队再传'
-      return { st: status.failed ? 'warn' : 'ok', text: `已同步 · ${formatRelative(status.at)}${extra.length ? ` · ${extra.join(' · ')}` : ''}`, title }
+      // 读数粘滞：没有变更的轮询不会把读数抹掉，所以 hover 里要交代它们是哪一轮的
+      //（同一轮的不加——与设置页「隔了一轮以上才标」同一档）。
+      const from = extra.length && status.changedAt && status.at - status.changedAt > 5_000
+        ? `；读数是最近一次有变化的同步（${formatRelative(status.changedAt)}）`
+        : ''
+      return { st: status.failed ? 'warn' : 'ok', text: `已同步 · ${formatRelative(status.at)}${extra.length ? ` · ${extra.join(' · ')}` : ''}`, title: `${base}${from}` }
     }
     case 'syncing':
       return {

@@ -257,7 +257,7 @@ export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
                   }
                   : null,
                 syncResult: syncStatus.kind === 'synced'
-                  ? { at: syncStatus.at, merged: syncStatus.merged ?? 0, skipped: syncStatus.skipped ?? 0, failed: syncStatus.failed ?? 0 }
+                  ? { at: syncStatus.at, merged: syncStatus.merged ?? 0, skipped: syncStatus.skipped ?? 0, failed: syncStatus.failed ?? 0, changedAt: syncStatus.changedAt }
                   : null,
                 onSyncNow: () => void runSyncOnce(),
                 deviceIdPreview: deviceIdLabel ?? '（解析中…）',

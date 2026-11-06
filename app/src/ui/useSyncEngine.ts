@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { createDefaultAssetSyncPort, createDefaultSyncFileIo, type AssetPort, type SyncState, type TransactionStoragePort } from '../composition'
-import { DirectorySyncPort, operationTargetId, runSync } from '../application/sync'
+import { DirectorySyncPort, mergeSyncReport, operationTargetId, runSync, type SyncReport } from '../application/sync'
 import { logEvent } from '../composition'
 import { assetSyncPlan, referencedAssetNames } from '../application/assetSync'
 import type { MetadataRegistry } from '@moqi/editor'
@@ -96,10 +96,15 @@ export function useSyncEngine(options: {
   onAssetsPulledRef.current = options.onAssetsPulled
   const [syncState, setSyncState] = useState<SyncState>({ directory: '', cursor: {}, lastSyncAt: null })
   const [lastSync, setLastSync] = useState<{ blocks: number } | null>(null)
-  /** 同步前的撤销栈水位：回滚只撤这个水位之后的同步事务。 */
-  const syncMarkRef = useRef<number>(-1)
+  /**
+   * 同步前的水位：撤销栈长度 + 用户动作计数。回滚只撤这个水位之后的同步事务；
+   * 键入走镜像、不占撤销栈，所以「同步后又打了字」只能靠第二枚计数看出来。
+   */
+  const syncMarkRef = useRef<{ undo: number; user: number }>({ undo: -1, user: 0 })
   const lastSyncRef = useRef<{ blocks: number } | null>(null)
   useEffect(() => { lastSyncRef.current = lastSync }, [lastSync])
+  /** 上一次**有变化**的同步读数：定期轮询的空轮不覆盖它（设置页与状态行要长期看得见）。 */
+  const reportRef = useRef<SyncReport | null>(null)
   const [syncStatus, setSyncStatus] = useState<SyncStatus>({ kind: 'unconfigured' })
   const syncStateRef = useRef(syncState)
   syncStateRef.current = syncState
@@ -147,7 +152,7 @@ export function useSyncEngine(options: {
       const port = new DirectorySyncPort(syncIo, () => state.directory, () => resolveDeviceId())
       let appliedGroups = 0
       // 回滚水位：同步事务全在它之后；中途用户若自己编辑，回滚会被领域拒绝（不连带撤手写）。
-      const markBefore = store.undoMark()
+      const markBefore = { undo: store.undoMark(), user: store.userActionMark() }
       const touched = new Set<string>()
       const result = await runSync({
         port, deviceId, oplog: await storage.loadOplog(deviceId, 0), cursor,
@@ -181,18 +186,27 @@ export function useSyncEngine(options: {
       // 资产随同步（`docs/03` §14.2「媒体文件」；13-媒体设计（已归档）§2 第 3 行）：每轮成功之后
       // 推 / 拉一次（只增不减）。失败静默重试——资产不在编辑路径上，下一轮同步会补（幂等）。
       void syncAssets(state.directory)
-      // 「本次改写了 N 块」+ 回滚水位（只在真有写入时给出；没有就清掉，不留死读数）。
+      // 「本次改写了 N 块」+ 回滚水位：跟着**最近一次有写入的同步**走。空轮不清——
+      // 定期轮询每 10 秒一拍，若空轮就清掉，用户切到设置页时回滚入口早没了（`C-04`）；
+      // 中途自己编辑过的话 `rollbackLastSync` 会拒绝并提示（`C-05`），不需要靠「清掉按钮」兜底。
       if (appliedGroups > 0) {
         syncMarkRef.current = markBefore
         setLastSync({ blocks: touched.size })
-      } else {
-        syncMarkRef.current = -1
-        setLastSync(null)
       }
       const next: SyncState = { ...state, cursor: result.cursor, lastSyncAt: Date.now(), registry: result.registry }
       setSyncState(next)
       await storage.saveSyncState(next)
-      setSyncStatus({ kind: 'synced', at: next.lastSyncAt ?? Date.now(), merged: result.applied, skipped: result.skipped, failed: result.failed })
+      const at = next.lastSyncAt ?? Date.now()
+      // 读数粘滞：只有真有变化的一轮才替换（空轮保留上一次「合并 / 跳过 / 失败」）。
+      reportRef.current = mergeSyncReport(reportRef.current, result, at)
+      setSyncStatus({
+        kind: 'synced',
+        at,
+        merged: reportRef.current?.merged ?? 0,
+        skipped: reportRef.current?.skipped ?? 0,
+        failed: reportRef.current?.failed ?? 0,
+        changedAt: reportRef.current?.at,
+      })
       retryStepRef.current = 0
     } catch (error) {
       logEvent('error', 'sync:failed', null, error instanceof Error ? error.name : 'unknown')
@@ -231,9 +245,11 @@ export function useSyncEngine(options: {
    */
   function rollbackLastSync(): boolean {
     const mark = syncMarkRef.current
-    if (mark < 0 || lastSyncRef.current === null) return false
-    if (store.rollbackSyncSince(mark) < 0) return false
-    syncMarkRef.current = -1
+    if (mark.undo < 0 || lastSyncRef.current === null) return false
+    // 同步之后用户打过字（镜像写入不进撤销栈）⇒ 拒绝，避免把他的手写留在错误的位置。
+    if (store.userActionMark() !== mark.user) return false
+    if (store.rollbackSyncSince(mark.undo) < 0) return false
+    syncMarkRef.current = { undo: -1, user: 0 }
     setLastSync(null)
     persist([])
     reloadFromStore(activePageIdRef.current)
@@ -264,6 +280,12 @@ export function useSyncEngine(options: {
     syncStateRef.current = next
     setSyncState(next)
     void storage.saveSyncState(next)
+    // 换目录等于换一份日志：旧目录的读数与回滚水位不再适用，别把旧读数带过去。
+    if (changed) {
+      reportRef.current = null
+      syncMarkRef.current = { undo: -1, user: 0 }
+      setLastSync(null)
+    }
     if (!directory) { setSyncStatus({ kind: 'unconfigured' }); return }
     if (changed) void runSyncOnce()
   }

@@ -346,6 +346,23 @@ export type SyncResult = {
   registry: RegistrySyncState
 }
 
+/** 「上一次有变化的同步」读数：设置页与状态行长期展示它，而不是每一拍轮询的零。 */
+export type SyncReport = { merged: number; skipped: number; failed: number; at: number }
+
+/**
+ * 同步读数的**粘滞**合并：定期轮询（10s 一拍）大多数轮次没有变更，空轮不能把上一轮
+ * 「合并 N / 跳过 N」抹成 0——否则用户切到设置页时读数早没了，`C-04` 的回滚入口也一起消失。
+ * 只有**真有变化**的一轮才替换读数；`at` 记那一轮的时间，供界面说清「这是几分钟前的读数」。
+ */
+export function mergeSyncReport(
+  previous: SyncReport | null,
+  result: Pick<SyncResult, 'applied' | 'skipped' | 'failed'>,
+  now: number,
+): SyncReport | null {
+  if (result.applied + result.skipped + result.failed === 0) return previous
+  return { merged: result.applied, skipped: result.skipped, failed: result.failed, at: now }
+}
+
 /**
  * 走一次同步：取本机未交出的变更 → 交换 → 按 `opId` 去重 → 挑出该应用的 → 交给调用方应用。
  *
@@ -392,7 +409,17 @@ export async function runSync(options: {
   // `opId` 是 `oplog` 的主键，也是**幂等的第二道**：游标管「别重读旧行」，它管「游标丢了
   // 也别重复应用」——去重后重复投递无副作用（§14.2）。
   const known = new Set(oplog.map((change) => change.opId))
-  const fresh = exchanged.incoming.filter((change) => !known.has(change.opId))
+  // 去重有两道：本机 `oplog`（跨轮）＋**本批内**按 `opId`。第二道不能省——多台设备都会
+  // 转发它们学到的操作，三台以上时同一操作可能同时出现在 B、C 两份文件里；只跟 oplog 比
+  // 会把同一条 op 应用两次，两次都带同一个 `opId` 落 `oplog`（主键冲突），
+  // 之后每次保存都失败、整个库再也存不进去。
+  const fresh: SyncChange[] = []
+  const seenInBatch = new Set<string>()
+  for (const change of exchanged.incoming) {
+    if (known.has(change.opId) || seenInBatch.has(change.opId)) continue
+    seenInBatch.add(change.opId)
+    fresh.push(change)
+  }
   const duplicate = exchanged.incoming.length - fresh.length
   const { operations, applied, skipped } = selectIncomingOperations(blocks, fresh, deviceId)
   /** 应用失败的**变更条数**（见下方逐组 try/catch）：坏组整组跳过不拖垮整轮，条数如实上报。 */
@@ -451,6 +478,12 @@ export async function runSync(options: {
       }
       processed += 1
       onProgress?.(processed, ordered.length)
+      // 让出事件循环：整段 apply 是同步的，同一 tick 里连续 `setState` 会被 React 合并，
+      // 大批次就只会从「同步中…」直接跳到「已同步」——分数写了却永远画不出来。
+      // 只在大批次里每 8 组让一次（快批次保持原速），让用户真的看见 N/M 在推进。
+      if (ordered.length > 8 && processed % 8 === 0 && processed < ordered.length) {
+        await new Promise<void>((resolve) => setTimeout(resolve, 0))
+      }
     }
   }
   return {

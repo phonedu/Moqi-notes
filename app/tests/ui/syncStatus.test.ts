@@ -63,3 +63,13 @@ test('死读数：「同步中」不再报假分数——交换时总数未知�
   const known = syncPresentation({ kind: 'syncing', done: 2, total: 5 })
   assert.equal(known.text, '同步中 · 2/5', '知道总数时分数是真的（已处理批次 / 总批次）')
 })
+
+test('粘滞读数：读数来自更早一轮时，hover 说清是哪一轮的（不把旧读数说成本轮）', () => {
+  const now = Date.now()
+  const carried = syncPresentation({ kind: 'synced', at: now, merged: 2, skipped: 1, failed: 0, changedAt: now - 120_000 })
+  assert.match(carried.text, /合并 2/)
+  assert.match(carried.text, /跳过 1/)
+  assert.match(carried.title, /最近一次有变化的同步/, '读数粘滞后必须标明来源轮次')
+  const fresh = syncPresentation({ kind: 'synced', at: now, merged: 2, changedAt: now })
+  assert.doesNotMatch(fresh.title, /读数/, '同一轮的读数不用加来源说明')
+})

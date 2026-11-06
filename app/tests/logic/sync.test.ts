@@ -6,6 +6,7 @@ import { DomainStore } from '../../src/application/store'
 import {
   DirectorySyncPort,
   incomingWins,
+  mergeSyncReport,
   operationTargetId,
   outgoingFrom,
   runSync,
@@ -76,13 +77,14 @@ class Device {
     }
   }
 
-  async sync(): Promise<SyncResult> {
+  async sync(onProgress?: (done: number, total: number) => void): Promise<SyncResult> {
     this.drain()
     const result = await runSync({
       port: this.port, deviceId: this.deviceId, oplog: this.oplog, cursor: this.cursor,
       blocks: this.store.snapshot(),
       registry: this.registry,
       registryState: this.registryState,
+      onProgress,
       apply: (operations, transaction) => this.store.apply({ ...transaction, operations }),
     })
     this.cursor = result.cursor
@@ -593,4 +595,57 @@ test('SYNC-AIMETA-1 AI 块元数据随块跨端：动作 / 状态 / 来源绑定
   assert.equal(got?.action, 'summary', '动作随行')
   assert.equal(got?.status, 'complete', '状态随行（B 端显示的不是「丢了来源的普通块」）')
   assert.deepEqual(got?.sourceBlockIds, ['p1'], '来源绑定随行（来源标签与对账都读它）')
+})
+
+test('SYNC-REPORT-1 读数粘滞：没有变更的轮询不把「合并 / 跳过 / 失败」抹成 0（否则设置页永远读不到）', () => {
+  const first = mergeSyncReport(null, { applied: 2, skipped: 1, failed: 0 }, 1000)
+  assert.deepEqual(first, { merged: 2, skipped: 1, failed: 0, at: 1000 })
+  // 第二拍空轮：读数原样保留（连 at 都不动——它记的是「那一轮有变化」的时间）
+  const empty = mergeSyncReport(first, { applied: 0, skipped: 0, failed: 0 }, 11_000)
+  assert.deepEqual(empty, first)
+  // 真有变化才替换，并刷新时间
+  const next = mergeSyncReport(first, { applied: 0, skipped: 3, failed: 1 }, 21_000)
+  assert.deepEqual(next, { merged: 0, skipped: 3, failed: 1, at: 21_000 })
+  // 从没有过变化的会话：保持 null，界面如实说「还没同步过」
+  assert.equal(mergeSyncReport(null, { applied: 0, skipped: 0, failed: 0 }, 500), null)
+})
+
+test('SYNC-DUP-1 同一操作被两台设备各转发一份：本批内按 opId 去重，只应用一次', async () => {
+  const io = memoryIo()
+  const a = new Device('dev-a', port(io, 'dev-a'))
+  const b = new Device('dev-b', port(io, 'dev-b'))
+  const c = new Device('dev-c', port(io, 'dev-c'))
+  const d = new Device('dev-d', port(io, 'dev-d'))
+  const page = makePage('p1', '三设备页', 1000)
+  a.store.apply(tx([{ type: 'insert', opId: 'op-p1', parentId: null, block: page }]))
+
+  await a.sync()
+  await b.sync(); await b.sync() // 第二拍把学到的 op 转发到 B 自己的文件
+  await c.sync(); await c.sync() // C 从 A 的文件学到同一条 op，也转发一份
+  // D 第一次同步：B、C 两份文件里是同一条 op（相同 opId，不同设备与 seq）
+  const received = await d.sync()
+
+  assert.equal(received.applied, 1, '同一操作只应用一次（否则两次写同一个 oplog.op_id）')
+  assert.ok(received.duplicate >= 1, '批内重复要计数，不能静默丢掉')
+  assert.equal(d.store.get('p1')?.objectName, '三设备页')
+})
+
+test('SYNC-PROGRESS-1 进度回调是真实批次分数：0/N 起、逐组推进、N/N 收（界面「同步中 · N/M」的数据源）', async () => {
+  const io = memoryIo()
+  const a = new Device('dev-a', port(io, 'dev-a'))
+  const b = new Device('dev-b', port(io, 'dev-b'))
+  a.store.apply(tx([{ type: 'insert', opId: 'op-p', parentId: null, block: makePage('p1', '进度页', 1000) }], 1000))
+  for (let index = 0; index < 3; index += 1) {
+    a.store.apply(tx([{
+      type: 'update', opId: `op-u${index}`, blockId: 'p1',
+      changes: { content: [{ t: 'text', v: `第${index}版` }] }, previous: {},
+    }], 2000 + index))
+  }
+  await a.sync()
+
+  const progress: Array<[number, number]> = []
+  await b.sync((done, total) => progress.push([done, total]))
+  assert.deepEqual(progress[0], [0, 4], '起手先报总数（0/N），交换期间不报假分数')
+  assert.deepEqual(progress[progress.length - 1], [4, 4], '最后一组报 N/N')
+  assert.deepEqual(progress.map(([done]) => done), [0, 1, 2, 3, 4], '逐组推进，不跳号')
 })
