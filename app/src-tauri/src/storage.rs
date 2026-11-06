@@ -2307,7 +2307,10 @@ mod event_tests {
         let dumped = store.dump_transactions()?;
         let lines: Vec<&str> = dumped.lines().collect();
         assert_eq!(lines.len(), 3);
-        assert!(lines[0].contains("\"source\":\"user\""), "导出按时间序（老的在前）");
+        assert!(
+            lines[0].contains("\"source\":\"user\""),
+            "导出按时间序（老的在前）"
+        );
         assert!(lines[2].contains("\"source\":\"sync\""));
         Ok(())
     }
