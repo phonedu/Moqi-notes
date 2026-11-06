@@ -1,4 +1,5 @@
 import type { FileChannelPort } from '../application/fileChannel'
+import { exportDiagnostics } from '../composition'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { textContent, type Block, type MetadataRegistry } from '@moqi/editor'
@@ -241,5 +242,23 @@ export function useDataActions(inputs: DataActionsInputs) {
     onExportSnapshot: exportSnapshot,
   }
 
-  return { exportTagChoices, runMarkdownExport, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary }
+  /**
+   * 导出诊断日志（设置 › 诊断）。桌面：另存为到用户选的文件；移动：先写 `exports/`、再 SAF 拷出
+   * （`content://` 写不了原生路径——与 Markdown 导出同一套写法）。取消 = 静默返回 null。
+   */
+  async function exportDiagnosticsLog(): Promise<string | null> {
+    const name = `moqi-diagnostics-${formatDate(Date.now())}.log`
+    if (!fileChannel.capabilities.saveAs) {
+      notify('当前通道不支持选择落点，无法导出日志')
+      return null
+    }
+    const picked = await fileChannel.saveAs(name)
+    if (picked === null) return null
+    const safRef = picked.startsWith('content://') ? picked : null
+    const written = await exportDiagnostics(safRef ? null : picked)
+    if (safRef) await fileChannel.copyOut(written, safRef)
+    return safRef ? name : written
+  }
+
+  return { exportTagChoices, runMarkdownExport, exportDiagnosticsLog, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary }
 }

@@ -162,7 +162,7 @@ export function useEditorData(deps: EditorDataDeps) {
     void runMarkdownExport({ kind: 'all' }, destination)
   }
 
-  const { exportTagChoices, runMarkdownExport, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary } = useDataActions({
+  const { exportTagChoices, runMarkdownExport, exportDiagnosticsLog, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary } = useDataActions({
     store, registry, searchPort, backupPort, exportPort, assetPort, fileChannel, initialBlocks, settingsOpen, notify, closeDialog, cancelPendingPersist,
   })
   // 同 snapshotRef：镜像挪到提交后。
@@ -338,7 +338,7 @@ export function useEditorData(deps: EditorDataDeps) {
     caretBlockInPage, cancelAi, runAi, askAi, insertAnswerAsBlock, acceptAiBlock, discardAiBlock,
     tagSummaries, searchPort, backupPort, exportPort, fileChannel, fileOps,
     insertMediaBlock, importDroppedPaths, importFolder, importDroppedFiles, insertEmbedPlaceholder, applyEmbedSource, clearEmbedSource, pickMediaFile,
-    runExportFromPage, exportTagChoices, runMarkdownExport, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary,
+    runExportFromPage, exportTagChoices, runMarkdownExport, exportDiagnosticsLog, exportBusy, refreshPinyin, blockTitleForAsk, backupSummary,
     searchScope, setSearchScope, askTargetMode, setAskTargetMode, indexStatus,
     trashEntries, libraryCards, visibleCards, recentPages, activePage, activeBlock,
     aiGridGates, outlineEntries, findHits, propertyRows, tagUsage, propertyUsage,

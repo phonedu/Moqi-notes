@@ -18,14 +18,14 @@ export type { BackupSummary } from './SettingsData'
 export type AiSettingsValue = { baseUrl: string; apiKey: string; model: string }
 
 /** 左分栏的分区 id（`09-桌面端UI规范（视图与组件）` §4.6 `R09-SET-17`：只有「数据」是可展开的组）。 */
-export type SettingsSection = 'ai' | 'sync' | 'index' | 'appearance' | 'properties' | 'backup' | 'export' | 'import' | 'about'
+export type SettingsSection = 'ai' | 'sync' | 'index' | 'appearance' | 'properties' | 'backup' | 'export' | 'import' | 'diagnostics' | 'about'
 
 export type SettingsLevel = 'list' | 'page'
 
 /** 统一标题栏的页名（批 ζ · `10` §4.7）：数据组三页带「数据 · 」分组前缀（`R09-SET-19`）。 */
 const SECTION_TITLES: Record<SettingsSection, string> = {
   ai: 'AI', sync: '同步', index: '搜索', appearance: '外观', properties: '属性',
-  backup: '备份与恢复', export: '导出', import: '导入', about: '关于',
+  backup: '备份与恢复', export: '导出', import: '导入', diagnostics: '诊断', about: '关于',
 }
 
 type SettingsViewProps = {
@@ -81,6 +81,8 @@ type SettingsViewProps = {
   syncDirectory: string
   onSyncDirectoryChange: (directory: string) => void
   syncStatusText: string
+  /** 诊断：导出本地技术日志（只落本机、不外发；导出后返回落点）。 */
+  diagnostics: { onExport: () => Promise<string | null> }
   /** 上一轮同步的读数：合并（采纳进来的）/ 跳过（本机版本较新被保留）/ 失败（整组跳过）。`null` = 本次会话还没跑过。 */
   syncResult?: { at: number; merged: number; skipped: number; failed: number } | null
   /** 「本次同步改写了 N 块」＋一键回滚；`null` = 这一轮没有写入或已不可回滚。 */
@@ -118,10 +120,12 @@ export function SettingsView({
   themeId, mode, fontSize, lineHeight, columnWidth, onSetAppearance, onNotify,
   codeLangs, onSetCodeLangs,
   version, stage, build, changelog, importInlineTags, onToggleImportInlineTags,
-  syncDirectory, onSyncDirectoryChange, syncStatusText, syncResult, syncRollback, onSyncNow, indexStatus, backup, section, onSectionChange, exportPage, compact, onClose, level, onLevelChange,
+  syncDirectory, onSyncDirectoryChange, syncStatusText, syncResult, syncRollback, onSyncNow, indexStatus, diagnostics, backup, section, onSectionChange, exportPage, compact, onClose, level, onLevelChange,
 }: SettingsViewProps) {
   /** 左分栏选中项与「数据」组的展开态（`R09-SET-17`）：默认进「AI 能力」（分区表的第一条）。 */
   const [dataOpen, setDataOpen] = useState(true)
+  /** 诊断页：上一次导出日志的落点（导出后写回，切换分区不清——它只是结果回执）。 */
+  const [diagnosticsPlace, setDiagnosticsPlace] = useState<string | null>(null)
   /** 统一标题栏的返回（批 ζ）：**一层一个返回**——子页→列表页，列表页→关设置；与系统返回键共走同一条栈。 */
   const backFromSettings = () => { if (level === 'page') onLevelChange('list'); else onClose?.() }
   const [draft, setDraft] = useState<AiSettingsValue>(aiConfig)
@@ -180,6 +184,7 @@ export function SettingsView({
           {mobileEntry('import', '导入', 'copy')}
           {mobileEntry('index', '搜索', 'search')}
           <div className="sl-grp">其他</div>
+          {mobileEntry('diagnostics', '诊断', 'help')}
           {mobileEntry('about', '关于', 'help')}
         </nav>
       ) : (
@@ -207,6 +212,7 @@ export function SettingsView({
                 </div>
               ) : null}
               <div className="set-grp">其他</div>
+              {navEntry('diagnostics', '诊断', 'help')}
               {navEntry('about', '关于', 'help')}
             </nav>
           )}
@@ -475,6 +481,32 @@ export function SettingsView({
                   onNameProblem={onNameProblem}
                   ops={propertyOps}
                 />
+              ) : null}
+
+              {section === 'diagnostics' ? (
+                <>
+                  <PageHead title="诊断" />
+          <div className="set-card">
+            <h3><Icon name="help" size={16} decorative />诊断日志<span className="sub">只落本机 · 不外发</span></h3>
+            <div className="frow">
+              <label>技术日志</label>
+              <div className="ctl">
+                <span className="note">记录启动 / 告警 / 崩溃现场；按 2MB × 5 份滚动，不进备份包。</span>
+                <span style={{ flex: 1 }} />
+                <button
+                  type="button"
+                  className="btn"
+                  data-diagnostics-export
+                  onClick={() => { void diagnostics.onExport().then((place) => { if (place) setDiagnosticsPlace(place) }) }}
+                >
+                  导出诊断日志
+                </button>
+              </div>
+            </div>
+            {diagnosticsPlace ? <div className="frow"><label>已导出</label><div className="ctl"><span className="note" data-diagnostics-place>{diagnosticsPlace}</span></div></div> : null}
+            <div className="hint">日志不含正文内容（只有编号、计数、耗时与错误码）；导出的是一份纯文本，能直接发给人排查。</div>
+          </div>
+                </>
               ) : null}
 
               {section === 'about' ? (

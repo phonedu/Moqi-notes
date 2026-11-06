@@ -184,6 +184,7 @@ const settingsProps = {
   onSetAppearance: () => undefined,
   codeLangs: DEFAULT_CODE_LANGS,
   onSetCodeLangs: () => undefined,
+  diagnostics: { onExport: async () => null },
   onNotify: () => undefined,
   fileOps: { canPickFile: false, canPickFolder: false, canSaveAs: false, onPickFiles: () => undefined, onPickFolder: () => undefined },
   version: '0.2.0-rc.1',

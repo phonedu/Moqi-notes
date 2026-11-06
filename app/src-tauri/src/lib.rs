@@ -8,6 +8,7 @@
 mod assets;
 mod backup;
 mod export;
+mod logging;
 mod saf;
 mod storage;
 mod sync_files;
@@ -78,6 +79,50 @@ fn data_directory(app: AppHandle) -> Result<String, String> {
             .map(|value| value.to_string_lossy().into_owned())
             .ok_or_else(|| "应用数据目录为空".to_owned())
     })
+}
+
+/// 日志目录 = 数据目录下的 `logs/`（不进备份包，见 `logging` 模块头注）。
+fn logs_dir(app: &AppHandle) -> Result<PathBuf, String> {
+    let db = database_path(app)?;
+    db.parent()
+        .map(|dir| dir.join("logs"))
+        .ok_or_else(|| "应用数据目录为空".to_owned())
+}
+
+/// JS 侧写一行日志（未捕获错误 / 关键路径的告警都走这里）。
+#[tauri::command]
+fn log_append(level: String, message: String) {
+    logging::log(&level, &message);
+}
+
+/// 导出诊断日志：`destination` 为空时写进 `<数据目录>/exports/` 并返回该路径（移动端随后 SAF 拷出），
+/// 给了路径就直接写过去（桌面「另存为」）。返回实际写到的位置。
+#[tauri::command]
+fn export_diagnostics(app: AppHandle, destination: Option<String>) -> Result<String, String> {
+    let dir = logs_dir(&app)?;
+    let content = logging::read_all(&dir);
+    if content.is_empty() {
+        return Err("还没有日志可导出（应用刚启动、且没有告警 / 错误）".to_owned());
+    }
+    let target = match destination {
+        Some(path) if !path.trim().is_empty() => PathBuf::from(path),
+        _ => {
+            let db = database_path(&app)?;
+            let exports = db
+                .parent()
+                .map(|parent| parent.join("exports"))
+                .ok_or_else(|| "应用数据目录为空".to_owned())?;
+            std::fs::create_dir_all(&exports)
+                .map_err(|error| format!("建导出目录失败: {error}"))?;
+            let stamp = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|value| value.as_secs())
+                .unwrap_or(0);
+            exports.join(format!("moqi-diagnostics-{stamp}.log"))
+        }
+    };
+    std::fs::write(&target, content).map_err(|error| format!("写诊断日志失败: {error}"))?;
+    Ok(target.to_string_lossy().into_owned())
 }
 
 #[tauri::command]
@@ -545,6 +590,13 @@ pub fn run() {
             // 不在这里放行，WebView 会把地址拒掉：图块画灰/破图、灯箱显示裂图（用户 实测）。
             // **必须在运行时放行**：数据目录可被 `MOQI_DATA_DIR` 改写，写死在 tauri.conf 的 scope 里盖不住。
             use tauri::Manager;
+            // 日志先就位：越早越好（后续 setup 出问题也要留得下第一现场）。
+            if let Ok(db) = database_path(app.handle()) {
+                if let Some(dir) = db.parent() {
+                    let _ = crate::logging::init(&dir.join("logs"));
+                    crate::logging::install_panic_hook();
+                }
+            }
             if let Ok(db) = database_path(app.handle()) {
                 if let Ok(dir) = crate::assets::assets_dir(&db) {
                     app.asset_protocol_scope().allow_directory(&dir, true)?;
@@ -554,6 +606,8 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             data_directory,
+            log_append,
+            export_diagnostics,
             load_blocks,
             save_blocks,
             save_block_changes,

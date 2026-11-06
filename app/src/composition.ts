@@ -18,6 +18,7 @@ export { createDefaultExportPort } from './adapters/export'
 export { createDefaultAssetPort } from './adapters/assets'
 export { createDefaultAssetSyncPort } from './adapters/assetSync'
 export { createDefaultFileChannelPort } from './adapters/fileChannel'
+export { exportDiagnostics, logLine } from './adapters/logging'
 export type { FileChannelPort, FileChannelCapabilities, PickedFile } from './application/fileChannel'
 export { createDefaultClipboardPort }
 export type { ClipboardPort } from './application/clipboard'
