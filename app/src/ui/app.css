@@ -1229,6 +1229,16 @@ body.is-touch-editing .prop-wrap { display: none; }
 .b-table th.is-selected, .b-table td.is-selected { background: var(--accent-soft); }
 .b-table-bar button:disabled { color: var(--text-3); cursor: default; }
 .b-table-head { position: relative; }
+/* 触控档的表格控件命中面：真机实测设计态只有 20×20（列对齐 / 删列 / 删行）与 36 高
+   （＋行 / ＋列 / 合并 / 拆分），达不到 44 的最小可点尺寸，也容易误触相邻键。
+   只放宽命中面、不改视觉字号；桌面鼠标档保持紧凑。 */
+@media (pointer: coarse) {
+  .b-table-bar { gap: 8px; }
+  .b-table-bar button { min-width: 44px; min-height: 44px; padding: 0 12px; }
+  .b-table-tool { width: 44px; height: 44px; margin-right: 2px; }
+  .b-table-rowdel { width: 44px; height: 44px; }
+  .b-table-toggle { min-height: 44px; padding: 0 12px; }
+}
 .b-table-resize {
   position: absolute;
   top: 0;
