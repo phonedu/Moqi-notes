@@ -12,6 +12,13 @@
 export type TableAlign = 'left' | 'center' | 'right' | null
 
 /**
+ * 新建表格的默认形态：两列表头 ＋ 一行空行。
+ * 表格块插入后**直接出网格**（`parseTable` 认得出），不要求用户先写 Markdown——否则「插入表格」
+ * 只会得到一块空文本，手机端尤其无从下手。
+ */
+export const DEFAULT_TABLE_MARKDOWN = '| 列1 | 列2 |\n| --- | --- |\n|  |  |'
+
+/**
  * 合并块：`row` / `col` 是**左上角**（0 = 表头行），跨 `rowSpan` 行、`colSpan` 列。
  * 被覆盖的格子在网格里不渲染；它们的文本仍留在表格本体里（拆分后原样回来）。
  */

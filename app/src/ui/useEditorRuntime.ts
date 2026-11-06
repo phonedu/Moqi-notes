@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react'
 import type { LexicalEditor } from '@moqi/editor'
-import { textContent, type Block, type BlockType } from '@moqi/editor'
+import { DEFAULT_TABLE_MARKDOWN, textContent, type Block, type BlockType } from '@moqi/editor'
 import { clipboardPort, type TransactionStoragePort } from '../composition'
 import { insertDateText } from './format'
 import { insertRoute, type InsertKind } from './menuItems'
@@ -133,7 +133,7 @@ export function useEditorRuntime(initialBlocks: Block[], storage: TransactionSto
     if (route === 'file') { pickMediaFile(kind as 'image' | 'file'); return }
     if (route === 'embed') { insertEmbedPlaceholder(); return }
     if (kind === 'today' || kind === 'now') { insertBlockOfType(editor, 'text', insertDateText(kind)); return }
-    insertBlockOfType(editor, kind as 'todo' | 'quote' | 'code')
+    insertBlockOfType(editor, kind as 'todo' | 'quote' | 'code' | 'table', kind === 'table' ? DEFAULT_TABLE_MARKDOWN : undefined)
   }
 
   // ---------- 派生数据 ----------

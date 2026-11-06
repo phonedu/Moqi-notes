@@ -34,7 +34,7 @@ export type InlineFormat = 'bold' | 'italic' | 'underline' | 'strikethrough' | '
 export type ConvertKind = 'text' | 'heading1' | 'heading2' | 'heading3' | 'heading4' | 'heading5' | 'heading6' | 'bullet' | 'numbered' | 'todo'
 
 /** 插入面板的格位（`10` §6.3 格位表十格）。 */
-export type InsertTile = 'image' | 'camera' | 'todo' | 'quote' | 'code' | 'divider' | 'link' | 'datetime' | 'file' | 'embed'
+export type InsertTile = 'image' | 'camera' | 'todo' | 'quote' | 'code' | 'table' | 'divider' | 'link' | 'datetime' | 'file' | 'embed'
 
 type Panel = 'text' | 'char' | 'list' | null
 
@@ -68,6 +68,7 @@ const INSERT_TILES: { tile: InsertTile; icon: IconName; label: string; sub?: tru
   { tile: 'todo', icon: 'check-square', label: '待办' },
   { tile: 'quote', icon: 'quote', label: '引用' },
   { tile: 'code', icon: 'code', label: '代码块' },
+  { tile: 'table', icon: 'grid', label: '表格' },
   { tile: 'divider', icon: 'minus', label: '分割线' },
   { tile: 'link', icon: 'link', label: '链接', sub: true },
   { tile: 'datetime', icon: 'calendar', label: '日期时间', sub: true },

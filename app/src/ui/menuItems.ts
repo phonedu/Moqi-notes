@@ -44,7 +44,7 @@ export function blockTypeName(type: BlockType): string {
   return blockTypeLabel[type] ?? ({ image: '图片', file: '附件', embed: '嵌入' } as Partial<Record<BlockType, string>>)[type] ?? type
 }
 
-export type InsertKind = 'todo' | 'quote' | 'code' | 'today' | 'now' | 'embed' | 'image' | 'file'
+export type InsertKind = 'todo' | 'quote' | 'code' | 'table' | 'today' | 'now' | 'embed' | 'image' | 'file'
 
 export type InsertItem = {
   kind: InsertKind
@@ -59,6 +59,7 @@ export const INSERT_ITEMS: InsertItem[] = [
   { kind: 'todo', label: '待办', hint: '下方新建待办', icon: 'check-square' },
   { kind: 'quote', label: '引用', hint: '下方新建引用', icon: 'quote' },
   { kind: 'code', label: '代码', hint: '下方新建代码块', icon: 'code' },
+  { kind: 'table', label: '表格', hint: '下方新建表格', icon: 'grid' },
  // 「今天」「现在」（，`13-功能缺口总账` `G-E06`）：中文笔记高频（日记 / 会议记录）——
   // 插入一个装着日期时间的普通文本块（`insertDateText` 出文本，不加新块类型）。
   { kind: 'today', label: '今天', hint: '下方新建日期块', icon: 'calendar' },

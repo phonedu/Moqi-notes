@@ -6866,7 +6866,7 @@ await page.locator('.mbar button[aria-label="重做"]').click()
 await sleep(700)
 const redoAfter = await page.evaluate(() => (document.querySelector('.doc-col .moqi-block[data-block-object="true"]')?.textContent ?? '').trim())
 
-// M3 · 插入面板：十格、占键盘位（锚同主条）、blur（键盘收的机制）→ 选「待办」插一块 → 焦点回正文字根
+// M3 · 插入面板：十一格、占键盘位（锚同主条）、blur（键盘收的机制）→ 选「待办」插一块 → 焦点回正文字根
 const beforeInsert = await page.evaluate(() => document.querySelectorAll('.doc-col .moqi-block').length)
 await page.locator('.mbar button[aria-label="插入"]').click()
 await sleep(500)
@@ -6920,9 +6920,9 @@ check('MOBILE-PANEL-1b 列表与段落面板（同批）：`☰` 七格（无序
   && panelsClosed === 0,
   { listPanel, panelsClosed })
 
-check('MOBILE-PANEL-2 插入面板（`10` §6.3 定稿）：点 ＋ → 面板占键盘位（`.mbar-sheet` 在场、`--kb-snap` 记下打开时的键盘高）、**正文字根失焦**（键盘收的机制）、主条仍在；十格点名 = 图片 / 拍照 / 待办 / 引用 / 代码块 / 分割线 / 链接 / 日期时间 / 附件块 / 嵌入块；`链接` 子菜单就地两行（外部链接 / 页面链接）；点「待办」→ 块数 +1、面板收、**焦点回正文字根**（键盘与焦点回来的机制）',
+check('MOBILE-PANEL-2 插入面板（`10` §6.3 定稿）：点 ＋ → 面板占键盘位（`.mbar-sheet` 在场、`--kb-snap` 记下打开时的键盘高）、**正文字根失焦**（键盘收的机制）、主条仍在；十一格点名 = 图片 / 拍照 / 待办 / 引用 / 代码块 / 表格 / 分割线 / 链接 / 日期时间 / 附件块 / 嵌入块；`链接` 子菜单就地两行（外部链接 / 页面链接）；点「待办」→ 块数 +1、面板收、**焦点回正文字根**（键盘与焦点回来的机制）',
   insertSheet.sheet === true
-  && insertSheet.tiles.join('/') === '图片/拍照/待办/引用/代码块/分割线/链接/日期时间/附件块/嵌入块'
+  && insertSheet.tiles.join('/') === '图片/拍照/待办/引用/代码块/表格/分割线/链接/日期时间/附件块/嵌入块'
   && insertSheet.focusedInEditor === false && insertSheet.barStillThere === true
   && linkSub.join('/') === '外部链接/页面链接'
   && afterInsert.blocks === beforeInsert + 1 && afterInsert.sheet === false && afterInsert.focusedInEditor === true,
@@ -7237,7 +7237,7 @@ check('MOBILE-CAPSULE-1 块操作栏（`10` §6.2 定稿）：编辑态里**左�
   && capTier.rows[0] === '插入/复制/剪切/复制为块引用/删除块' && capTier.rows[1] === '缩进/反缩进/上移/下移/完成' && capTier.inkFree === true
   && capTier.keys.every(([w, h]) => h === 44 && w >= 44) /* 均分后 ≥44×44（定稿：例外只留主条九键） */
   && capInsert.sheet === true && capInsert.dir.join('/') === '↑ 上方/↓ 下方' && capInsert.dirOn === '↓ 下方'
-  && capInsert.tiles.join('/') === '图片/拍照/待办/引用/代码块/分割线/链接/日期时间/附件块/嵌入块'
+  && capInsert.tiles.join('/') === '图片/拍照/待办/引用/代码块/表格/分割线/链接/日期时间/附件块/嵌入块'
   && capAfterInsert.blocks === capBeforeInsert + 1 && capAfterInsert.sheet === false && capAfterInsert.capsule === true
   && capDeleted.textGone === true && capDeleted.capsule === false && capDeleted.mbar === true && capDeleted.editing === true
   && capDone.capsule === false && capDone.mbar === true && capDone.editing === true && capDone.selected === 0,

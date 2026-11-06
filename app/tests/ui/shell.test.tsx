@@ -445,7 +445,7 @@ test('R09-SET-14 导出落点目录：`<数据目录>/exports`，两向分隔符
 test('R09-FMT-5 插入项各有明确落点：文字型直插 / 图片附件走选文件 / 嵌入落占位（斜杠菜单与 ＋插入 共用一个分流器）', () => {
   const routes = INSERT_ITEMS.map((item) => [item.kind, insertRoute(item.kind)] as const)
   assert.deepEqual(routes, [
-    ['todo', 'block'], ['quote', 'block'], ['code', 'block'],
+    ['todo', 'block'], ['quote', 'block'], ['code', 'block'], ['table', 'block'],
     ['today', 'block'], ['now', 'block'], // G-E06（）：今天 / 现在 = 装着日期的文本块
     ['embed', 'embed'], ['image', 'file'], ['file', 'file'],
   ], '插入清单与落点路由必须一一对上——加一项就往这里补一行（2026-10-08：斜杠菜单曾把图片喂给文字型直插，落出空壳块）')

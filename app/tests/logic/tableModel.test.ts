@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 
 import {
-  cellOf, deleteColumn, deleteRow, insertColumn, insertRow, mergeCells, parseTable, serializeTable, setCell,
+  DEFAULT_TABLE_MARKDOWN, cellOf, deleteColumn, deleteRow, insertColumn, insertRow, mergeCells, parseTable, serializeTable, setCell,
   setColumnAlign, setColumnWidth, unmergeCells,
 } from '@moqi/editor'
 import { parseMarkdownDocument } from '@moqi/editor'
@@ -140,4 +140,13 @@ test('导入：表格后的旁注行收进同一个 table 块（否则往返会�
   assert.ok(table, '表格块在')
   assert.match(table!.text, /moqi-table/)
   assert.ok(doc.roots.some((draft) => draft.type === 'text' && draft.text === '正文段落'), '旁注不吃掉后面的正文')
+})
+
+test('DEFAULT_TABLE_MARKDOWN：新建表格即有 2 列表头 ＋ 1 行空行（插入即出网格，不用先写 Markdown）', () => {
+  const model = parseTable(DEFAULT_TABLE_MARKDOWN)
+  assert.ok(model)
+  assert.equal(model.header.length, 2)
+  assert.equal(model.rows.length, 1)
+  assert.deepEqual(model.rows[0], ['', ''])
+  assert.equal(parseTable(DEFAULT_TABLE_MARKDOWN)?.header[0], '列1')
 })
