@@ -7929,9 +7929,9 @@ const setDesktop = await page.evaluate(() => {
 })
 await page.keyboard.press('Escape')
 await sleep(400)
-check('MOBILE-SET-1 设置页移动形态（`10` §4.7 + 批 ζ 2026-10-12）：360 下打开设置 = 独立全屏页的**分区列表**（行序 = AI / 外观 / 属性 / 同步 / 备份与恢复 / 导出 / 导入 / 搜索 / 关于；桌面左分栏整条收掉）；**列表页与子页共用同一条统一标题栏**（栏高 48、标题「设置」/「导出」、**同一个返回控件**（`aria-label=返回`、命中区 ≥44）、无重复的旧返回行）；点它从列表退出关得掉；子页 → 回列表；桌面 1280 左分栏原样',
+check('MOBILE-SET-1 设置页移动形态（`10` §4.7 + 批 ζ 2026-10-12）：360 下打开设置 = 独立全屏页的**分区列表**（行序 = AI / 外观 / 属性 / 同步 / 备份与恢复 / 导出 / 导入 / 搜索 / 诊断 / 关于；桌面左分栏整条收掉）；**列表页与子页共用同一条统一标题栏**（栏高 48、标题「设置」/「导出」、**同一个返回控件**（`aria-label=返回`、命中区 ≥44）、无重复的旧返回行）；点它从列表退出关得掉；子页 → 回列表；桌面 1280 左分栏原样',
   setList.fullW === 360 && (setList.navHidden === true || setList.navHidden === 'absent' /* 列表页整条不渲染 */)
-  && setList.rows.join('/') === 'AI/外观/属性/同步/备份与恢复/导出/导入/搜索/关于'
+  && setList.rows.join('/') === 'AI/外观/属性/同步/备份与恢复/导出/导入/搜索/诊断/关于'
   && setList.groups.join('/') === '编辑/数据/其他'
   && setTopbar.bar === true && setTopbar.h === 48 && setTopbar.title === '设置' && setTopbar.backLabel === '返回'
   && setTopbar.backW >= 44 && setTopbar.backH >= 44 && setTopbar.inView === true && setTopbar.legacyBacks === 0
