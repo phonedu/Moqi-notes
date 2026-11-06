@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { App } from './ui/App'
-import { installGlobalLogHandlers, logLine } from './adapters/logging'
+import { installGlobalLogHandlers, logEvent, logLine } from './adapters/logging'
 
 /**
  * 关掉宿主的默认右键菜单（docs/09 §三 `R09-SHELL-2`）。
@@ -16,6 +16,9 @@ document.addEventListener('contextmenu', (event) => { event.preventDefault() })
 installGlobalLogHandlers()
 // 每次启动留一行：日志文件因此永远非空，「导出诊断日志」才有东西可导。
 logLine('INFO', 'app boot')
+// 启动分段读数：从导航开始到脚本跑起来（冷启动归因的第一个锚点）。
+logEvent('perf', 'boot:script', Math.round(performance.now()))
+window.addEventListener('load', () => logEvent('perf', 'boot:load', Math.round(performance.now())), { once: true })
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

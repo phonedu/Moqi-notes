@@ -95,15 +95,55 @@ fn log_append(level: String, message: String) {
     logging::log(&level, &message);
 }
 
+/// JS 侧写一个埋点事件（性能 / 错误）。**不带正文**；失败静默（埋点不该影响功能）。
+#[tauri::command]
+fn event_append(
+    app: AppHandle,
+    kind: String,
+    name: String,
+    value: Option<f64>,
+    meta: Option<String>,
+) {
+    let Ok(path) = database_path(&app) else {
+        return;
+    };
+    let Ok(store) = SqliteBlockStore::open(path) else {
+        return;
+    };
+    let _ = store.append_event(&kind, &name, value, meta.as_deref());
+}
+
 /// 导出诊断日志：`destination` 为空时写进 `<数据目录>/exports/` 并返回该路径（移动端随后 SAF 拷出），
 /// 给了路径就直接写过去（桌面「另存为」）。返回实际写到的位置。
 #[tauri::command]
 fn export_diagnostics(app: AppHandle, destination: Option<String>) -> Result<String, String> {
     let dir = logs_dir(&app)?;
-    let content = logging::read_all(&dir);
-    if content.is_empty() {
+    let logs = logging::read_all(&dir);
+    // 埋点事件（本机、不外发、不含正文）：与日志打在同一份导出物里，排查时按时间序看。
+    let events = {
+        let db = database_path(&app)?;
+        SqliteBlockStore::open(db)
+            .and_then(|store| store.dump_events())
+            .unwrap_or_default()
+    };
+    if logs.is_empty() && events.is_empty() {
         return Err("还没有日志可导出（应用刚启动、且没有告警 / 错误）".to_owned());
     }
+    // 操作日志（事务流）也打进来：一次批删 / 一次 AI 生成 / 一次同步合并在导出物里找得到。
+    let transactions = {
+        let db = database_path(&app)?;
+        SqliteBlockStore::open(db)
+            .and_then(|store| store.dump_transactions())
+            .unwrap_or_default()
+    };
+    let content = format!(
+        "== 技术日志 ==
+{logs}
+== 埋点事件 ==
+{events}
+== 操作日志 ==
+{transactions}"
+    );
     let target = match destination {
         Some(path) if !path.trim().is_empty() => PathBuf::from(path),
         _ => {
@@ -607,6 +647,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             data_directory,
             log_append,
+            event_append,
             export_diagnostics,
             load_blocks,
             save_blocks,

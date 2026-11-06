@@ -25,6 +25,15 @@ export function logLine(level: Level, message: string): void {
   void invoke('log_append', { level, message: flat }).catch(() => undefined)
 }
 
+/**
+ * 写一个**埋点事件**（本机、不外发、不含正文）：性能（耗时 / 计数）与错误（错误码）两类。
+ * 与技术日志分工：日志是「出了什么事」的流水，事件是「用起来怎么样」的读数。
+ */
+export function logEvent(kind: 'perf' | 'error', name: string, value?: number | null, meta?: string | null): void {
+  if (!isTauri()) return
+  void invoke('event_append', { kind, name, value: value ?? null, meta: meta ?? null }).catch(() => undefined)
+}
+
 /** 导出诊断日志：返回写到哪（桌面 = 用户选的文件；移动 = `exports/` 里的文件，随后走 SAF 拷出）。 */
 export async function exportDiagnostics(destination?: string | null): Promise<string> {
   return invoke<string>('export_diagnostics', { destination: destination ?? null })

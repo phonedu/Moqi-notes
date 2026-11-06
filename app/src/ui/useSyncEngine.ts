@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { createDefaultAssetSyncPort, createDefaultSyncFileIo, type AssetPort, type SyncState, type TransactionStoragePort } from '../composition'
 import { DirectorySyncPort, operationTargetId, runSync } from '../application/sync'
+import { logEvent } from '../composition'
 import { assetSyncPlan, referencedAssetNames } from '../application/assetSync'
 import type { MetadataRegistry } from '@moqi/editor'
 import type { DomainStore } from '../application/store'
@@ -193,7 +194,8 @@ export function useSyncEngine(options: {
       await storage.saveSyncState(next)
       setSyncStatus({ kind: 'synced', at: next.lastSyncAt ?? Date.now(), merged: result.applied, skipped: result.skipped, failed: result.failed })
       retryStepRef.current = 0
-    } catch {
+    } catch (error) {
+      logEvent('error', 'sync:failed', null, error instanceof Error ? error.name : 'unknown')
       // 传输不可达不是错误态（`R09-SYNC-4`）：只把状态改成「离线 · N 条待同步」。
       const deviceId = await resolveDeviceId().catch(() => '')
       const total = deviceId ? await storage.maxOplogSeq(deviceId).catch(() => 0) : 0

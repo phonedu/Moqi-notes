@@ -6,7 +6,7 @@ mod storage_model;
 pub use storage_model::{PersistedOperation, PersistedTransaction, StoredBlock};
 
 /// v7（V2c）：检索索引加拼音两列（全拼 + 首字母，见 `migrate()` 里的说明）。
-const SCHEMA_VERSION: i64 = 10;
+const SCHEMA_VERSION: i64 = 11;
 
 /// V2c：⌘K 的一条检索命中（`docs/03` §15.2）。字段是按**界面需要**定的（`09` §6.3）：
 /// 分组要 `is_object`（页面 / 块）、跳转要 `entity_id` 与 `parent_id`、高亮要 `text`。
@@ -362,6 +362,19 @@ impl SqliteBlockStore {
             )?;
         }
         tx.execute_batch("CREATE TABLE IF NOT EXISTS persist_batches (batch_id TEXT PRIMARY KEY, payload TEXT NOT NULL);")?;
+        // 11：本机埋点事件（性能 / 错误）。只存 kind / name / 数值 / 元信息——**不含正文**。
+        // 不进备份包、不外发；导出诊断日志时整表 dump 出去。
+        tx.execute_batch(
+            "CREATE TABLE IF NOT EXISTS events (
+                 id INTEGER PRIMARY KEY AUTOINCREMENT,
+                 kind TEXT NOT NULL,
+                 name TEXT NOT NULL,
+                 value REAL,
+                 meta TEXT,
+                 created INTEGER NOT NULL
+             );
+             CREATE INDEX IF NOT EXISTS events_created ON events(created);",
+        )?;
         tx.execute(
             "INSERT INTO schema_migrations(version, applied_at) VALUES (?1, ?2)",
             params![SCHEMA_VERSION, now_ms()],
@@ -621,9 +634,91 @@ impl SqliteBlockStore {
         rows.collect()
     }
 
+    /// 本机埋点：追加一个事件（性能 / 错误）。**不含正文**——调用方只传 kind / name / 数值 / 元信息。
+    /// 失败静默返回（埋点坏了不能反过来影响功能，调用方一律 `let _ =`）。
+    pub fn append_event(
+        &self,
+        kind: &str,
+        name: &str,
+        value: Option<f64>,
+        meta: Option<&str>,
+    ) -> Result<()> {
+        self.conn.execute(
+            "INSERT INTO events(kind, name, value, meta, created) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![kind, name, value, meta, now_ms()],
+        )?;
+        Ok(())
+    }
+
+    /// 导出用：把事件表按时间序 dump 成 JSON 行（新的在后）。
+    pub fn dump_events(&self) -> Result<String> {
+        let mut statement = self
+            .conn
+            .prepare("SELECT kind, name, value, meta, created FROM events ORDER BY created, id")?;
+        let rows = statement.query_map([], |row| {
+            Ok(serde_json::json!({
+                "kind": row.get::<_, String>(0)?,
+                "name": row.get::<_, String>(1)?,
+                "value": row.get::<_, Option<f64>>(2)?,
+                "meta": row.get::<_, Option<String>>(3)?,
+                "created": row.get::<_, i64>(4)?,
+            }))
+        })?;
+        let mut out = String::new();
+        for line in rows {
+            out.push_str(&line?.to_string());
+            out.push('\n');
+        }
+        Ok(out)
+    }
+
+    /// 导出用：操作日志（`transaction_history`）按时间序 dump 成 JSON 行。
+    /// **只取最近 500 条**——导出物是给人排查的，不是全库备份；完整历史留给「单页历史」那一层。
+    pub fn dump_transactions(&self) -> Result<String> {
+        let mut statement = self.conn.prepare(
+            "SELECT transaction_id, source, operations_json, created, undone
+               FROM transaction_history ORDER BY created DESC, rowid DESC LIMIT 500",
+        )?;
+        let rows = statement.query_map([], |row| {
+            Ok(serde_json::json!({
+                "id": row.get::<_, String>(0)?,
+                "source": row.get::<_, String>(1)?,
+                "operations": row.get::<_, String>(2)?,
+                "created": row.get::<_, i64>(3)?,
+                "undone": row.get::<_, i64>(4)?,
+            }))
+        })?;
+        let mut lines: Vec<String> = Vec::new();
+        for line in rows {
+            lines.push(line?.to_string());
+        }
+        // SQL 里倒序取最近 500 条，导出时翻回时间序（读起来是一条时间线）
+        lines.reverse();
+        let mut out = String::new();
+        for line in lines {
+            out.push_str(&line);
+            out.push('\n');
+        }
+        Ok(out)
+    }
+
+    /// 慢命令计时（兑现「冷启动 ~3s 长任务归因」）：超过门槛就落一条 `perf` 事件。
+    /// 门槛取 100ms——正常命令都在几十 ms 内，只有真卡住的才会进账，避免把事件表塞满。
+    fn note_timing(&self, name: &str, started: std::time::Instant) {
+        let elapsed = started.elapsed().as_millis();
+        if elapsed < 100 {
+            return;
+        }
+        let _ = self.append_event("perf", name, Some(elapsed as f64), None);
+    }
+
     pub fn list_all_json(&self) -> Result<Vec<String>> {
-        self.list_all()
-            .map(|blocks| blocks.into_iter().map(|block| block.json).collect())
+        let started = std::time::Instant::now();
+        let result = self
+            .list_all()
+            .map(|blocks| blocks.into_iter().map(|block| block.json).collect());
+        self.note_timing("ipc:load_blocks", started);
+        result
     }
 
     pub fn list_active_json(&self) -> Result<Vec<String>> {
@@ -660,6 +755,13 @@ impl SqliteBlockStore {
     /// 命中的范围：正文、标签、属性、**页面名**（`page_name` 列，⌘K 要按页面名找到页面）。
     /// 已删的块不进结果（软删时 FTS 行已删，这里再按 `deleted = 0` 收一道）。
     pub fn search_hits(&self, query: &str, limit: u32) -> Result<Vec<SearchHit>> {
+        let started = std::time::Instant::now();
+        let result = self.search_hits_inner(query, limit);
+        self.note_timing("ipc:search_blocks", started);
+        result
+    }
+
+    fn search_hits_inner(&self, query: &str, limit: u32) -> Result<Vec<SearchHit>> {
         let text = query.trim();
         if text.is_empty() {
             return Ok(Vec::new());
@@ -2168,6 +2270,60 @@ mod tests {
             rows[0].json, "{oops",
             "坏行原样交出去——存储层不替界面做决定"
         );
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod event_tests {
+    use super::*;
+
+    #[test]
+    fn append_event_and_dump_in_time_order() -> Result<()> {
+        let store = SqliteBlockStore::open_in_memory()?;
+        store.append_event("perf", "ipc:load_blocks", Some(1234.0), None)?;
+        store.append_event("error", "sync:failed", None, Some("{\"code\":\"io\"}"))?;
+        let dumped = store.dump_events()?;
+        let lines: Vec<&str> = dumped.lines().collect();
+        assert_eq!(lines.len(), 2, "两条事件各一行");
+        assert!(lines[0].contains("\"name\":\"ipc:load_blocks\""));
+        assert!(lines[0].contains("1234"));
+        assert!(lines[1].contains("\"kind\":\"error\""));
+        assert!(lines[1].contains("io"), "元信息原样保留");
+        Ok(())
+    }
+
+    #[test]
+    fn dump_transactions_keeps_time_order_and_honours_the_500_row_cap() -> Result<()> {
+        let store = SqliteBlockStore::open_in_memory()?;
+        // 直接写三行操作日志（batch 删 / AI 生成 / 同步合并 三类来源）
+        for (index, source) in [(1, "user"), (2, "ai"), (3, "sync")] {
+            store.conn.execute(
+                "INSERT INTO transaction_history(transaction_id, source, device_id, operations_json, inverse_json, created, undone)
+                 VALUES (?1, ?2, 'dev', '[]', '[]', ?3, 0)",
+                params![format!("t{index}"), source, index],
+            )?;
+        }
+        let dumped = store.dump_transactions()?;
+        let lines: Vec<&str> = dumped.lines().collect();
+        assert_eq!(lines.len(), 3);
+        assert!(lines[0].contains("\"source\":\"user\""), "导出按时间序（老的在前）");
+        assert!(lines[2].contains("\"source\":\"sync\""));
+        Ok(())
+    }
+
+    #[test]
+    fn slow_command_writes_a_perf_event_only_above_threshold() -> Result<()> {
+        let store = SqliteBlockStore::open_in_memory()?;
+        // 刚起步（<100ms）不记账
+        store.note_timing("ipc:load_blocks", std::time::Instant::now());
+        assert_eq!(store.dump_events()?.lines().count(), 0, "低于门槛不落事件");
+        // 假装慢命令：把起点拨回 300ms
+        let slow_start = std::time::Instant::now() - std::time::Duration::from_millis(300);
+        store.note_timing("ipc:load_blocks", slow_start);
+        let dumped = store.dump_events()?;
+        assert_eq!(dumped.lines().count(), 1, "超过门槛落一条");
+        assert!(dumped.contains("ipc:load_blocks"));
         Ok(())
     }
 }

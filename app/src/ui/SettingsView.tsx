@@ -491,7 +491,7 @@ export function SettingsView({
             <div className="frow">
               <label>技术日志</label>
               <div className="ctl">
-                <span className="note">记录启动 / 告警 / 崩溃现场；按 2MB × 5 份滚动，不进备份包。</span>
+                <span className="note">记录启动 / 告警 / 崩溃现场；按 2MB × 5 份滚动，不进备份包。导出物＝技术日志＋埋点事件＋操作日志。</span>
                 <span style={{ flex: 1 }} />
                 <button
                   type="button"
@@ -504,7 +504,7 @@ export function SettingsView({
               </div>
             </div>
             {diagnosticsPlace ? <div className="frow"><label>已导出</label><div className="ctl"><span className="note" data-diagnostics-place>{diagnosticsPlace}</span></div></div> : null}
-            <div className="hint">日志不含正文内容（只有编号、计数、耗时与错误码）；导出的是一份纯文本，能直接发给人排查。</div>
+            <div className="hint">不含正文内容（只有编号、计数、耗时与错误码）；导出的是一份纯文本，能直接发给人排查。</div>
           </div>
                 </>
               ) : null}
