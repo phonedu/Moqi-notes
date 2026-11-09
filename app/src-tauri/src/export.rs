@@ -5,7 +5,7 @@
 //! `exports/<artifact_name>`，多页时打成一个 zip（包内根平铺）。
 //! 为什么 zip 在这边：压缩/归档是平台能力，TS 侧不引打包库；依赖只加一个 `zip`。
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
@@ -59,6 +59,7 @@ fn clean_file_name(name: &str) -> Result<String, String> {
     if trimmed.is_empty()
         || trimmed.contains('/')
         || trimmed.contains('\\')
+        || trimmed.contains(':')
         || trimmed.contains("..")
     {
         return Err(format!("导出文件名非法：{name}"));
@@ -72,7 +73,12 @@ fn clean_archive_path(path: &str) -> Result<String, String> {
     let rest = trimmed
         .strip_prefix("assets/")
         .ok_or_else(|| format!("包内路径只允许 assets/ 前缀：{path}"))?;
-    if rest.is_empty() || rest.contains("/") || rest.contains("\\") || rest.contains("..") {
+    if rest.is_empty()
+        || rest.contains("/")
+        || rest.contains("\\")
+        || rest.contains(':')
+        || rest.contains("..")
+    {
         return Err(format!("包内路径非法：{path}"));
     }
     Ok(trimmed.to_owned())
@@ -84,6 +90,7 @@ fn clean_any_archive_path(path: &str) -> Result<String, String> {
     if trimmed.is_empty()
         || trimmed.starts_with('/')
         || trimmed.contains('\\')
+        || trimmed.contains(':')
         || trimmed.contains("..")
     {
         return Err(format!("包内路径非法：{path}"));
@@ -225,21 +232,43 @@ pub fn read_text_file(path: &str) -> Result<String, String> {
 /// 导入包的条目（第 13 项「拖入 zip」）：`{ name, base64 }`——**分拣判据不在这一层**
 /// （`domain/mdPackage.ts` 说了算：备份包嗅探 / 支持的类型 / 报数）；这里只解包 + 逐条 base64，
 /// 单条目 > 8 MB 跳过并计入 `skipped`，整包 > 64 MB 直接拒（保底，别让一个包把内存顶穿）。
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ZipEntryOut {
     pub name: String,
     pub base64: String,
 }
 
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ZipEntriesOut {
     pub entries: Vec<ZipEntryOut>,
     pub skipped: usize,
 }
 
+/// 单条目解压上限：与导入页那句「单文件 8 MB」同源。
+const MAX_ZIP_ENTRY_BYTES: u64 = 8 * 1024 * 1024;
+/// 整包解压后的总预算：压缩包 64 MB 不等于解压后 64 MB（zip bomb 的门）。
+const MAX_ZIP_TOTAL_BYTES: u64 = 64 * 1024 * 1024;
+/// 条目数上限：几万个小条目同样能把界面拖死。
+const MAX_ZIP_ENTRIES: usize = 2000;
+
 pub fn read_zip_entries(path: &str) -> Result<ZipEntriesOut, String> {
+    read_zip_entries_with_limits(
+        path,
+        MAX_ZIP_ENTRY_BYTES,
+        MAX_ZIP_TOTAL_BYTES,
+        MAX_ZIP_ENTRIES,
+    )
+}
+
+/// 带上限的读包实现：三个上限可注入，测试用小值验证「超限即拒/跳过」。
+fn read_zip_entries_with_limits(
+    path: &str,
+    max_entry: u64,
+    max_total: u64,
+    max_entries: usize,
+) -> Result<ZipEntriesOut, String> {
     use base64::Engine;
     let clean = Path::new(path.trim());
     let ext = clean
@@ -261,7 +290,13 @@ pub fn read_zip_entries(path: &str) -> Result<ZipEntriesOut, String> {
         zip::ZipArchive::new(file).map_err(|error| format!("这不是一个能读的 .zip：{error}"))?;
     let mut entries = Vec::new();
     let mut skipped = 0usize;
+    let mut total: u64 = 0;
     for index in 0..archive.len() {
+        if entries.len() >= max_entries {
+            return Err(format!(
+                "导入包的条目太多（超过 {max_entries} 条）——请先拆成几份"
+            ));
+        }
         let mut entry = archive
             .by_index(index)
             .map_err(|error| format!("读包内条目失败：{error}"))?;
@@ -272,13 +307,23 @@ pub fn read_zip_entries(path: &str) -> Result<ZipEntriesOut, String> {
         if entry.is_dir() {
             continue;
         }
-        if entry.size() > 8 * 1024 * 1024 {
+        // 头里的 size 只是声明值：声明超限直接跳过；声明没超也按上限截断读取，
+        // 防止「声明 1 KB、实际解出 1 GB」的压缩包把内存顶穿。
+        if entry.size() > max_entry {
             skipped += 1;
             continue;
         }
-        let mut bytes = Vec::with_capacity(entry.size() as usize);
-        std::io::copy(&mut entry, &mut bytes)
+        let mut bytes = Vec::new();
+        let read = std::io::copy(&mut entry.by_ref().take(max_entry + 1), &mut bytes)
             .map_err(|error| format!("读包内条目失败（{name}）：{error}"))?;
+        if read > max_entry {
+            skipped += 1;
+            continue;
+        }
+        total = total.saturating_add(read);
+        if total > max_total {
+            return Err("导入包解压后太大——请先拆成几份".to_owned());
+        }
         entries.push(ZipEntryOut {
             name,
             base64: base64::engine::general_purpose::STANDARD.encode(&bytes),
@@ -671,5 +716,43 @@ mod tests {
             value["sizeBytes"], 1,
             "回执按 camelCase 出（界面读 sizeBytes）"
         );
+    }
+
+    /// 造一个 zip：`(条目名, 内容)` 列表。
+    fn write_zip(path: &Path, entries: &[(&str, &[u8])]) {
+        use std::io::Write as _;
+        let file = fs::File::create(path).expect("建 zip");
+        let mut writer = zip::ZipWriter::new(file);
+        let options = zip::write::SimpleFileOptions::default();
+        for (name, bytes) in entries {
+            writer.start_file(*name, options).expect("写条目");
+            writer.write_all(bytes).expect("写内容");
+        }
+        writer.finish().expect("收尾");
+    }
+
+    /// zip bomb 的三道门：条目数、单条目、解压总量。
+    #[test]
+    fn read_zip_entries_enforces_limits() {
+        let temp = TempDir::new("ziplimits");
+        let path = temp.0.join("pkg.zip");
+        write_zip(
+            &path,
+            &[("a.md", b"aaaa"), ("b.md", b"bbbb"), ("c.md", b"cccc")],
+        );
+        let p = path.to_str().expect("路径是 utf8");
+
+        // 条目数上限：多于上限直接拒（不是悄悄截断）。
+        let error = read_zip_entries_with_limits(p, 1024, 1024, 2).expect_err("条目超限要拒");
+        assert!(error.contains("条目太多"), "{error}");
+
+        // 解压总量上限：3 × 4 字节 > 5 字节预算。
+        let error = read_zip_entries_with_limits(p, 1024, 5, 10).expect_err("总量超限要拒");
+        assert!(error.contains("解压后太大"), "{error}");
+
+        // 单条目上限：超限的条目跳过并计数，不报错（与既有 skipped 语义一致）。
+        let out = read_zip_entries_with_limits(p, 2, 1024, 10).expect("读取成功");
+        assert!(out.entries.is_empty());
+        assert_eq!(out.skipped, 3);
     }
 }

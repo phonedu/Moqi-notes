@@ -214,16 +214,40 @@ fn prune_snapshots(dir: &Path) -> Result<usize, String> {
 /// `stamp` 由调用方给（形如 `2026-10-05T0912`，用文件名安全的字符）。
 /// 覆盖前会 checkpoint 并清掉主库旁的 `-wal` / `-shm`——`VACUUM INTO` 产物是自包含的，
 /// 留着旧的 WAL 会让 SQLite 拿它去“补”新库（这是恢复这类操作最经典的翻车点）。
-pub fn restore_snapshot(db: &Path, name: &str, stamp: &str) -> Result<(), String> {
-    if name.contains('/') || name.contains('\\') || name.contains("..") {
-        return Err("快照名非法".to_owned());
+/// 只接受一个普通文件名成分：拒绝 `..`、绝对路径、盘符前缀（`C:foo`）、分隔符。
+/// Windows 上 `Path::join("C:foo")` 会按盘符相对路径解析，光查 `/`、`\`、`..` 挡不住。
+fn single_file_name(name: &str) -> Option<&str> {
+    let trimmed = name.trim();
+    let mut components = Path::new(trimmed).components();
+    match (components.next(), components.next()) {
+        (Some(std::path::Component::Normal(_)), None) => Some(trimmed),
+        _ => None,
     }
+}
+
+/// 恢复标记只进文件名：只放行字母/数字/`-`/`_`，且限长——挡住 `../`、分隔符与盘符。
+fn clean_restore_stamp(stamp: &str) -> Result<String, String> {
+    let trimmed = stamp.trim();
+    if trimmed.is_empty()
+        || trimmed.len() > 32
+        || !trimmed
+            .chars()
+            .all(|ch| ch.is_ascii_alphanumeric() || ch == '-' || ch == '_')
+    {
+        return Err("恢复标记非法".to_owned());
+    }
+    Ok(trimmed.to_owned())
+}
+
+pub fn restore_snapshot(db: &Path, name: &str, stamp: &str) -> Result<(), String> {
+    let name = single_file_name(name).ok_or_else(|| "快照名非法".to_owned())?;
+    let stamp = clean_restore_stamp(stamp)?;
     let dir = snapshots_dir(db);
     let source = dir.join(name);
     if !source.exists() {
         return Err(format!("快照不存在：{name}"));
     }
-    let _ = stash_regret(db, stamp)?;
+    let _ = stash_regret(db, &stamp)?;
     swap_in_database(db, &source)?;
     let _ = prune_snapshots(&dir);
     Ok(())
@@ -318,10 +342,7 @@ pub fn export_snapshot(db: &Path, name: &str, file_name: &str) -> Result<(PathBu
 
 /// `exports/<file_name>.<ext>`：只收**文件名**（不许带路径分隔符），按需补后缀与建目录。
 fn exports_path(db: &Path, file_name: &str, ext: &str) -> Result<PathBuf, String> {
-    let clean = file_name.trim();
-    if clean.is_empty() || clean.contains('/') || clean.contains('\\') || clean.contains("..") {
-        return Err("导出文件名非法".to_owned());
-    }
+    let clean = single_file_name(file_name).ok_or_else(|| "导出文件名非法".to_owned())?;
     let dir = db.parent().unwrap_or(Path::new(".")).join("exports");
     fs::create_dir_all(&dir).map_err(|error| format!("创建导出目录失败: {error}"))?;
     let suffix = format!(".{ext}");
@@ -419,10 +440,8 @@ pub fn restore_from_package(
     name: &str,
     stamp: &str,
 ) -> Result<PackageRestoreOut, String> {
-    let clean = name.trim();
-    if clean.is_empty() || clean.contains('/') || clean.contains('\\') || clean.contains("..") {
-        return Err("备份包名非法".to_owned());
-    }
+    let clean = single_file_name(name).ok_or_else(|| "备份包名非法".to_owned())?;
+    let stamp = clean_restore_stamp(stamp)?;
     let package = exports_dir(db).join(clean);
     if !package.exists() {
         return Err(format!("备份包不存在：{clean}"));
@@ -474,7 +493,7 @@ pub fn restore_from_package(
             assets_landed += 1;
         }
     }
-    let regret = stash_regret(db, stamp)?;
+    let regret = stash_regret(db, &stamp)?;
     swap_in_database(db, &staging)?;
     let _ = fs::remove_file(&staging);
     let _ = prune_snapshots(&snapshots_dir(db));
@@ -796,5 +815,30 @@ mod tests {
             .expect("名单")
             .iter()
             .all(|entry| entry.name != "garbage.zip"));
+    }
+
+    /// 恢复标记只进文件名：路径穿越形态必须在碰文件之前被拒。
+    #[test]
+    fn restore_rejects_unsafe_stamps() {
+        let temp = TempDir::new("stamp");
+        let db = temp.db();
+        seed(&db, 1);
+        for stamp in ["../evil", "a/b", "a\\b", "C:evil", ""] {
+            let error = restore_from_package(&db, "随便.zip", stamp).expect_err("非法标记要拒");
+            assert!(error.contains("恢复标记非法"), "{stamp}: {error}");
+        }
+        // 快照恢复同一道门（name 合法，确保拒因是 stamp）。
+        let error = restore_snapshot(&db, "missing.sqlite3", "../evil").expect_err("非法标记要拒");
+        assert!(error.contains("恢复标记非法"), "{error}");
+    }
+
+    /// 文件名只收一个普通成分：`..`、子路径、空名都拒。
+    #[test]
+    fn file_name_guard_rejects_path_shapes() {
+        assert!(single_file_name("a.md").is_some());
+        assert!(single_file_name("../a.md").is_none());
+        assert!(single_file_name("a/b.md").is_none());
+        assert!(single_file_name("").is_none());
+        assert!(single_file_name(".").is_none());
     }
 }
