@@ -9,6 +9,7 @@ import {
 } from '../domain/block'
 import type { EditorStoreHandle } from './storeHandle'
 import type { Transaction } from '../domain/operation'
+import { tablePayloadToText, type TablePayload } from '../domain/tablePayload'
 import { $createBlockNode, $createInlineFragmentNode, $isBlockNode, applyMarks } from './blockNode'
 import { blocksFromEditorState, inlineTextNodes } from './blockLexicalAdapter'
 import { $contentOffset, $selectBlockEnd, caretIsInBlock, currentBlockId } from './caret'
@@ -284,6 +285,33 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
     persist(affected)
   }
 
+  /**
+   * 表格网格写回（试点）：payload 与 Markdown 投影在**一个 update op** 里落库；
+   * 编辑器镜像仍按投影文本重铺，源码视图 / 导出 / 搜索看到的都是同一份。
+   */
+  function replaceTableBlock(editor: AiEditorHandle | null, blockId: string, payload: TablePayload) {
+    const block = store.get(blockId)
+    if (!block || block.type !== 'table') return
+    const text = tablePayloadToText(payload)
+    store.apply({
+      id: crypto.randomUUID(),
+      timestamp: Date.now(),
+      source: 'user',
+      operations: [{
+        type: 'update', opId: crypto.randomUUID(), blockId,
+        changes: { table: payload, content: text.length > 0 ? [{ t: 'text', v: text }] : [] },
+        previous: { table: block.table ?? null, content: block.content },
+      }],
+    })
+    editor?.update(() => {
+      const node = findBlockNode(blockId)
+      if (!node) return
+      for (const child of node.getChildren()) if (!$isBlockNode(child)) child.remove()
+      for (const child of inlineTextNodes(text, false)) node.append(child)
+    }, { tag: [HISTORIC_TAG, 'moqi-table'], discrete: true })
+    persist([blockId])
+  }
+
   function toggleChecked(editor: LexicalEditor, blockId: string) {
     if (!flushPendingEnter(editor, blockId)) return
     const block = store.get(blockId)
@@ -504,7 +532,7 @@ export function useEditorBlockCommands(deps: BlockCommandDeps) {
 
 
   return {
-    onEnter, outlineMove, toggleCollapse, convertCurrentBlock, replaceBlockText, toggleChecked, setBlockLang, caretRangeInBlock,
+    onEnter, outlineMove, toggleCollapse, convertCurrentBlock, replaceBlockText, replaceTableBlock, toggleChecked, setBlockLang, caretRangeInBlock,
     handleMove, moveBlocksStep, moveBlockStepById, insertSibling, insertBlockOfType,
     flushPendingEnter, nameRowFacts,
   }

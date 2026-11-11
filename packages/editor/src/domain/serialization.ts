@@ -1,7 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
-import type { AiMeta, AiStatus, Block, BlockMap, PropertyValue } from './block'
+import { textContent, type AiMeta, type AiStatus, type Block, type BlockMap, type PropertyValue } from './block'
+import { isTablePayload, tablePayloadFromText, tablePayloadToText } from './tablePayload'
 import { isStructuralCode, validateBlockShape, validateBlockGraph } from './validation'
 
 /** Fills defaults for fields added after a Block was first persisted. */
@@ -20,6 +21,16 @@ export function normalizeBlock(block: Block): Block {
   else block.properties = block.properties.map(normalizePropertyValue).filter((value): value is PropertyValue => value !== null)
   if (block.aiMeta === undefined) block.aiMeta = null
   else if (block.aiMeta !== null) block.aiMeta = normalizeAiMeta(block.aiMeta)
+  // 表格块的网格（试点）：payload 是缓存，正文仍是真相——载入时按正文重算，
+  // 只有「payload 与正文一致」才保留，否则以正文重新解析（源视图改过 ⇒ 这里跟上）。
+  if (block.type === 'table') {
+    const text = textContent(block)
+    block.table = isTablePayload(block.table) && tablePayloadToText(block.table) === text
+      ? block.table
+      : tablePayloadFromText(text) ?? null
+  } else if (block.table != null) {
+    block.table = null
+  }
   return block
 }
 

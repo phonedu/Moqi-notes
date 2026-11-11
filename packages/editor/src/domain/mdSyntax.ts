@@ -23,6 +23,7 @@
  * - **媒体引用的 Obsidian 形态** `![[图片.png]]` / `![[附件.csv]]`（`![[页面]]` 不是媒体，保持字面）。
  */
 import type { BlockAsset, BlockType, ContentFragment } from './block'
+import { tablePayloadFromText, type TablePayload } from './tablePayload'
 import { inlineFragments, unescapeInline } from './mdInline'
 import { splitFrontMatter, type FrontMatter } from './mdFrontMatter'
 
@@ -116,6 +117,8 @@ export type OutlineDraft = {
   checked?: boolean
   /** 代码块的围栏 info string 首词（围栏导入时捕获；只在 `code` 草稿上有）。 */
   lang?: string
+  /** 表格块的持久化网格（试点）：导入时由原文解析；缺省 = 只有文本。 */
+  table?: TablePayload
   /** 纯文本（没有行内记号时用它建一个文本片段）。 */
   text: string
   /** 行内成对记号切出来的片段（有记号时用它；没有则留空按 `text` 建）。 */
@@ -406,7 +409,8 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
           rows.push(rawLines[cursor])
           cursor += 1
         }
-        push(lineDepth, { type: 'table', text: rows.join('\n'), children: [] }, cursor - 1)
+        const tableText = rows.join('\n')
+        push(lineDepth, { type: 'table', text: tableText, table: tablePayloadFromText(tableText) ?? undefined, children: [] }, cursor - 1)
         index = cursor - 1
         continue
       }

@@ -4,6 +4,7 @@
 import { createTextBlock, MAX_PINNED_PAGES, type Block, type BlockMap } from './block'
 import { newBlockUid } from './typeOps'
 import { isSelfOrAncestor } from './treeOps'
+import { isTablePayload } from './tablePayload'
 
 export type ValidationIssue = {
   code: string
@@ -118,6 +119,15 @@ export function validateBlockShape(block: Block): ValidationIssue[] {
   }
   if (block.type === 'embed' && block.blockRefs.filter((ref) => ref.type === 'embed').length > 1) {
     issues.push({ code: 'embed-ref-invalid', blockId: block.entityId, message: '嵌入块至多一条 embed 引用（0 条 = 还没选来源）' })
+  }
+  // 表格块的网格（试点）：可缺省；出现就必须是合法 payload，且只出现在 table 块上。
+  // 与媒体四条同一口径——只报告、不进 `STRUCTURAL_CODES`（坏 payload 应能删块修）。
+  if (block.table !== undefined && block.table !== null) {
+    if (block.type !== 'table') {
+      issues.push({ code: 'table-payload-invalid', blockId: block.entityId, message: '只有表格块能带 table payload' })
+    } else if (!isTablePayload(block.table)) {
+      issues.push({ code: 'table-payload-invalid', blockId: block.entityId, message: 'table payload 形状非法' })
+    }
   }
   if (!Array.isArray(block.children)) issues.push({ code: 'children-array-required', blockId: block.entityId, message: 'children 必须是数组' })
   if (block.isObject && !block.objectName) issues.push({ code: 'object-name-required', blockId: block.entityId, message: '对象 Block 必须有 objectName' })

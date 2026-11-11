@@ -1,6 +1,8 @@
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at https://mozilla.org/MPL/2.0/. */
+import type { TablePayload } from './tablePayload'
+
 export type BlockType =
   | 'text'
   | 'heading1'
@@ -171,6 +173,8 @@ export type Block = {
   checked: boolean
   /** 代码块的围栏 info string 首词（只用于 `code` 块）：导入保留、导出原样写回、无语言不写标记——Markdown 互通的一部分。 */
   lang?: string
+  /** 表格块的持久化网格（试点）：`content` 是它的 Markdown 投影；缺省 = 旧数据，载入时由 normalizeBlock 补齐。 */
+  table?: TablePayload | null
   deleted: boolean
   deletedAt: number | null
   prevParent: string | null

@@ -1,6 +1,6 @@
 import type { EditorAppRuntime } from './useEditorRuntime'
 import { APP_BUILD_LABEL, APP_CHANGELOG, APP_STAGE, APP_VERSION } from '../version'
-import { DEFAULT_TABLE_MARKDOWN, textContent, type BlockType } from '@moqi/editor'
+import { DEFAULT_TABLE_MARKDOWN, orderedRootIds, textContent, type BlockType } from '@moqi/editor'
 import { aiPanelGate, aiSourcePlan } from '@moqi/editor'
 import { clipboardPort } from '../composition'
 import { crossNameRow, nameRowEdge, selectNameRow } from '@moqi/editor'
@@ -21,7 +21,7 @@ import { insertDateText } from './format'
 
 /** 编辑区主内容（模块化 M1.7）：编辑列 + 页面列 + 设置宿主 + Lexical 插件宿主。 */
 export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
-  const { acceptAiBlock, activateTouchBlock, activeBlockId, activeLibraryTagId, replaceBlockText, lastSync, rollbackLastSync, exportDiagnosticsLog, activePage, activePageId, adoptRootContent, aiAnswers, aiConfig, aiGridGates, aiPanelOpen, aiQuestions, aiReady, aiState, applyExternalLink, askAi, askTargetMode, assetNames, assetPort, assetsReady, backlinkCards, backupSummary, band, blockTitleForAsk, blockTypeOfCursor, briefOpen, cancelAi, captureEditor, caretBlockInPage, caretRangeInBlock, clearLinkConvert, closeMenu, closeSettingsView, compact, contentElement, convertCurrentBlock, convertSelectionToLink, copySelectionToClipboard, createPage, createProperty, cutSelection, deleteProperty, deviceIdLabel, docColRef, editorRef, exitSelection, exitTouchEdit, exportBusy, exportChoice, exportPort, exportTagChoices, features, fileOps, filterCount, flushPendingEnter, focusMode, followTouchBlock, formatSnapshot, handleAddPropertyOption, handleMove, handleMoveProperty, handleMovePropertyOption, handleRemovePropertyOption, handleRenameProperty, handleRenamePropertyOption, handleSlashCommand, historyStep, includeDeleted, indexStatus, insertAnswerAsBlock, insertBlockOfType, insertEmbedPlaceholder, insertMediaBlock, insertReference, insertSibling, isLinkConvert, jumpToBlock, libraryCards, moveBlocksStep, nameProblemText, nameRowFacts, notify, onChange, onEnter, openDialog, openDrawerOverlay, openExternalLinkDialog, openExternalUrl, openMenu, openPage, openSettingsView, openSidePanel, outgoingCards, outlineMove, pageColumnVisible, pageStats, patchPrefs, persist, pickInsert, pickMediaFile, prefs, propertyCallbacks, propertyRows, propertyUsage, recentPages, refPanelOpen, registry, reloadFromStore, requestDeleteSelection, resolvePeek, resolveRefTitle, revision, runAi, runExportFromPage, runSyncOnce, saveState, searchScope, selectBlock, selectedIds, setActiveBlockId, setAiConfig, setAiPanelOpen, setAskTargetMode, setBriefOpen, setContentElement, setExportChoice, setFocusMode, setIncludeDeleted, setLibraryFilter, setRefPanelOpen, setSearchScope, setSettingsLevel, setSettingsSection, setSyncDirectory, setView, settingsLevel, settingsOpen, settingsSection, startResize, store, syncEditorChanges, syncState, syncStatus, tagSummaries, tagUsage, toggleChecked, toggleCollapse, toggleInlineFormat, toggleSidebar, toggleStar, toggleTagFilter, touchBlankTap, touchEditId, updatePrefs, view, visibleCards, wideEnoughForColumn } = runtime
+  const { acceptAiBlock, activateTouchBlock, activeBlockId, activeLibraryTagId, replaceTableBlock, lastSync, rollbackLastSync, exportDiagnosticsLog, activePage, activePageId, adoptRootContent, aiAnswers, aiConfig, aiGridGates, aiPanelOpen, aiQuestions, aiReady, aiState, applyExternalLink, askAi, askTargetMode, assetNames, assetPort, assetsReady, backlinkCards, backupSummary, band, blockTitleForAsk, blockTypeOfCursor, briefOpen, cancelAi, captureEditor, caretBlockInPage, caretRangeInBlock, clearLinkConvert, closeMenu, closeSettingsView, compact, contentElement, convertCurrentBlock, convertSelectionToLink, copySelectionToClipboard, createPage, createProperty, cutSelection, deleteProperty, deviceIdLabel, docColRef, editorRef, exitSelection, exitTouchEdit, exportBusy, exportChoice, exportPort, exportTagChoices, features, fileOps, filterCount, flushPendingEnter, focusMode, followTouchBlock, formatSnapshot, handleAddPropertyOption, handleMove, handleMoveProperty, handleMovePropertyOption, handleRemovePropertyOption, handleRenameProperty, handleRenamePropertyOption, handleSlashCommand, historyStep, includeDeleted, indexStatus, insertAnswerAsBlock, insertBlockOfType, insertEmbedPlaceholder, insertMediaBlock, insertReference, insertSibling, isLinkConvert, jumpToBlock, libraryCards, moveBlocksStep, nameProblemText, nameRowFacts, notify, onChange, onEnter, openDialog, openDrawerOverlay, openExternalLinkDialog, openExternalUrl, openMenu, openPage, openSettingsView, openSidePanel, outgoingCards, outlineMove, pageColumnVisible, pageStats, patchPrefs, persist, pickInsert, pickMediaFile, prefs, propertyCallbacks, propertyRows, propertyUsage, recentPages, refPanelOpen, registry, reloadFromStore, requestDeleteSelection, resolvePeek, resolveRefTitle, revision, runAi, runExportFromPage, runSyncOnce, saveState, searchScope, selectBlock, selectedIds, setActiveBlockId, setAiConfig, setAiPanelOpen, setAskTargetMode, setBriefOpen, setContentElement, setExportChoice, setFocusMode, setIncludeDeleted, setLibraryFilter, setRefPanelOpen, setSearchScope, setSettingsLevel, setSettingsSection, setSyncDirectory, setView, settingsLevel, settingsOpen, settingsSection, startResize, store, syncEditorChanges, syncState, syncStatus, tagSummaries, tagUsage, toggleChecked, toggleCollapse, toggleInlineFormat, toggleSidebar, toggleStar, toggleTagFilter, touchBlankTap, touchEditId, updatePrefs, view, visibleCards, wideEnoughForColumn } = runtime
   const editorSurface: EditorSurfaceModel = {
     editorActive: view === 'editor',
     features,
@@ -91,7 +91,23 @@ export function EditorMainContent({ runtime }: { runtime: EditorAppRuntime }) {
       onOpenCodeLangMenu: (element, blockId) => openMenu('codeLang', element, { blockId }),
       activeBlockId: compact ? touchEditId : activeBlockId,
       // `selectEnd: false`：写回时**不许抢焦点**——表格网格在输入框里打字，抢一次焦点后续字符就落到块文本上了（accept 抓到）。
-      onSetTableText: (blockId, text) => { const editor = editorRef.current; if (editor) replaceBlockText(editor, blockId, text, { selectEnd: false }) },
+      tablePayloadOf: (blockId) => store.get(blockId)?.table ?? null,
+      onSetTable: (blockId, payload) => { const editor = editorRef.current; if (editor) replaceTableBlock(editor, blockId, payload) },
+      onExitTable: (blockId, where) => {
+        const editor = editorRef.current
+        if (!editor) return
+        const block = store.get(blockId)
+        if (!block) return
+        const parent = block.parent ? store.get(block.parent) : null
+        const siblings = parent ? parent.children : orderedRootIds(store.read())
+        const index = siblings.indexOf(blockId)
+        const targetId = siblings[index + (where === 'after' ? 1 : -1)]
+        const target = targetId ? store.get(targetId) : undefined
+        if (targetId && target && !target.deleted) jumpToBlock(targetId)
+        else insertSibling(editor, blockId, where === 'after' ? 'below' : 'above')
+        // Lexical 的 selectStart 只设选区，不保证 DOM 焦点从表格容器挪进正文。
+        editor.focus()
+      },
     },
     aiBars: {
       onStop: () => cancelAi(),

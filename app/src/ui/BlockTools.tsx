@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent as ReactMouseEvent } from 'react'
 import { Icon, isHighlightLang, tokenize } from '@moqi/editor'
-import { TableDecorations } from './TableGrid'
+import { TableDecorations } from './tableOverlay'
+import { codeTextOf, measureTableActions, tableHoverId, useTableBlockHeight } from './tableBlockLayout'
 import { $findBlockNode as findBlockNode } from '@moqi/editor'
 import { EMBED_CARD_GEOMETRY, embedCardChromePlacement, hoveredIdFromPointer, listOrdinal, markerBoxStyle, markerPlacement, markersForBlock, ownLineCenter, type MarkerKind } from '@moqi/editor'
 import { clipboardPort } from '../composition'
@@ -8,6 +9,7 @@ import { applyAssetVars } from './assetVars'
 import { clearDropLine, showDropLine } from '@moqi/editor'
 import type { DropPosition } from '@moqi/editor'
 import type { BlockType } from '@moqi/editor'
+import type { TablePayload } from '@moqi/editor'
 import type { EmbedView } from '@moqi/editor'
 import { anchorFrameOf, blockElementById, rectOf } from './blockAnchor'
 import type { BlockRect } from './blockAnchor'
@@ -63,21 +65,8 @@ type EmbedCard = {
  * 标记全部是真实按钮（可 Tab 可达、有 aria-label、按 docs/04 §7 给足点击目标），
  * 只调用已有的领域入口；编辑器托管的 DOM 树不被改写，标记层渲染在 Lexical 根节点之外。
  */
-/**
- * 代码块的**纯文本**（含换行）：Lexical 把换行渲染成 `<br>`，`textContent` 会把它们吃掉——
- * 镜像着色层直接用 `textContent` 就会把多行代码挤成一行（实测）。这里按节点走一遍、`<br>` 记作 `\n`。
- */
-function codeTextOf(root: Node): string {
-  let out = ''
-  root.childNodes.forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) out += node.textContent ?? ''
-    else if (node.nodeName === 'BR') out += '\n'
-    else out += codeTextOf(node)
-  })
-  return out
-}
 
-export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, onOpenCodeLangMenu, activeBlockId, onSetTableText, compact }: {
+export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, revision, onSelect, onInsertAfter, onMove, onToggleCollapse, onToggleChecked, assetUrl, onOpenMedia, embedView, onPickEmbedSource, onOpenEmbedSource, onOpenCodeLangMenu, activeBlockId, tablePayloadOf, onSetTable, onExitTable, compact }: {
   scopeRef: React.RefObject<HTMLElement | null>
   contentRef: React.RefObject<HTMLElement | null>
   selectedIds: string[]
@@ -104,8 +93,12 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   onOpenCodeLangMenu?: (element: HTMLElement, blockId: string) => void
   /** 光标所在块：**编辑中的代码块不着色**（镜像层会盖住真文本，输入法/选区一律让位）。 */
   activeBlockId?: string | null
-  /** 表格视图写回文本（宿主 replaceBlockText；每次改动一次事务，撤销栈照常）。 */
-  onSetTableText?: (blockId: string, text: string) => void
+  /** 表格块当前 payload（没有 = 旧数据，网格按文本解析）。 */
+  tablePayloadOf?: (blockId: string) => TablePayload | null
+  /** 表格网格写回（宿主 replaceTableBlock；payload + 投影一次事务）。 */
+  onSetTable?: (blockId: string, payload: TablePayload) => void
+  /** 退出表格：把光标放到表后 / 表前（宿主负责）。 */
+  onExitTable?: (blockId: string, where: 'before' | 'after') => void
   /** 有来源的卡：点胶囊 = 跳到来源（跨页时先切页）。 */
   onOpenEmbedSource: (blockId: string) => void
 }) {
@@ -115,7 +108,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   const [codeActions, setCodeActions] = useState<Array<{ id: string; top: number; left: number; lang: string; text: string; width: number; height: number; rectTop: number; rectLeft: number }>>([])
   /** 表格块：`id → 正在看源码`（会话内状态；默认表格视图）。 */
   const [sourceViewIds, setSourceViewIds] = useState<Set<string>>(() => new Set())
-  const [tableActions, setTableActions] = useState<Array<{ id: string; rectTop: number; rectLeft: number; width: number; height: number; text: string }>>([])
+  const [tableActions, setTableActions] = useState<Array<{ id: string; rectTop: number; rectLeft: number; width: number; height: number; text: string; payload: TablePayload | null }>>([])
   const [copiedId, setCopiedId] = useState<string | null>(null)
   const [hoveredId, setHoveredId] = useState<string | null>(null)
   const hoveredIdRef = useRef<string | null>(null)
@@ -125,6 +118,8 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
   const pendingRef = useRef<{ id: string; x: number; y: number; shift: boolean; toggle: boolean } | null>(null)
   const dragRef = useRef<{ id: string; target: { id: string; position: DropPosition } | null } | null>(null)
   const draggedRef = useRef(false)
+  /** 网格高度 → 块的 min-height（表格块不再盖住下面的块；见 `tableBlockLayout`）。 */
+  const setTableHeight = useTableBlockHeight(contentRef)
 
   /** 一次测量：遍历当前页面的块，得出应显示的标记与它们的实时位置。 */
   const copyCode = async (id: string) => {
@@ -252,20 +247,12 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
       })
     }
     // 表格块：富表格视图的落位（同一坐标系；文本用于解析成网格）。
-    const tableActions: Array<{ id: string; rectTop: number; rectLeft: number; width: number; height: number; text: string }> = []
-    for (const element of content.querySelectorAll<HTMLElement>('.moqi-block[data-block-type="table"][data-entity-id]')) {
-      const id = element.dataset.entityId
-      if (!id) continue
-      const rect = rectOf(element)
-      if (!frame.inView(rect)) continue
-      const localRect = frame.rect(rect)
-      tableActions.push({ id, rectTop: localRect.top, rectLeft: localRect.left, width: localRect.width, height: localRect.height, text: codeTextOf(element) })
-    }
+    const tableActions = measureTableActions(content, frame, tablePayloadOf)
     const signature = [
       ...next.map((marker) => `${marker.kind}:${marker.id}:${Math.round(marker.rect.top)}:${Math.round(marker.rect.left)}:${Math.round(marker.lineTop)}:${marker.collapsed}:${marker.checked}`),
       ...cards.map((card) => `card:${card.id}:${card.state}:${Math.round(card.rect.top)}:${Math.round(card.rect.left)}`),
       ...codeActions.map((action) => `code:${action.id}:${Math.round(action.top)}:${Math.round(action.left)}:${action.lang}:${action.text.length}:${Math.round(action.width)}`),
-      ...tableActions.map((action) => `table:${action.id}:${Math.round(action.rectTop)}:${Math.round(action.rectLeft)}:${action.text.length}`),
+      ...tableActions.map((action) => `table:${action.id}:${Math.round(action.rectTop)}:${Math.round(action.rectLeft)}:${Math.round(action.width)}:${Math.round(action.height)}:${action.text.length}`),
     ].join('|')
     if (signature === signatureRef.current) return
     signatureRef.current = signature
@@ -274,7 +261,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
     setCodeActions(codeActions)
     setTableActions(tableActions)
     // assetUrl / compact / onOpenMedia 是真读值：补齐让媒体块落址与档位切换后重测（signature 去重防重渲染）。
-  }, [contentRef, embedView, onPickEmbedSource, assetUrl, compact, onOpenMedia])
+  }, [contentRef, embedView, onPickEmbedSource, assetUrl, compact, onOpenMedia, tablePayloadOf])
 
   const schedule = useCallback(() => {
     if (frameRef.current !== null) return
@@ -291,7 +278,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
     if (!scope || !content || !enabled) return
     const observer = new MutationObserver(() => schedule())
     // data-lang：语言徽标跟着「语言…」选择器的落值刷新（LangPicker 只改 dataset.lang，内容不动）。
-    observer.observe(content, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-collapsed', 'data-checked', 'data-block-type', 'data-lang'] })
+    observer.observe(content, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: ['data-collapsed', 'data-checked', 'data-block-type', 'data-lang', 'style'] })
   // 滚动监听挂在 **window 的捕获阶段**（ 修）：真正滚动的元素是正文列的**父级**
     // `.editor-body`，挂在 `.doc-col` 上根本收不到它的滚动事件——标记层用的是视口坐标，
     // 于是滚动时标记不跟着走（AI 块的标签 / 操作行「飘起来」就是这个原因）。
@@ -373,7 +360,7 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
         showDropLine(target, position)
         return
       }
-      setHoveredId2(hoveredIdFromPointer(target?.dataset.entityId ?? null, attachmentUnder(event.target), hoveredIdRef.current))
+      setHoveredId2(hoveredIdFromPointer(tableHoverId(event.target) ?? target?.dataset.entityId ?? null, attachmentUnder(event.target), hoveredIdRef.current))
     }
 
     const onMouseLeave = () => {
@@ -490,8 +477,11 @@ export function BlockDecorations({ scopeRef, contentRef, selectedIds, enabled, r
       ))}
       <TableDecorations
         actions={tableActions}
+        selectedIds={selectedIds}
+        onMeasure={setTableHeight}
         sourceViewIds={sourceViewIds}
-        onSetText={onSetTableText}
+        onSetPayload={onSetTable}
+        onExitTable={onExitTable}
         onToggleSourceView={(blockId) => {
           setSourceViewIds((current) => {
             const next = new Set(current)

@@ -1166,7 +1166,8 @@ body.is-touch-editing .prop-wrap { display: none; }
 .b-code-hl .tok-keyword { color: var(--accent-text); }
 .b-code-copy { padding: 2px 8px; border-radius: var(--r-block); background: var(--panel-2); color: var(--text-2); font-size: var(--type-caption1-size); }
 /* 富表格视图（表格块的默认态）：盖在块文本之上的一块网格；同高亮镜像层一样是装饰层的绝对层。
-   `max-height` 收住以免长表格压到后面的块（内部滚动）。 */
+   高度由装饰层回写到块的 `min-height`（`tableBlockLayout`），块自己占住这段；`max-height`
+   只收住超长表格（内部滚动），不再靠它避免压到后面的块。 */
 .b-table-wrap {
   position: absolute;
   z-index: 5;
@@ -1176,6 +1177,8 @@ body.is-touch-editing .prop-wrap { display: none; }
   border-radius: var(--r-pop);
   background: var(--panel-2);
 }
+/* 块被选中时网格自己画选中框：块的 `.is-selected` 底色被不透明网格盖住，只剩这圈能看见。 */
+.b-table-wrap.is-selected { box-shadow: 0 0 0 2px var(--accent); }
 .b-table { font-family: var(--sans); font-size: var(--type-footnote-size); line-height: var(--type-footnote-line); }
 .b-table-bar { display: flex; align-items: center; gap: 6px; padding-bottom: 6px; }
 .b-table-bar button {
