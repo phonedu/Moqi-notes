@@ -281,8 +281,9 @@ function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): s
       break
     }
     case 'table':
-    case 'math': {
-      // **原文逐字节**：源码块的内容就是导入时的原始行——零转义、零重排（逐字节判据）。
+    case 'math':
+    case 'raw': {
+      // **原文逐字节**：源码块（表格 / 公式 / 原始块）的内容就是导入时的原始行——零转义、零重排（逐字节判据）。
       const src = block.content.map((fragment) => fragment.v ?? '').join('')
       own.push(...src.split('\n').map((line) => `${indent}${line}`))
       break

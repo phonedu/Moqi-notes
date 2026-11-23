@@ -892,6 +892,21 @@ body.is-touch-editing .prop-wrap { display: none; }
   overflow-x: auto;
   white-space: pre-wrap;
 }
+
+/* 原始块（边界层②逃生舱）：与代码块同一套源码态度量（内距 / 等宽 / 行高逐项一致，
+   文字基线才不跳），弱化一档表达「原文存放，语义未解读」；可编辑、导出逐字节。 */
+.moqi-block-raw {
+  margin: .8em 0;
+  padding: .846em 1.077em;
+  border-radius: var(--r-pop);
+  background: var(--panel-2);
+  font-family: var(--mono);
+  font-size: calc(var(--fs-e) * .788);
+  line-height: 1.75;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  color: var(--text-2);
+}
 /* 源码块族（表格 / 公式，0.7 T-11）：与代码块同族——面板底、等宽、同内距；
    min-height 让空块保住一行光标行盒（真机走查：空块塌陷、光标消失的修复）。 */
 .moqi-block-table,

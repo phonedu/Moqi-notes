@@ -574,6 +574,7 @@ function tagForBlockType(type: BlockType): keyof HTMLElementTagNameMap {
     case 'code': return 'pre'
     case 'table': return 'pre'
     case 'math': return 'pre'
+    case 'raw': return 'pre'
     case 'divider': return 'div'
     default: return 'p'
   }

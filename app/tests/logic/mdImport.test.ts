@@ -22,6 +22,7 @@ const mkChild = (id: string, text: string, parent: string, extra: Partial<Block>
   ...createTextBlock({ entityId: id, blockUid: `${id}-uid`, text, parent }),
   ...extra,
 })
+const graphOf = (blocks: Block[]) => new Map(blocks.map((b) => [b.entityId, b] as const))
 
 /** 草稿树打平成「类型:文字」的路径表——断言往返时看它，比逐字段比对更能说清「哪一层变了」。 */
 function flatten(drafts: OutlineDraft[]): string[] {
@@ -132,6 +133,43 @@ test('R09-MD-3 通用文档：勾选态 / 围栏内不解析记号 / `\\-` 读�
   const plain = parseMarkdownDocument('就是一段话。\n\n又一段。')
   assert.deepEqual(plain.roots.map((draft) => draft.type), ['text', 'text'])
   assert.equal(parseMarkdownOutline('就是一段话。'), null)
+})
+
+test('原始块（边界层②逃生舱）：行首 HTML 整段收进 raw 块原文逐字节保留；句中标签不受影响', () => {
+  const doc = parseMarkdownDocument('<div class="box">内容</div>\n<p>两行</p>\n\n普通一段话。')
+  assert.ok(doc)
+  assert.deepEqual(doc.roots.map((draft) => draft.type), ['raw', 'text'])
+  assert.equal(doc.roots[0].text, '<div class="box">内容</div>\n<p>两行</p>', 'raw 块原文逐字节（含标签与换行）')
+  assert.equal(doc.roots[1].text, '普通一段话。')
+  // 句中 HTML 不拦（仍是正文）；`<u>` 整行走行内下划线规则先收，不进 raw
+  const mid = parseMarkdownDocument('这是一句 <b>加粗</b> 的话')
+  assert.deepEqual(mid!.roots.map((draft) => draft.type), ['text'])
+  const u = parseMarkdownOutline('<u>下划线一句</u>')
+  assert.equal(u, null, '下划线规则先命中，不是 raw')
+})
+
+test('原始块往返自检（边界层④）：raw 块导出 → 导入 → 再导出，逐字节一致', () => {
+  const rawText = '<div class="box">\n  内容一行\n</div>'
+  const page = { ...createTextBlock({ entityId: 'pg', blockUid: 'pg-uid', text: '含原始块的页', isObject: true, objectName: '含原始块的页' }) }
+  page.children = ['rw']
+  const rw = mkChild('rw', '', 'pg', { type: 'raw' })
+  rw.content = [{ t: 'text', v: rawText }]
+  const plan = planMarkdownExport(graphOf([page, rw]), emptyRegistry(), { kind: 'page', pageId: 'pg' }, { today: '2026-11-23' })
+  assert.ok(plan)
+  const first = plan.files[0].content
+  assert.ok(first.includes(rawText), '导出原样写回（逐字节）')
+  const back = parseMarkdownDocument(first.replace(/^# .*\n\n/, ''))
+  assert.ok(back)
+  assert.deepEqual(back.roots.map((draft) => draft.type), ['raw'], '导入回来仍是 raw 块')
+  assert.equal(back.roots[0].text, rawText, '原文逐字节还原')
+  const plan2 = planMarkdownExport(graphOf([
+    { ...page, content: [{ t: 'text', v: '含原始块的页' }] },
+    { ...rw, content: [{ t: 'text', v: back.roots[0].text }] },
+  ]), emptyRegistry(), { kind: 'page', pageId: 'pg' }, { today: '2026-11-23' })
+  assert.ok(plan2)
+  const body2 = plan2.files[0].content.replace(/^# .*\n\n/, '')
+  const body1 = first.replace(/^# .*\n\n/, '')
+  assert.equal(body2, body1, '再导出与首导逐字节一致（往返自检）')
 })
 
 test('R09-EXPORT-2 往返：自家导出物导回来——页名 / 层级 / 块类型 / 行内格式 / 标签与属性还原', () => {

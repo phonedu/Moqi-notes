@@ -393,6 +393,20 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
       push(lineDepth, { type: 'code', text: code.join('\n'), lang: fence[2] || undefined, children: [] }, index)
       continue
     }
+    // HTML 原始块（边界层②逃生舱）：行首是标签 / 注释 / 处理指令的行 → 到空行为止整段收进
+    // `raw` 块，原文逐字节保留（不做行内解析）——导出原样写回，「模型装不下的 md 原样进出」。
+    // 行中出现的 HTML（标签在句中）不在此列，仍按正文；整行 `<u>x</u>` 已由行内下划线规则先收。
+    if (!wasEscaped && /^<(?:[a-zA-Z][^\s>]*|!--|\?|![A-Z])/.test(work)) {
+      const rawChunk: string[] = []
+      let cursor = index
+      while (cursor < rawLines.length && rawLines[cursor].trim().length > 0) {
+        rawChunk.push(stripColumns(rawLines[cursor], indentCols))
+        cursor += 1
+      }
+      push(lineDepth, { type: 'raw', text: rawChunk.join('\n'), children: [] }, cursor - 1)
+      index = cursor - 1
+      continue
+    }
     // 表格（Markdown 互通）：**连续的 `|` 行且第二行是分隔行**（`| --- |`，至少两个连字符）→ 整表一个
     // `table` 源码块——原文逐行保留（含分隔行），导出**逐字节**写回；表内不做任何行内解析。
     if (!wasEscaped && /^\s*\|.*\|\s*$/.test(work)) {
