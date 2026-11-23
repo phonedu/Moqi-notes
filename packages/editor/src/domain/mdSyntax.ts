@@ -119,6 +119,8 @@ export type OutlineDraft = {
   lang?: string
   /** 表格块的持久化网格（试点）：导入时由原文解析；缺省 = 只有文本。 */
   table?: TablePayload
+  /** 编号列表**首项**的起始序号（`3.` 起头 ⇒ 3；只在段首块上，缺省不落）。 */
+  listStart?: number
   /** 纯文本（没有行内记号时用它建一个文本片段）。 */
   text: string
   /** 行内成对记号切出来的片段（有记号时用它；没有则留空按 `text` 建）。 */
@@ -451,11 +453,24 @@ function parseOutlineLines(text: string, requireMarker: boolean): OutlineDraft[]
     const hit = wasEscaped ? null : splitBlockMarker(work)
     if (hit) {
       markerSeen = true
+      // 编号列表的起始序号（边界层③「补」）：**段首**块（前一个同级兄弟不是 numbered）记下
+      // 行首数字；后续项不存（序号 = 推导值），用户重排后也不会错。
+      let listStart: number | undefined
+      if (hit.marker.type === 'numbered') {
+        const num = /^(\d+)\./.exec(work)?.[1]
+        // stack 此刻还没 pop（pop 在 push 内部）——按 push 的同语义找「最后一个 depth 更浅」的栈项当父，
+        // 同级兄弟才不会错读到第一行 numbered 自己（否则续项也被当成段首）。
+        const parentDraft = [...stack].reverse().find((entry) => entry.depth < lineDepth)?.draft
+        const siblings = parentDraft ? parentDraft.children : roots
+        const isStart = siblings.length === 0 || siblings[siblings.length - 1].type !== 'numbered'
+        // 起始 1 与缺省等价，不落字段（JSON 不写字段）。
+        if (num && num !== '1' && isStart) listStart = Number.parseInt(num, 10)
+      }
    // `text` 是**反解过的字面**（与纯文字分支同口径， 统一）：`- \*字面\*` 这类
       // 「记号行 + 转义行内记号」粘回来不再漏反斜杠；行内记号切分照旧走原文（`inlineFragments`
       // 里面先认旗再切——转义的字面不会被读成格式）。
       const rest = hit.rest.trim()
-      push(lineDepth, { type: hit.marker.type, checked: hit.marker.checked, text: unescapeInline(rest), content: inlineFragments(rest), children: [] }, index)
+      push(lineDepth, { type: hit.marker.type, checked: hit.marker.checked, listStart, text: unescapeInline(rest), content: inlineFragments(rest), children: [] }, index)
       continue
     }
     // 导入侧：整行就是一个媒体引用（`![](assets/x.png)` / `[原名](assets/x.csv)` / `![[原名.png]]`）——

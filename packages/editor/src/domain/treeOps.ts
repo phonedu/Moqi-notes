@@ -325,6 +325,7 @@ export function insertOutlineAfter(
     block.type = draft.type
     if (draft.lang) block.lang = draft.lang
     if (draft.table) block.table = draft.table
+    if (draft.listStart != null) block.listStart = draft.listStart
     block.checked = draft.checked ?? false
     block.position = at
     if (draft.type === 'divider') block.content = []

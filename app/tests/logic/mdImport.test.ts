@@ -135,6 +135,45 @@ test('R09-MD-3 通用文档：勾选态 / 围栏内不解析记号 / `\\-` 读�
   assert.equal(parseMarkdownOutline('就是一段话。'), null)
 })
 
+test('编号列表起始序号（边界层③「补」）：`3.` 起头 → `listStart` 落块；默认列表不落字段；混排后新段重新计数', () => {
+  const doc = parseMarkdownDocument('3. 三\n4. 四\n\n过渡一段。\n\n5. 五\n6. 六')
+  assert.ok(doc)
+  assert.deepEqual(doc.roots.map((draft) => draft.type), ['numbered', 'numbered', 'text', 'numbered', 'numbered'])
+  assert.equal(doc.roots[0].listStart, 3, '段首块记起始序号')
+  assert.equal(doc.roots[1].listStart, undefined, '段内续项不存（序号推导）')
+  assert.equal(doc.roots[3].listStart, 5, '混排后新段重新计数')
+  // 默认列表：`1.` 起头不落 listStart（缺省 1，JSON 不写字段）
+  const plain = parseMarkdownDocument('1. 一\n2. 二')
+  assert.equal(plain!.roots[0].listStart, undefined)
+})
+
+test('编号起始序号导出往返（边界层③「补」· T-08）：listStart=3 的列表导出写 `3.` `4.`', () => {
+  const page = { ...createTextBlock({ entityId: 'pg', blockUid: 'pg-uid', text: '序号页', isObject: true, objectName: '序号页' }) }
+  page.children = ['n1', 'n2']
+  const n1 = mkChild('n1', '三', 'pg', { type: 'numbered', listStart: 3 })
+  const n2 = mkChild('n2', '四', 'pg', { type: 'numbered' })
+  const plan = planMarkdownExport(graphOf([page, n1, n2]), emptyRegistry(), { kind: 'page', pageId: 'pg' }, { today: '2026-11-23' })
+  assert.ok(plan)
+  const body = plan.files[0].content
+  assert.ok(body.includes('3. 三'), body)
+  assert.ok(body.includes('4. 四'), body)
+  assert.ok(!body.includes('1. 三'), body)
+})
+
+test('颜色内联往返（边界层③「补」· T-08）：color mark 导出成 color span，导入回 color mark 带 attrs', () => {
+  const md = '前缀 <span style="color:#c2554d">红的字</span> 后缀'
+  const doc = parseMarkdownDocument(md)
+  assert.ok(doc)
+  const seg = doc.roots[0].content ?? []
+  const colored = seg.find((f) => f.marks?.some((m) => m.type === 'color'))
+  assert.ok(colored, 'color mark 落片段')
+  assert.equal(colored!.v, '红的字')
+  assert.equal(colored!.marks!.find((m) => m.type === 'color')!.attrs!.color, '#c2554d')
+  // 前后缀是纯文本（span 外的文字不吞）
+  assert.equal(seg[0].t, 'text')
+  assert.equal(seg[0].v, '前缀 ')
+})
+
 test('原始块（边界层②逃生舱）：行首 HTML 整段收进 raw 块原文逐字节保留；句中标签不受影响', () => {
   const doc = parseMarkdownDocument('<div class="box">内容</div>\n<p>两行</p>\n\n普通一段话。')
   assert.ok(doc)

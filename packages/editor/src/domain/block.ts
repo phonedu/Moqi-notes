@@ -177,6 +177,8 @@ export type Block = {
   position: number
   collapsed: boolean
   checked: boolean
+  /** 编号列表**首项**的起始序号（缺省 = 1，不落 JSON；连续段非首块不存）。边界层③「补」起始序号的承载字段（0.8 `T-08`）。 */
+  listStart?: number
   /** 代码块的围栏 info string 首词（只用于 `code` 块）：导入保留、导出原样写回、无语言不写标记——Markdown 互通的一部分。 */
   lang?: string
   /** 表格块的持久化网格（试点）：`content` 是它的 Markdown 投影；缺省 = 旧数据，载入时由 normalizeBlock 补齐。 */

@@ -223,6 +223,10 @@ function applyMarks(text: string, marks: Mark[] | undefined): string {
     out = fence.length > 1 ? `${fence} ${out} ${fence}` : `${fence}${out}${fence}`
   }
   // 注释最外层：整段（含其内嵌格式）都不显示。
+  // 颜色 span（最外层罩全部内嵌格式；Obsidian 可渲染 inline style，别家按原文显示但文字可读——
+  // 「补」色值的唯一 md 表达；读回侧有同族 pattern，往返闭环）。
+  const color = marks.find((mark) => mark.type === 'color')?.attrs?.color
+  if (typeof color === 'string' && color.length > 0) out = `<span style="color:${color}">${out}</span>`
   if (has('comment')) out = `%%${out}%%`
   return out
 }
@@ -249,7 +253,7 @@ function blockInlineText(block: Block, ctx: Ctx): string {
   return block.content.map((fragment) => fragmentMarkdown(fragment, ctx)).join('')
 }
 
-/** 一个块（及其子树）→ 行数组。`level` = 嵌套层级（每级 2 空格）；`listNumber` = 编号列表的序号（0 起）。 */
+/** 一个块（及其子树）→ 行数组。`level` = 嵌套层级（每级 2 空格）；`listNumber` = 编号列表的**序号本身**（段首 = `listStart`，缺省 1；非编号块传 0）。 */
 function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): string[] {
   // 未采用的 AI 块是草稿（指令 §6.14.2「草稿非内容」）：生成中 / 完成未接受 / 取消 / 错误一律不导出，整棵子树跳过；
   // 已采用（`accepted`）按承载类型正常导出，`aiMeta` 不落文件。
@@ -297,7 +301,7 @@ function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): s
       own.push(...markerLines(text, indent, '-'))
       break
     case 'numbered':
-      own.push(...markerLines(text, indent, `${listNumber + 1}.`))
+      own.push(...markerLines(text, indent, `${listNumber}.`))
       break
     case 'todo':
       own.push(...markerLines(text, indent, `- [${block.checked ? 'x' : ' '}]`))
@@ -387,25 +391,40 @@ function markerLines(text: string, indent: string, marker: string): string[] {
 /** 子块逐一输出：编号列表在同一父块下重新计数（渲染不依赖序号，人读要对）。 */
 function emitChildren(block: Block, level: number, ctx: Ctx): string[] {
   const lines: string[] = []
-  let numbered = 0
-  for (const child of liveChildren(block, ctx)) {
-    const at = child.type === 'numbered' ? numbered++ : 0
-    lines.push(...emitBlock(child, level, at, ctx))
-  }
+  const at = numberedAt(liveChildren(block, ctx))
+  for (const child of liveChildren(block, ctx)) lines.push(...emitBlock(child, level, at(child), ctx))
   return lines
+}
+
+/**
+ * 同级编号计数：段首块用自带的起始序号（`listStart`，缺省 1——`3.` 起头的列表往返不丢），连续
+ * `numbered` 递增；非编号块把计数归零（下一段重新从它的 `listStart` 起）。返回「块 → 序号」查询函数。
+ */
+function numberedAt(children: Block[]): (child: Block) => number {
+  const seq = new Map<string, number>()
+  let current = 0
+  for (const child of children) {
+    if (child.type === 'numbered') {
+      current = current > 0 ? current + 1 : (child.listStart ?? 1)
+      seq.set(child.entityId, current)
+    } else {
+      current = 0
+    }
+  }
+  return (child) => seq.get(child.entityId) ?? 0
 }
 
 /** 页面正文：顶层块之间空行；把连续空行压成一个、去首尾空行。 */
 function pageBody(page: Block, ctx: Ctx): string[] {
   const lines: string[] = []
-  let numbered = 0
+  const at = numberedAt(liveChildren(page, ctx))
   for (const child of liveChildren(page, ctx)) {
-    const at = child.type === 'numbered' ? numbered++ : 0
-    const emitted = emitBlock(child, 0, at, ctx)
+    const emitted = emitBlock(child, 0, at(child), ctx)
     if (emitted.length === 0) continue
     if (lines.length > 0) lines.push('')
     lines.push(...emitted)
   }
+  // 连续空行压成一个、去首尾空行（空行压缩在下方 squeezed）。
   const squeezed: string[] = []
   for (const line of lines) {
     if (line === '' && squeezed[squeezed.length - 1] === '') continue

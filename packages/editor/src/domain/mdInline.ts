@@ -16,7 +16,7 @@
  * （`<u>…</u>` = 导出侧给下划线的写法，Markdown 没有下划线语法），手打 `<u>text</u>` 不该变格式
  * （`R09-MD-3` 的"不做 HTML"）。
  */
-import type { ContentFragment } from './block'
+import type { ContentFragment, Mark } from './block'
 
 /** 行内成对格式表（`R09-MD-3` 的第二段）——输入层「成对闭合时转换」与粘贴共用同一份。 */
 export type InlineMark = 'bold' | 'italic' | 'strike' | 'code' | 'highlight' | 'sup' | 'sub' | 'comment'
@@ -35,13 +35,15 @@ export const INLINE_PATTERNS: Array<{ pattern: RegExp; mark: InlineMark }> = [
 ]
 
 /** 读回侧的一张表的行类型（`INLINE_PATTERNS` 是它的子集——`extra` 只有粗斜那条用）。 */
-type ReadbackPattern = { pattern: RegExp; mark: InlineMark | 'underline'; extra?: InlineMark }
+type ReadbackPattern = { pattern: RegExp; mark: InlineMark | 'underline' | 'color'; extra?: InlineMark; /** 命中时哪个捕获组是颜色值（只有 color 用） */ attrGroup?: number; /** 内容捕获组（缺省 1；color 的内容在第 2 组） */ innerGroup?: number }
 
 /** 读回侧的成对表（含 `underline`）：**只走"读回来"那条路**，见文件头注。 */
 const READBACK_INLINE_PATTERNS: ReadbackPattern[] = [
   // `***粗斜***`（CommonMark 的加粗 + 斜体）——**必须排在 `**` 前面**：不然 `**粗斜**` 先命中，
  // 两侧多余的 `*` 会以字面落进正文（ 互通批：Obsidian 文档里这个写法很常见）。
   { pattern: /\*\*\*([^*\n]+)\*\*\*/, mark: 'bold', extra: 'italic' },
+  // 颜色 span（导出侧 applyMarks 的写法；Obsidian 可渲染 inline style）：捕获组 1 = 色值、2 = 内容。
+  { pattern: /<span style="color:([^"]+)">([^<\n]+)<\/span>/, mark: 'color', attrGroup: 1, innerGroup: 2 },
   { pattern: /<u>([^<\n]+)<\/u>/, mark: 'underline' },
 ]
 
@@ -91,22 +93,25 @@ function isEscaped(text: string, index: number): boolean {
  * 导入侧若不认旗就会把它读成斜体，**字面变格式**（ 由往返语料逮到）。
  * 片段里的字面转义在**这里**反解（`unescapeInline`），调用方拿到的就是最终文字。
  */
-export function splitInlineSegments(text: string): Array<{ text: string; mark?: InlineMark | 'underline'; extra?: InlineMark }> {
-  const segments: Array<{ text: string; mark?: InlineMark | 'underline'; extra?: InlineMark }> = []
+export function splitInlineSegments(text: string): Array<{ text: string; mark?: InlineMark | 'underline' | 'color'; extra?: InlineMark; attrs?: Record<string, unknown> }> {
+  const segments: Array<{ text: string; mark?: InlineMark | 'underline' | 'color'; extra?: InlineMark; attrs?: Record<string, unknown> }> = []
   let rest = text
   while (rest.length > 0) {
-    let matched: { index: number; length: number; inner: string; mark: InlineMark | 'underline'; extra?: InlineMark } | null = null
-    for (const { pattern, mark, extra } of READBACK_ALL_PATTERNS) {
+    let matched: { index: number; length: number; inner: string; mark: InlineMark | 'underline' | 'color'; extra?: InlineMark; attrs?: Record<string, unknown> } | null = null
+    for (const { pattern, mark, extra, attrGroup, innerGroup } of READBACK_ALL_PATTERNS) {
       const scanner = new RegExp(pattern.source, 'g')
       let found = scanner.exec(rest)
       // 被转义的开记号跳过，继续找下一个（`\**粗**` 里的第一个 `*` 是字面，第二个 `**` 才是格式）。
       while (found && isEscaped(rest, found.index)) found = scanner.exec(rest)
       if (!found) continue
-      if (!matched || found.index < matched.index) matched = { index: found.index, length: found[0].length, inner: found[1], mark, extra }
+      if (!matched || found.index < matched.index) {
+        matched = { index: found.index, length: found[0].length, inner: found[innerGroup ?? 1], mark, extra }
+        if (attrGroup != null) matched.attrs = { color: found[attrGroup] }
+      }
     }
     if (!matched) break
     if (matched.index > 0) segments.push({ text: unescapeInline(rest.slice(0, matched.index)) })
-    segments.push({ text: unescapeInline(matched.inner), mark: matched.mark, ...(matched.extra ? { extra: matched.extra } : {}) })
+    segments.push({ text: unescapeInline(matched.inner), mark: matched.mark, ...(matched.extra ? { extra: matched.extra } : {}), ...(matched.attrs ? { attrs: matched.attrs } : {}) })
     rest = rest.slice(matched.index + matched.length)
   }
   if (rest.length > 0) segments.push({ text: unescapeInline(rest) })
@@ -121,7 +126,10 @@ export function inlineFragments(text: string): ContentFragment[] | undefined {
   return segments.map((segment) => {
     if (!segment.mark) return { t: 'text' as const, v: segment.text }
     // `***粗斜***` 一次落两个 mark（Mark[] 本来就支持组合）——顺序与导出侧 `applyMarks` 的内到外一致。
-    const marks = segment.extra ? [{ type: segment.extra }, { type: segment.mark }] : [{ type: segment.mark }]
+    const marks: Mark[] = segment.extra
+      ? [{ type: segment.extra }, { type: segment.mark }]
+      : [{ type: segment.mark }]
+    if (segment.attrs) marks[marks.length - 1].attrs = segment.attrs
     return { t: 'text' as const, v: segment.text, marks }
   })
 }
