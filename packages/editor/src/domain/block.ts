@@ -244,6 +244,15 @@ export function compareRootOrder(left: Block, right: Block): number {
   return Number(right.pinned) - Number(left.pinned) || compareBlockOrder(left, right)
 }
 
+/**
+ * 穷尽门（0.8 波 1 第一刀）：`switch` 穷尽联合类型后，`default` 分支的判别值
+ * 是 `never`——新成员加进联合而没写落点时，这里在**编译期**就红，静默降级不再可能。
+ * 运行时只对「不该出现的值」兜底抛错（坏形状由 `validation.ts` 的载入自愈在上游拦）。
+ */
+export function assertNever(value: never): never {
+  throw new Error(`未处理的联合成员：${JSON.stringify(value)}`)
+}
+
 /** T15: active roots in canonical render order. V2b: pinned pages lead. */
 export function orderedRootIds(blocks: BlockMap): string[] {
   return [...blocks.values()]

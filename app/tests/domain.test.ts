@@ -2325,6 +2325,42 @@ test('R09-EXPORT-2 逐块映射：十二种块 × 嵌套 2 空格 × 空块跳�
   }
 })
 
+test('穷尽门：18 种块类型逐一带子块导出不抛 `assertNever`——`BlockType` 加新成员而不写导出落点时编译失败，此测试守住运行时对应面', () => {
+  const page = mkPageBlock('pg', '穷尽门', {
+    children: ['txt', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'bul', 'num', 'todo', 'quo', 'code', 'div', 'table', 'math', 'img', 'fil', 'emb'],
+  })
+  const target = mkChild('txt', '段落正文', 'pg')
+  const blocks: Block[] = [
+    page,
+    target,
+    mkChild('h1', '一级', 'pg', { type: 'heading1' }),
+    mkChild('h2', '二级', 'pg', { type: 'heading2' }),
+    mkChild('h3', '三级', 'pg', { type: 'heading3' }),
+    mkChild('h4', '四级', 'pg', { type: 'heading4' }),
+    mkChild('h5', '五级', 'pg', { type: 'heading5' }),
+    mkChild('h6', '六级', 'pg', { type: 'heading6' }),
+    mkChild('bul', '项目', 'pg', { type: 'bullet' }),
+    mkChild('num', '编号', 'pg', { type: 'numbered' }),
+    mkChild('todo', '待办', 'pg', { type: 'todo' }),
+    mkChild('quo', '引用', 'pg', { type: 'quote' }),
+    mkChild('code', 'const a = 1', 'pg', { type: 'code' }),
+    mkChild('div', '', 'pg', { type: 'divider' }),
+    mkChild('table', '| A | B |\n| --- | --- |\n| 1 | 2 |', 'pg', { type: 'table' }),
+    mkChild('math', '$$E=mc^2$$', 'pg', { type: 'math' }),
+    mkChild('img', '图注', 'pg', { type: 'image', asset: { fileName: 'disk9.png', originalName: '图.png', mime: 'image/png', size: 8, width: 2, height: 1 } }),
+    mkChild('fil', '', 'pg', { type: 'file', asset: { fileName: 'disk8.pdf', originalName: '件.pdf', mime: 'application/pdf', size: 4 } }),
+    mkChild('emb', '', 'pg', { type: 'embed', blockRefs: [{ targetBlockId: 'txt', fromBlockId: 'emb', type: 'embed' as const }] }),
+  ]
+  const plan = planMarkdownExport(graphOf(blocks), emptyRegistry(), { kind: 'page', pageId: 'pg' }, { today: '2026-10-06', existingAssets: ['disk9.png', 'disk8.pdf'] })
+  assert.ok(plan, '全类型图可出导出计划')
+  const content = plan.files[0].content
+  for (const marker of ['# 穷尽门', '段落正文', '# 一级', '## 二级', '### 三级', '#### 四级', '##### 五级', '###### 六级', '- 项目', '1. 编号', '- [ ] 待办', '> 引用', '```', '---', '| A | B |', '$$E=mc^2$$', '![图注](assets/图.png)', '[件.pdf](assets/件.pdf)', '> **嵌入自 [段落正文](<穷尽门.md>)**']) {
+    assert.ok(content.includes(marker), `缺落点：${marker}
+${content}`)
+  }
+})
+
+
 test('R09-EXPORT-4 引用落点：降级到目标页 / 自链接 / 悬空保留原文 / 空锚文本回退 / 范围外照常链接 / 目标搬页跟随', () => {
   const ref = (kind: 'object' | 'block', targetId: string, text: string): ContentFragment => ({
     t: 'inline-ref', v: text, ref: { kind, targetId },

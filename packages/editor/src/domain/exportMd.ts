@@ -18,7 +18,7 @@
  * - **引用落点**：块引用降级到目标页、零块 ID、锚文本取引用处显示文字、目标页导出时现算、悬空保留原文。
  */
 import type { Block, BlockMap, ContentFragment, Mark, MetadataRegistry, PropertyDef, PropertyValue } from './block'
-import { compareRootOrder } from './block'
+import { assertNever, compareRootOrder } from './block'
 import { derivedObjectName } from './operation'
 import { escapeInlineMarkers } from './mdInline'
 import { escapeLeadingMarker } from './mdSyntax'
@@ -351,8 +351,15 @@ function emitBlock(block: Block, level: number, listNumber: number, ctx: Ctx): s
       }
       break
     }
-    default:
+    case 'text':
       own.push(...contentLines(text, indent))
+      break
+    default: {
+      // 穷尽门：18 种块各自有落点，`text` 此前借道这里——新块类型不写导出落点
+      // 就在这里编译失败（静默降级从「未来式缺陷」变成「不可能」）。
+      assertNever(block.type)
+      break
+    }
   }
   return [...own, ...emitChildren(block, level + 1, ctx)]
 }
@@ -419,8 +426,13 @@ function renderPropertyValue(value: PropertyValue, def: PropertyDef | undefined)
       const label = def?.options?.find((option) => option.id === value.optionId)?.label ?? value.optionId
       return yamlQuote(label)
     }
-    default:
+    case 'text':
       return yamlQuote(value.value)
+    default: {
+      // 同上：属性值类型（5 型）穷尽——波 2 属性类型扩充时新增成员必须先写导出落点。
+      assertNever(value)
+      return null
+    }
   }
 }
 
