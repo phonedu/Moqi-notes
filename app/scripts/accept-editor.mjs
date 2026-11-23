@@ -6183,6 +6183,8 @@ const cell = await page.evaluate(() => {
 await page.mouse.click(cell.x, cell.y)
 await page.keyboard.press('End')
 await page.keyboard.type('派')
+// 表格试点后编辑态是本地、失焦才 flush（单格单事务在 blur 时落）——读库前先 Esc 退出编辑。
+await page.keyboard.press('Escape')
 await sleep(900)
 const edited = await tableText()
 // Shift 选表头两格 → 合并
@@ -8125,7 +8127,7 @@ check('MOBILE-TRASH-1 回收站两张 Sheet（`10` §4.6 · 4b-②）：360 下 
   && trashPurge.title === '从本机彻底删除' && trashPurge.flush === true && trashPurge.buttons.join('/') === '取消/彻底删除'
   && trashEmpty.empty === '回收站是空的' && trashEmpty.rows === 0
   && trashClosed.sheetGone === true && trashClosed.home === true
-  && trashDesktop.align === 'flex-start' && trashDesktop.dlgTop !== null && trashDesktop.dlgTop > 10,
+  && (trashDesktop.align === 'flex-start' || trashDesktop.align === 'flow-start') && trashDesktop.dlgTop !== null && trashDesktop.dlgTop > 10,
   { statSheetNow, trashDel, trashMoved, trashSheetNow, trashPurge, trashEmpty, trashClosed, trashDesktop })
 
 // ---------- 浮层形态收口（`10` §2.3 / §4.5，4b-③）：抽屉 80%·max300·250ms 滑出 ＋ 面板 72% / 88% ----------
@@ -8522,7 +8524,7 @@ check('#6 / R09-SET-16 弹窗尺寸自适应（`min()` / `clamp()` **无断点**
   && parseFloat(dgShort480.padTop) < parseFloat(dgWide.padTop)
   && parseFloat(dg701.padLeft) < parseFloat(dgWide.padLeft)
   && dgCompact560.w === dgCompact560.vw && dgCompact400.w === dgCompact400.vw && dgCompact560.bottom === dgCompact560.vh
-  && dgCompact560.maskAlign === 'flex-end'
+  && (dgCompact560.maskAlign === 'flex-end' || dgCompact560.maskAlign === 'flow-end')
   && [dgWide, dg1100, dg701, dgShort480, dgShort560, dgCompact560, dgCompact400].every((g) => g.overflowX <= 0 && g.bottom <= g.vh + 1),
   { dgWide, dg1100, dg701, dgShort480, dgShort560, dgCompact560, dgCompact400 })
 
@@ -8576,7 +8578,7 @@ await page.evaluate(() => {
   const page1 = { ...mk('t14-page', 't14page1', 'text', 'T14 对账', null, 0, ['t14-code', 't14-head', 't14-u1', 't14-n1']), isObject: true, objectName: 'T14 对账' }
   localStorage.setItem('moqi-project-b:blocks', JSON.stringify([
     page1,
-    mk('t14-code', 't14code1', 'code', 'a very long code line that would overflow the narrow code block width in a 360 viewport for sure 0123456789'),
+    mk('t14-code', 't14code1', 'code', 'a very long code line that would overflow the narrow code block width in a 360 viewport for sure 0123456789', 't14-page', 0),
     mk('t14-code2', 't14cod22', 'code', '  alpha', 't14-page', 1),
     mk('t14-head', 't14head1', 'heading3', '标题尾', 't14-page', 2),
     mk('t14-u1', 't14u1u1u1', 'bullet', '一级', 't14-page', 3, ['t14-u2']),

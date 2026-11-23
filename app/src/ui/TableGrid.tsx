@@ -311,7 +311,12 @@ export function TableGrid({ text, payload, onChange, onExitTable }: {
 
   const selectCell = (row: number, column: number, extend: boolean) => {
     setActive({ row, column })
-    setSelection((current) => (extend && current ? { ...current, row2: row, col2: column } : { row, col: row, row2: row, col2: column }))
+    setSelection((current) => {
+      // Shift 扩选的 anchor：优先现有选区起点；选区为空（焦点竞态清过）时以「上一次活跃格」兜底
+      // ——闭包里的 activeCell 是本次点击前的格，正是用户意图的起点。
+      const anchor = current ?? { row: activeCell.row, col: activeCell.column }
+      return extend ? { row: anchor.row, col: anchor.col, row2: row, col2: column } : { row, col: column, row2: row, col2: column }
+    })
   }
 
   const bounds = (() => {
@@ -385,7 +390,9 @@ export function TableGrid({ text, payload, onChange, onExitTable }: {
       onFocus={() => {
         setActive({ row, column })
         setMode('editing')
-        setSelection(null)
+        // 聚焦格 = 单格选区（焦点格即选区）：此前这里清空选区，Shift 扩选刚建立的区间会被
+        // 「浏览器聚焦新格 → onFocus」的时序冲掉，鼠标多选永远只有一格（合并不可达）。
+        setSelection({ row, col: column, row2: row, col2: column })
       }}
       onBlur={(event) => {
         flush()
@@ -463,10 +470,10 @@ export function TableGrid({ text, payload, onChange, onExitTable }: {
                     <div
                       className="b-table-head"
                       onMouseDown={(event) => {
-                        if (event.shiftKey) { selectCell(0, column, true); return }
+                        if (event.shiftKey) { event.preventDefault(); selectCell(0, column, true); return }
                         setActive({ row: 0, column })
                         setMode('editing')
-                        setSelection(null)
+                        setSelection({ row: 0, col: column, row2: 0, col2: column })
                         scheduleFocus(0, column)
                       }}
                     >
@@ -499,10 +506,10 @@ export function TableGrid({ text, payload, onChange, onExitTable }: {
                     <td key={column} {...spanOf(rowIndex + 1, column)} className={cellClass(rowIndex + 1, column).trim()}>
                       <div
                         onMouseDown={(event) => {
-                          if (event.shiftKey) { selectCell(rowIndex + 1, column, true); return }
+                          if (event.shiftKey) { event.preventDefault(); selectCell(rowIndex + 1, column, true); return }
                           setActive({ row: rowIndex + 1, column })
                           setMode('editing')
-                          setSelection(null)
+                          setSelection({ row: rowIndex + 1, col: column, row2: rowIndex + 1, col2: column })
                           scheduleFocus(rowIndex + 1, column)
                         }}
                       >
