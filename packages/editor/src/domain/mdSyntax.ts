@@ -55,7 +55,7 @@ const MARKERS: Array<{ pattern: RegExp; type: BlockType; checked?: boolean; hand
   // 所以它必须排在通用列表记号前面；上面那两条裸 `[x] ` 保留（老粘贴写法 / 手写文档两种都认）。
   { pattern: /^[-*] \[x\] /, type: 'todo', checked: true },
   { pattern: /^[-*] \[ \] /, type: 'todo' },
-  { pattern: /^[-*] /, type: 'bullet' },
+  { pattern: /^[-*+] /, type: 'bullet' },
   { pattern: /^\d+\. /, type: 'numbered' },
 ]
 

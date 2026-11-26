@@ -33,6 +33,7 @@ const allowedTypes = new Set<Block['type']>([
   'embed',
   'table',
   'math',
+  'raw',
 ])
 
 /**
